@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-03 Asia/Shanghai",
+  "documents": 13,
+  "primaryReports": 7,
+  "localLinks": 44,
+  "sourceReferences": 35,
+  "protectedDocuments": 13,
+  "endpoints": {
+    "total": 131,
+    "simpleFeeOpen": 4,
+    "feeClosed": 7,
+    "sharesClosed": 13
+  },
+  "baseline": "a22a84a59b2423865d7d38b826d109313ed5536f",
+  "branch": "docs/phase0-decisions",
+  "isShallow": "false",
+  "baselineCommits": 143,
+  "trackedDiff": "",
+  "stagedDiff": "",
+  "untrackedDocumentsAndEvidence": 33,
+  "originalDocumentBackupsVerified": 11,
+  "codeTestsRerun": false,
+  "windowsBuildExecuted": false,
+  "commitOrPushExecuted": false,
+  "phase1Started": false,
+  "editorialReview": "通读及总则/一1-12/二13-17检查；保护日期、数值、代码与链接；无新增个人化文字",
+  "errors": []
+}

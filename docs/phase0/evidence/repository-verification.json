@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-03 Asia/Shanghai",
+  "fork": {
+    "status": "fork_verified",
+    "full_name": "bluntvoice/anjuan",
+    "url": "https://github.com/bluntvoice/anjuan",
+    "fork": true,
+    "parent": "zj-ai-lab/anqi",
+    "source": "zj-ai-lab/anqi",
+    "default_branch": "main"
+  },
+  "branch": "docs/phase0-decisions",
+  "head": "a22a84a59b2423865d7d38b826d109313ed5536f",
+  "baselineTag": "a22a84a59b2423865d7d38b826d109313ed5536f",
+  "isShallow": "false",
+  "baselineReachableCommits": 143,
+  "origin": "https://github.com/bluntvoice/anjuan.git",
+  "upstream": "https://github.com/zj-ai-lab/anqi.git",
+  "originMain": "5a1c2d55818ab3317531e5e426576a2e505126a8",
+  "headVsOriginMain": [
+    0,
+    1
+  ],
+  "trackedDiff": "",
+  "stagedDiff": "",
+  "status": "?? docs/phase0/",
+  "pushDefault": "origin",
+  "createdLocalCommits": 0,
+  "pushed": false,
+  "releaseCreated": false,
+  "phase1Started": false,
+  "githubCli": {
+    "version": "2.103.3",
+    "installation": "winget GitHub.cli; installer hash verified",
+    "auth": "existing Git credential used only in child process environment; no new gh persistent login configured"
+  },
+  "researchExcludedLocally": true
+}

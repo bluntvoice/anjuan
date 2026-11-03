@@ -1,0 +1,155 @@
+{
+  "node": "v24.19.0",
+  "files": [
+    {
+      "file": "server.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/db.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/agent.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/auth.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/cases.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/changes.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/contacts.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/fees.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/files.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/im.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/internal.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/legalrag.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/people.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/records.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/reminders.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/settings.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/shares.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/routes/views.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/middleware/auth.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "src/middleware/errors.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "electron/backend-env.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "electron/main.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "electron/onboarding.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "electron/preload.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "electron/updater.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "electron/window-policy.js",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "build/adhoc-sign.cjs",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "build/afterpack-agent-runtime-link.cjs",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "build/build-ocr-helper.mjs",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "file": "build/ensure-cross-arch-optional-deps.mjs",
+      "exitCode": 0,
+      "stderr": ""
+    }
+  ]
+}

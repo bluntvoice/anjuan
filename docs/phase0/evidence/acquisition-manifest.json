@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-03 Asia/Shanghai",
+  "initialWorkspace": "empty; not a Git repository; no remotes",
+  "githubAccount": "bluntvoice",
+  "forkSearch": "no results in installed repositories and user:bluntvoice fork:true anqi; visibility-limited",
+  "gitClone": "all three failed: github.com:443 connection timeout",
+  "sourceAcquisition": "GitHub API zipball at fixed tag; no formal working checkout",
+  "archives": [
+    {
+      "name": "anqi",
+      "file": "anqi.zip",
+      "sha256": "c39e772ca63ea97a9b66a4d76e431e20fcbcabe1a080fa29eabfe814326d9b34",
+      "bytes": 19605055
+    },
+    {
+      "name": "LawLink",
+      "file": "LawLink.zip",
+      "sha256": "21b0b5809ba946237d3c4d70db1a762889bac83a3fd183d95935c3319a1d84cd",
+      "bytes": 16365101
+    },
+    {
+      "name": "wechat-chat-summary",
+      "file": "wechat-chat-summary.zip",
+      "sha256": "5d564a1704854dab59d6ba7b3aee53adf542d14713e1dd3bb9bf18840ee1ea98",
+      "bytes": 2663009
+    }
+  ],
+  "identities": [
+    {
+      "repo": "zj-ai-lab/anqi",
+      "tag": "v2.12.6",
+      "tagObject": "ca57d92d0023d2cfb2a6148e292eee4d2553c516",
+      "commit": "a22a84a59b2423865d7d38b826d109313ed5536f"
+    },
+    {
+      "repo": "lawflow-boop/LawLink",
+      "tag": "v2.0.0",
+      "tagObject": "ff25a6385384401733211a6f2adcc704b1d1fd77",
+      "commit": "5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd"
+    },
+    {
+      "repo": "bluntvoice/wechat-chat-summary",
+      "tag": "v1.2.3",
+      "commit": "a7e522e072f6a621231701e5a773c25b39c0cdef"
+    }
+  ]
+}

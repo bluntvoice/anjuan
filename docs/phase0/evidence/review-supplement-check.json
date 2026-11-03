@@ -1,0 +1,246 @@
+{
+  "date": "2026-11-03 Asia/Shanghai",
+  "scope": "Phase 0 三项非阻断文档补充；未执行业务授权测试",
+  "documents": 13,
+  "changedDocuments": [
+    "docs/phase0/02-案卷Windows本地多人版PRD.md",
+    "docs/phase0/03-多账号权限及数据库改造方案.md",
+    "docs/phase0/04-Windows客户端技术适配评估.md",
+    "docs/phase0/06-分阶段开发测试及验收计划.md",
+    "docs/phase0/07-风险清单与Codex工作量估算.md",
+    "docs/phase0/README.md",
+    "docs/phase0/本轮修订说明.md",
+    "docs/phase0/角色权限矩阵.md",
+    "docs/phase0/接口权限清单.md",
+    "docs/phase0/验证记录.md"
+  ],
+  "candidateFiles": 34,
+  "localLinks": 47,
+  "sourceReferences": 35,
+  "protectedDocuments": 13,
+  "endpointDeclarations": 131,
+  "notificationAndConfigurationJsonMarkdownConsistent": true,
+  "baseline": "a22a84a59b2423865d7d38b826d109313ed5536f",
+  "branch": "docs/phase0-decisions",
+  "mainBefore": "5a1c2d55818ab3317531e5e426576a2e505126a8",
+  "mainAfter": "5a1c2d55818ab3317531e5e426576a2e505126a8",
+  "originMainTracking": "5a1c2d55818ab3317531e5e426576a2e505126a8",
+  "trackedDiff": "",
+  "stagedFiles": [],
+  "stagedContentChecked": true,
+  "candidateContentChecked": true,
+  "sensitivePatternFindings": [],
+  "publicationReview": "13 份文档通读；所有证据副本按来源/用途白名单和内容模式审查；原始研究/文档备份排除；正式暂存后须重查完整 diff",
+  "candidateManifest": [
+    {
+      "file": "docs/phase0/01-案齐与LawLink源码及架构对照报告.md",
+      "bytes": 9190,
+      "sha256": "71b0118ef109873a92acbc6fe00deadfc8f7aabe7c6e1c1f010a28873d5a6142",
+      "reviewCategory": "手工通读的 Phase 0 文档"
+    },
+    {
+      "file": "docs/phase0/02-案卷Windows本地多人版PRD.md",
+      "bytes": 12366,
+      "sha256": "c38cc1593293925917acde5652415b0026456e2e47cc85e454b36477b402e795",
+      "reviewCategory": "手工通读的 Phase 0 文档"
+    },
+    {
+      "file": "docs/phase0/03-多账号权限及数据库改造方案.md",
+      "bytes": 14803,
+      "sha256": "5bf7adec4cbf9d3152457b9d6f8d7f5070a5f6473d2850f0e739baea677f96b5",
+      "reviewCategory": "手工通读的 Phase 0 文档"
+    },
+    {
+      "file": "docs/phase0/04-Windows客户端技术适配评估.md",
+      "bytes": 8342,
+      "sha256": "3db41c67386ec49c5aec848e4c86f0270881ad8380a627b7f80386103cf9d019",
+      "reviewCategory": "手工通读的 Phase 0 文档"
+    },
+    {
+      "file": "docs/phase0/05-后续云端化兼容性与迁移约束.md",
+      "bytes": 6257,
+      "sha256": "c441fc5234d79deff14b789734ab7a128403c7a6de2e4bb9a450b0840108e0b2",
+      "reviewCategory": "手工通读的 Phase 0 文档"
+    },
+    {
+      "file": "docs/phase0/06-分阶段开发测试及验收计划.md",
+      "bytes": 12109,
+      "sha256": "8574ad9b044a12f60c1af4cdcf89eb8fa6c9ab2930946bead838794d7e264ac6",
+      "reviewCategory": "手工通读的 Phase 0 文档"
+    },
+    {
+      "file": "docs/phase0/07-风险清单与Codex工作量估算.md",
+      "bytes": 8578,
+      "sha256": "7c9e2fa9ceba817a3d1504ee72df8b72ad313e2e1e057ba3f75cde0229bba69f",
+      "reviewCategory": "手工通读的 Phase 0 文档"
+    },
+    {
+      "file": "docs/phase0/README.md",
+      "bytes": 6883,
+      "sha256": "5ade1d707c9b59119505202655941401f7089be200f0f1edd1a60c8f34373b43",
+      "reviewCategory": "手工通读的 Phase 0 文档"
+    },
+    {
+      "file": "docs/phase0/本轮修订说明.md",
+      "bytes": 7048,
+      "sha256": "c34b504178686d5171dd6894569d93ec123e9f1c87a4486606db5dcb32439bec",
+      "reviewCategory": "手工通读的 Phase 0 文档"
+    },
+    {
+      "file": "docs/phase0/角色权限矩阵.md",
+      "bytes": 3416,
+      "sha256": "0f92dd2ede300a9f7f1a61c34e211ffd5c67b793a086ebc14688c14e5e5316ac",
+      "reviewCategory": "手工通读的 Phase 0 文档"
+    },
+    {
+      "file": "docs/phase0/接口权限清单.md",
+      "bytes": 37570,
+      "sha256": "221fa765833d2ee1a85bb40732f220182b1b82726b83961f58afd12de7aa2cf6",
+      "reviewCategory": "手工通读的 Phase 0 文档"
+    },
+    {
+      "file": "docs/phase0/验证记录.md",
+      "bytes": 6932,
+      "sha256": "d6fbea49b971d06c87246e2e23824bc15df13cf4b1fb68ffc7626e12ec844880",
+      "reviewCategory": "手工通读的 Phase 0 文档"
+    },
+    {
+      "file": "docs/phase0/证据索引.md",
+      "bytes": 11170,
+      "sha256": "f3f2f12ea35a5695e69621d55808bc3ccec41e0388c101b796c0f765d793bbee",
+      "reviewCategory": "手工通读的 Phase 0 文档"
+    },
+    {
+      "file": "docs/phase0/evidence/acquisition-manifest.json",
+      "bytes": 1518,
+      "sha256": "adf6cb6f947015b7f3b952e019bcd37e7afdeece2c9e77b7eaa1f5c9268cb333",
+      "reviewCategory": "已列明来源的验证摘要/接口清单"
+    },
+    {
+      "file": "docs/phase0/evidence/anqi-compare-main.json",
+      "bytes": 50957,
+      "sha256": "5b2a6a99e919eb816e0c74f128e9aa338b4cb6427a13a38f24c74dcd9a2783d8",
+      "reviewCategory": "固定上游公开 API 元数据/差异；核对来源、字段与全文敏感模式，不是本地案件或原始研究目录"
+    },
+    {
+      "file": "docs/phase0/evidence/anqi-metadata.json",
+      "bytes": 461378,
+      "sha256": "5fe95d88102553e4f905e7e480a1a3b57bcd775ac053eb0c64c00bfbb8992ba2",
+      "reviewCategory": "固定上游公开 API 元数据/差异；核对来源、字段与全文敏感模式，不是本地案件或原始研究目录"
+    },
+    {
+      "file": "docs/phase0/evidence/cli-fork-api-result.json",
+      "bytes": 254,
+      "sha256": "de3a5d148bd0073bd287381d5a19a6674b36dbe3391be29f5844ae29fdbe4f87",
+      "reviewCategory": "已列明来源的验证摘要/接口清单"
+    },
+    {
+      "file": "docs/phase0/evidence/document-check.json",
+      "bytes": 523,
+      "sha256": "e7b2012e031cdfde4c2a1d4f3c747559b2314b28dc37f21129f2127c3e090162",
+      "reviewCategory": "已列明来源的验证摘要/接口清单"
+    },
+    {
+      "file": "docs/phase0/evidence/endpoint-inventory.tsv",
+      "bytes": 6854,
+      "sha256": "1963019f0fc845e9e4cadb4d986267e5682e73d0ddc636672b13f7c697c43975",
+      "reviewCategory": "已列明来源的验证摘要/接口清单"
+    },
+    {
+      "file": "docs/phase0/evidence/endpoint-permissions.json",
+      "bytes": 33278,
+      "sha256": "cf3721121264227f702ac85fc4768f1e9be2b7061c2f3c37b67f14b21be119b5",
+      "reviewCategory": "已列明来源的验证摘要/接口清单"
+    },
+    {
+      "file": "docs/phase0/evidence/fork-result.json",
+      "bytes": 220,
+      "sha256": "5e168969a9e55174f56db7ae86190c67280d7bbd6de9ced88445ea535c35b9d9",
+      "reviewCategory": "已列明来源的验证摘要/接口清单"
+    },
+    {
+      "file": "docs/phase0/evidence/LawLink-compare-main.json",
+      "bytes": 26594,
+      "sha256": "0a1b1d1288a052bbcde41e479e3628634c83843290ab3f5616fbb02aeac48d8f",
+      "reviewCategory": "固定上游公开 API 元数据/差异；核对来源、字段与全文敏感模式，不是本地案件或原始研究目录"
+    },
+    {
+      "file": "docs/phase0/evidence/LawLink-compare-v2.0.1.json",
+      "bytes": 26602,
+      "sha256": "a4b652605113aa7a44f7c1ba9ca50045c5232cfd7cf29a1093eddc6d47a5d838",
+      "reviewCategory": "固定上游公开 API 元数据/差异；核对来源、字段与全文敏感模式，不是本地案件或原始研究目录"
+    },
+    {
+      "file": "docs/phase0/evidence/LawLink-metadata.json",
+      "bytes": 25166,
+      "sha256": "de60e140c6e9baf1be0addcae11f53ca30fa9acb223b484fb1a76c75b78570c9",
+      "reviewCategory": "固定上游公开 API 元数据/差异；核对来源、字段与全文敏感模式，不是本地案件或原始研究目录"
+    },
+    {
+      "file": "docs/phase0/evidence/repository-verification.json",
+      "bytes": 1176,
+      "sha256": "47833df90d036e5163ecd9955cd8362773f6cc91871684bf20a3444db51be9c9",
+      "reviewCategory": "已列明来源的验证摘要/接口清单"
+    },
+    {
+      "file": "docs/phase0/evidence/review-supplement-check.json",
+      "bytes": 2,
+      "sha256": null,
+      "reviewCategory": "已列明来源的验证摘要/接口清单"
+    },
+    {
+      "file": "docs/phase0/evidence/revision-check.json",
+      "bytes": 796,
+      "sha256": "6f4c5f95d7ff04c5b63180abd2b4c53c5b847cbf94996ee7e05058c552e8dd22",
+      "reviewCategory": "已列明来源的验证摘要/接口清单"
+    },
+    {
+      "file": "docs/phase0/evidence/source-integrity.json",
+      "bytes": 43,
+      "sha256": "79c16810eb078ae12b6a9c486e02da30428fb20ce644b3f4ab8cf1aaac170572",
+      "reviewCategory": "已列明来源的验证摘要/接口清单"
+    },
+    {
+      "file": "docs/phase0/evidence/source-reference-registry.json",
+      "bytes": 13304,
+      "sha256": "aa90ecd732596d1ae6ea392078a4176dddbeb06d8c94512220a3220bf49dc5d1",
+      "reviewCategory": "已列明来源的验证摘要/接口清单"
+    },
+    {
+      "file": "docs/phase0/evidence/syntax-check.json",
+      "bytes": 2805,
+      "sha256": "efc3734131771ac397e85a59d42e67db14ff53269ea2dc42152fce96d419e2b0",
+      "reviewCategory": "已列明来源的验证摘要/接口清单"
+    },
+    {
+      "file": "docs/phase0/evidence/targeted-tests.json",
+      "bytes": 4235,
+      "sha256": "5f9314d53dcca935dfc46fee316ca533836572b3a369f3aedb0583959f1a1906",
+      "reviewCategory": "初次调查合成测试输出；本机路径已脱敏，非业务日志"
+    },
+    {
+      "file": "docs/phase0/evidence/wechat-chat-summary-compare-main.json",
+      "bytes": 9633,
+      "sha256": "533498c5d9e7252f7d49e35961bee610c9a556f7ae86926c0f886036121aadbe",
+      "reviewCategory": "固定上游公开 API 元数据/差异；核对来源、字段与全文敏感模式，不是本地案件或原始研究目录"
+    },
+    {
+      "file": "docs/phase0/evidence/wechat-chat-summary-metadata.json",
+      "bytes": 87711,
+      "sha256": "4b1ed4a1e61cbd09aa20b06049b0718543592f587cd78cb119f073a9e3818c5d",
+      "reviewCategory": "固定上游公开 API 元数据/差异；核对来源、字段与全文敏感模式，不是本地案件或原始研究目录"
+    },
+    {
+      "file": "docs/phase0/evidence/windows-name-probe.json",
+      "bytes": 548,
+      "sha256": "3288c959a226ba88b0efb06a54594df10a4b4aa35ed2a86a0595c0857cfa5acd",
+      "reviewCategory": "已列明来源的验证摘要/接口清单"
+    }
+  ],
+  "commit": false,
+  "push": false,
+  "tagOrRelease": false,
+  "phase1OrW0": false,
+  "cloudDeployment": false,
+  "errors": []
+}

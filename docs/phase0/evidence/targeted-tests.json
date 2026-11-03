@@ -1,0 +1,55 @@
+{
+  "node": "v24.19.0",
+  "platform": "win32",
+  "arch": "x64",
+  "results": [
+    {
+      "file": "test-password-hash.js",
+      "exitCode": 0,
+      "stdout": "password hash tests: versioned format + legacy compatibility passed\n",
+      "stderr": ""
+    },
+    {
+      "file": "test-startup-config.js",
+      "exitCode": 0,
+      "stdout": "startup config tests: fail-closed + loopback-only explicit unsafe mode + ANJIAN_SECRET 启动时校验 passed\n",
+      "stderr": ""
+    },
+    {
+      "file": "test-trust-proxy.js",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "node:internal/modules/package_json_reader:301\r\n  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);\r\n        ^\r\n\r\nError [ERR_MODULE_NOT_FOUND]: Cannot find package 'express' imported from <ANQI_SOURCE>\\tools\\test-trust-proxy.js\r\n    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)\r\n    at packageResolve (node:internal/modules/esm/resolve:768:81)\r\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:992:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)\r\n    at #resolve (node:internal/modules/esm/loader:683:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v24.19.0\r\n"
+    },
+    {
+      "file": "test-electron-backend-env.js",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "node:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: DB_PATH 必须落在 config.dataDir 下，实际是 \"\\Users\\test-user\\Library\\Application Support\\anqi\\anjian.db\"（dataDir=\"/Users/test-user/Library/Application Support/anqi\"）——否则对应数据会写回已签名的 app 资源树本体，而不是用户选的数据目录\r\n\r\nfalse !== true\r\n\r\n    at file:///<ANQI_SOURCE>/tools/test-electron-backend-env.js:33:12\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\r\n    at async node:internal/modules/esm/loader:643:26\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: 'strictEqual',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.19.0\r\n"
+    },
+    {
+      "file": "test-window-policy.js",
+      "exitCode": 0,
+      "stdout": "window policy: macOS hide/quit and non-macOS close behavior passed\n",
+      "stderr": ""
+    },
+    {
+      "file": "test-reminder-plan.js",
+      "exitCode": 0,
+      "stdout": "reminder plan: timezone, filters, tiers, catch-up, and reconciliation passed\n",
+      "stderr": ""
+    },
+    {
+      "file": "test-cn-datetime.js",
+      "exitCode": 0,
+      "stdout": "cn datetime normalization ok\n",
+      "stderr": ""
+    },
+    {
+      "file": "test-secure-files.js",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "node:fs:1938\r\n  binding.symlink(\r\n          ^\r\n\r\nError: EPERM: operation not permitted, symlink '<USER_HOME>\\AppData\\Local\\Temp\\anjian-secure-files-5EEZb8\\outside' -> '<USER_HOME>\\AppData\\Local\\Temp\\anjian-secure-files-5EEZb8\\files\\示例案件\\外链目录'\r\n    at Object.symlinkSync (node:fs:1938:11)\r\n    at file:///<ANQI_SOURCE>/tools/test-secure-files.js:39:6\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\r\n    at async node:internal/modules/esm/loader:643:26\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  errno: -4048,\r\n  code: 'EPERM',\r\n  syscall: 'symlink',\r\n  path: '<USER_HOME>\\\\AppData\\\\Local\\\\Temp\\\\anjian-secure-files-5EEZb8\\\\outside',\r\n  dest: '<USER_HOME>\\\\AppData\\\\Local\\\\Temp\\\\anjian-secure-files-5EEZb8\\\\files\\\\示例案件\\\\外链目录'\r\n}\r\n\r\nNode.js v24.19.0\r\n"
+    }
+  ]
+}

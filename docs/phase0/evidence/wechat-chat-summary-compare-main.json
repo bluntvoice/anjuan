@@ -1,0 +1,177 @@
+{
+  "url": "https://api.github.com/repos/bluntvoice/wechat-chat-summary/compare/v1.2.3...main",
+  "html_url": "https://github.com/bluntvoice/wechat-chat-summary/compare/v1.2.3...main",
+  "permalink_url": "https://github.com/bluntvoice/wechat-chat-summary/compare/bluntvoice:a7e522e...bluntvoice:a7e522e",
+  "diff_url": "https://github.com/bluntvoice/wechat-chat-summary/compare/v1.2.3...main.diff",
+  "patch_url": "https://github.com/bluntvoice/wechat-chat-summary/compare/v1.2.3...main.patch",
+  "base_commit": {
+    "sha": "a7e522e072f6a621231701e5a773c25b39c0cdef",
+    "node_id": "C_kwDOUIzNctoAKGE3ZTUyMmUwNzJmNmE2MjEyMzE3MDFlNWE3NzNjMjViMzljMGNkZWY",
+    "commit": {
+      "author": {
+        "name": "github-actions[bot]",
+        "email": "41898282+github-actions[bot]@users.noreply.github.com",
+        "date": "2026-10-17T13:49:14Z"
+      },
+      "committer": {
+        "name": "github-actions[bot]",
+        "email": "41898282+github-actions[bot]@users.noreply.github.com",
+        "date": "2026-10-17T13:49:14Z"
+      },
+      "message": "chore(release): v1.2.3\n\n同步桌面端版本并更新发布日志；安装包已通过自动测试与 Windows 构建。",
+      "tree": {
+        "sha": "cb9c62b4aa060815426e486f861999019844960e",
+        "url": "https://api.github.com/repos/bluntvoice/wechat-chat-summary/git/trees/cb9c62b4aa060815426e486f861999019844960e"
+      },
+      "url": "https://api.github.com/repos/bluntvoice/wechat-chat-summary/git/commits/a7e522e072f6a621231701e5a773c25b39c0cdef",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/bluntvoice/wechat-chat-summary/commits/a7e522e072f6a621231701e5a773c25b39c0cdef",
+    "html_url": "https://github.com/bluntvoice/wechat-chat-summary/commit/a7e522e072f6a621231701e5a773c25b39c0cdef",
+    "comments_url": "https://api.github.com/repos/bluntvoice/wechat-chat-summary/commits/a7e522e072f6a621231701e5a773c25b39c0cdef/comments",
+    "author": {
+      "login": "github-actions[bot]",
+      "id": 41898282,
+      "node_id": "MDM6Qm90NDE4OTgyODI=",
+      "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+      "html_url": "https://github.com/apps/github-actions",
+      "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "github-actions[bot]",
+      "id": 41898282,
+      "node_id": "MDM6Qm90NDE4OTgyODI=",
+      "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+      "html_url": "https://github.com/apps/github-actions",
+      "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "3b04ea1e1054bd5e165bdb71c57a71c97f1ee330",
+        "url": "https://api.github.com/repos/bluntvoice/wechat-chat-summary/commits/3b04ea1e1054bd5e165bdb71c57a71c97f1ee330",
+        "html_url": "https://github.com/bluntvoice/wechat-chat-summary/commit/3b04ea1e1054bd5e165bdb71c57a71c97f1ee330"
+      }
+    ]
+  },
+  "merge_base_commit": {
+    "sha": "a7e522e072f6a621231701e5a773c25b39c0cdef",
+    "node_id": "C_kwDOUIzNctoAKGE3ZTUyMmUwNzJmNmE2MjEyMzE3MDFlNWE3NzNjMjViMzljMGNkZWY",
+    "commit": {
+      "author": {
+        "name": "github-actions[bot]",
+        "email": "41898282+github-actions[bot]@users.noreply.github.com",
+        "date": "2026-10-17T13:49:14Z"
+      },
+      "committer": {
+        "name": "github-actions[bot]",
+        "email": "41898282+github-actions[bot]@users.noreply.github.com",
+        "date": "2026-10-17T13:49:14Z"
+      },
+      "message": "chore(release): v1.2.3\n\n同步桌面端版本并更新发布日志；安装包已通过自动测试与 Windows 构建。",
+      "tree": {
+        "sha": "cb9c62b4aa060815426e486f861999019844960e",
+        "url": "https://api.github.com/repos/bluntvoice/wechat-chat-summary/git/trees/cb9c62b4aa060815426e486f861999019844960e"
+      },
+      "url": "https://api.github.com/repos/bluntvoice/wechat-chat-summary/git/commits/a7e522e072f6a621231701e5a773c25b39c0cdef",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/bluntvoice/wechat-chat-summary/commits/a7e522e072f6a621231701e5a773c25b39c0cdef",
+    "html_url": "https://github.com/bluntvoice/wechat-chat-summary/commit/a7e522e072f6a621231701e5a773c25b39c0cdef",
+    "comments_url": "https://api.github.com/repos/bluntvoice/wechat-chat-summary/commits/a7e522e072f6a621231701e5a773c25b39c0cdef/comments",
+    "author": {
+      "login": "github-actions[bot]",
+      "id": 41898282,
+      "node_id": "MDM6Qm90NDE4OTgyODI=",
+      "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+      "html_url": "https://github.com/apps/github-actions",
+      "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "github-actions[bot]",
+      "id": 41898282,
+      "node_id": "MDM6Qm90NDE4OTgyODI=",
+      "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+      "html_url": "https://github.com/apps/github-actions",
+      "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "3b04ea1e1054bd5e165bdb71c57a71c97f1ee330",
+        "url": "https://api.github.com/repos/bluntvoice/wechat-chat-summary/commits/3b04ea1e1054bd5e165bdb71c57a71c97f1ee330",
+        "html_url": "https://github.com/bluntvoice/wechat-chat-summary/commit/3b04ea1e1054bd5e165bdb71c57a71c97f1ee330"
+      }
+    ]
+  },
+  "status": "identical",
+  "ahead_by": 0,
+  "behind_by": 0,
+  "total_commits": 0,
+  "commits": [],
+  "files": []
+}

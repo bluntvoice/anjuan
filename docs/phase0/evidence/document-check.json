@@ -1,0 +1,21 @@
+{
+  "documents": 11,
+  "primaryReports": 7,
+  "localLinks": 30,
+  "sourceReferences": 34,
+  "protectedSpansUnchanged": true,
+  "punctuationChangedLines": 0,
+  "errors": [],
+  "editorialReview": {
+    "scope": "总则及一1-12、二13-17；词句、标题、结构和标点；保护技术标识/数值/日期/代码/URL",
+    "score": {
+      "naturalness": 1.7,
+      "rhythm": 1.6,
+      "professional": 2,
+      "personalVoice": 1.1,
+      "conciseness": 0.8,
+      "total": 8
+    }
+  },
+  "numericSpansRestored": true
+}

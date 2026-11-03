@@ -1,0 +1,369 @@
+{
+  "url": "https://api.github.com/repos/zj-ai-lab/anqi/compare/v2.12.6...main",
+  "html_url": "https://github.com/zj-ai-lab/anqi/compare/v2.12.6...main",
+  "permalink_url": "https://github.com/zj-ai-lab/anqi/compare/zj-ai-lab:a22a84a...zj-ai-lab:5a1c2d5",
+  "diff_url": "https://github.com/zj-ai-lab/anqi/compare/v2.12.6...main.diff",
+  "patch_url": "https://github.com/zj-ai-lab/anqi/compare/v2.12.6...main.patch",
+  "base_commit": {
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "node_id": "C_kwDOT7ar49oAKGEyMmE4NGE1OWIyNDIzODY1ZDdkMzhiODI2ZDEwOTMxM2VkNTUzNmY",
+    "commit": {
+      "author": {
+        "name": "2_DoGG",
+        "email": "qwejoyfd@gmail.com",
+        "date": "2026-11-02T05:16:34Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2026-11-02T05:16:34Z"
+      },
+      "message": "release: v2.12.6 (#67)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+      "tree": {
+        "sha": "800fc7a504f0d027da1aca87f6f4f12108bdfe13",
+        "url": "https://api.github.com/repos/zj-ai-lab/anqi/git/trees/800fc7a504f0d027da1aca87f6f4f12108bdfe13"
+      },
+      "url": "https://api.github.com/repos/zj-ai-lab/anqi/git/commits/a22a84a59b2423865d7d38b826d109313ed5536f",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJq6ByyCRC1aQ7uu5UhlAAAXAoQAF99QRc3foRLzbwyaMo2Rps6\nHIT92t11x/9/k0OBw3ykl5a2sw47zRhfj9SqQs18Od4cv0nzBHxtzaSgekuJ7h/h\nK1XCYwTWZJv6GEwkBcYjpl7iZO/cx0vAbG89ZtG5yeOMk3MySL6wfWKrNyDTiVP1\nQYzVeK/IbuAU2imtQQlKxp9D1PgRUWNKtpOiL6iYg3an2ug2VLfEAoAYO48t1UuS\nOwHxa9896GDwfWzy9rKWZAQ84PsZj5BGwwywk/tNfrjiDXFxqkapvq0ztb/+7W1p\nve0DDoQeYzU8qfHhNYs1RIrQzfNtyefjO8y2FVy0RkczH0mavUCa10R1mnKH/khv\nkXqEYbJWvRkUy1Xi6JhDNPk929ihMISOSbbe//MO9OOAj39owmn4S0RBPkcM9mLy\nOP3k+kV4nQkpjRqAhdPEcWoEqi5MZPhMZcnEFWNlB/8tRBi9MnpT08wfgnyjHAHv\nYTBgxzwwkVTDbscTg27P/sf++RxA+D9FYYyvtP5tsKy2UqiDTKhcvL1XHurOlHyK\njDYYpa+fvSaBPFlbLeIN3KG/Ww0/O0HOBetZyupZ4qJuxPelc2Oi1j1OYuZZMl0e\nBoBSAsc2pKYMRIGZGgTanIGv7zoDKbnzduupnacyXRM4t6lCJ3cKHstIiCKqRfsV\noJExr07vPTg6E2g6pQ0H\n=8w8P\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree 800fc7a504f0d027da1aca87f6f4f12108bdfe13\nparent f999dab4040cd4eb028146b073deb4c26024ff35\nauthor 2_DoGG <qwejoyfd@gmail.com> 1793596594 +0800\ncommitter GitHub <noreply@github.com> 1793596594 +0800\n\nrelease: v2.12.6 (#67)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+        "verified_at": "2026-11-02T05:16:34Z"
+      }
+    },
+    "url": "https://api.github.com/repos/zj-ai-lab/anqi/commits/a22a84a59b2423865d7d38b826d109313ed5536f",
+    "html_url": "https://github.com/zj-ai-lab/anqi/commit/a22a84a59b2423865d7d38b826d109313ed5536f",
+    "comments_url": "https://api.github.com/repos/zj-ai-lab/anqi/commits/a22a84a59b2423865d7d38b826d109313ed5536f/comments",
+    "author": {
+      "login": "doctorllll",
+      "id": 15071091,
+      "node_id": "MDQ6VXNlcjE1MDcxMDkx",
+      "avatar_url": "https://avatars.githubusercontent.com/u/15071091?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/doctorllll",
+      "html_url": "https://github.com/doctorllll",
+      "followers_url": "https://api.github.com/users/doctorllll/followers",
+      "following_url": "https://api.github.com/users/doctorllll/following{/other_user}",
+      "gists_url": "https://api.github.com/users/doctorllll/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/doctorllll/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/doctorllll/subscriptions",
+      "organizations_url": "https://api.github.com/users/doctorllll/orgs",
+      "repos_url": "https://api.github.com/users/doctorllll/repos",
+      "events_url": "https://api.github.com/users/doctorllll/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/doctorllll/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "f999dab4040cd4eb028146b073deb4c26024ff35",
+        "url": "https://api.github.com/repos/zj-ai-lab/anqi/commits/f999dab4040cd4eb028146b073deb4c26024ff35",
+        "html_url": "https://github.com/zj-ai-lab/anqi/commit/f999dab4040cd4eb028146b073deb4c26024ff35"
+      }
+    ]
+  },
+  "merge_base_commit": {
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "node_id": "C_kwDOT7ar49oAKGEyMmE4NGE1OWIyNDIzODY1ZDdkMzhiODI2ZDEwOTMxM2VkNTUzNmY",
+    "commit": {
+      "author": {
+        "name": "2_DoGG",
+        "email": "qwejoyfd@gmail.com",
+        "date": "2026-11-02T05:16:34Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2026-11-02T05:16:34Z"
+      },
+      "message": "release: v2.12.6 (#67)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+      "tree": {
+        "sha": "800fc7a504f0d027da1aca87f6f4f12108bdfe13",
+        "url": "https://api.github.com/repos/zj-ai-lab/anqi/git/trees/800fc7a504f0d027da1aca87f6f4f12108bdfe13"
+      },
+      "url": "https://api.github.com/repos/zj-ai-lab/anqi/git/commits/a22a84a59b2423865d7d38b826d109313ed5536f",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJq6ByyCRC1aQ7uu5UhlAAAXAoQAF99QRc3foRLzbwyaMo2Rps6\nHIT92t11x/9/k0OBw3ykl5a2sw47zRhfj9SqQs18Od4cv0nzBHxtzaSgekuJ7h/h\nK1XCYwTWZJv6GEwkBcYjpl7iZO/cx0vAbG89ZtG5yeOMk3MySL6wfWKrNyDTiVP1\nQYzVeK/IbuAU2imtQQlKxp9D1PgRUWNKtpOiL6iYg3an2ug2VLfEAoAYO48t1UuS\nOwHxa9896GDwfWzy9rKWZAQ84PsZj5BGwwywk/tNfrjiDXFxqkapvq0ztb/+7W1p\nve0DDoQeYzU8qfHhNYs1RIrQzfNtyefjO8y2FVy0RkczH0mavUCa10R1mnKH/khv\nkXqEYbJWvRkUy1Xi6JhDNPk929ihMISOSbbe//MO9OOAj39owmn4S0RBPkcM9mLy\nOP3k+kV4nQkpjRqAhdPEcWoEqi5MZPhMZcnEFWNlB/8tRBi9MnpT08wfgnyjHAHv\nYTBgxzwwkVTDbscTg27P/sf++RxA+D9FYYyvtP5tsKy2UqiDTKhcvL1XHurOlHyK\njDYYpa+fvSaBPFlbLeIN3KG/Ww0/O0HOBetZyupZ4qJuxPelc2Oi1j1OYuZZMl0e\nBoBSAsc2pKYMRIGZGgTanIGv7zoDKbnzduupnacyXRM4t6lCJ3cKHstIiCKqRfsV\noJExr07vPTg6E2g6pQ0H\n=8w8P\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree 800fc7a504f0d027da1aca87f6f4f12108bdfe13\nparent f999dab4040cd4eb028146b073deb4c26024ff35\nauthor 2_DoGG <qwejoyfd@gmail.com> 1793596594 +0800\ncommitter GitHub <noreply@github.com> 1793596594 +0800\n\nrelease: v2.12.6 (#67)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+        "verified_at": "2026-11-02T05:16:34Z"
+      }
+    },
+    "url": "https://api.github.com/repos/zj-ai-lab/anqi/commits/a22a84a59b2423865d7d38b826d109313ed5536f",
+    "html_url": "https://github.com/zj-ai-lab/anqi/commit/a22a84a59b2423865d7d38b826d109313ed5536f",
+    "comments_url": "https://api.github.com/repos/zj-ai-lab/anqi/commits/a22a84a59b2423865d7d38b826d109313ed5536f/comments",
+    "author": {
+      "login": "doctorllll",
+      "id": 15071091,
+      "node_id": "MDQ6VXNlcjE1MDcxMDkx",
+      "avatar_url": "https://avatars.githubusercontent.com/u/15071091?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/doctorllll",
+      "html_url": "https://github.com/doctorllll",
+      "followers_url": "https://api.github.com/users/doctorllll/followers",
+      "following_url": "https://api.github.com/users/doctorllll/following{/other_user}",
+      "gists_url": "https://api.github.com/users/doctorllll/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/doctorllll/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/doctorllll/subscriptions",
+      "organizations_url": "https://api.github.com/users/doctorllll/orgs",
+      "repos_url": "https://api.github.com/users/doctorllll/repos",
+      "events_url": "https://api.github.com/users/doctorllll/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/doctorllll/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "f999dab4040cd4eb028146b073deb4c26024ff35",
+        "url": "https://api.github.com/repos/zj-ai-lab/anqi/commits/f999dab4040cd4eb028146b073deb4c26024ff35",
+        "html_url": "https://github.com/zj-ai-lab/anqi/commit/f999dab4040cd4eb028146b073deb4c26024ff35"
+      }
+    ]
+  },
+  "status": "ahead",
+  "ahead_by": 1,
+  "behind_by": 0,
+  "total_commits": 1,
+  "commits": [
+    {
+      "sha": "5a1c2d55818ab3317531e5e426576a2e505126a8",
+      "node_id": "C_kwDOT7ar49oAKDVhMWMyZDU1ODE4YWIzMzE3NTMxZTVlNDI2NTc2YTJlNTA1MTI2YTg",
+      "commit": {
+        "author": {
+          "name": "2_DoGG",
+          "email": "qwejoyfd@gmail.com",
+          "date": "2026-11-02T08:51:08Z"
+        },
+        "committer": {
+          "name": "GitHub",
+          "email": "noreply@github.com",
+          "date": "2026-11-02T08:51:08Z"
+        },
+        "message": "ux: 统一跨页点击口径——期限 / 开庭直达案件页时间线那一条，去掉假悬停 (#68)\n\n- 口径：待办点了原地开弹层；期限、开庭点了直达 case.html?id=N#tl-<kind>-<id>，\n  到达后解除筛选 / 展开折叠、滚到中央并高亮（目标已删时提示）；同页换锚点也重新定位\n- 今日页：跑道行、头条卡整行 / 整卡可点；「打开案件处理」与键盘 1–9 直达该期限，\n  底部提示改为「1 头条 · 2–9 表内各行」；七日内开庭案名直达那场开庭；\n  右栏概览五行都可点（临期死线 / 今日开庭 / 未结待办跳本页分区）\n- 日历：期限 / 开庭 chip 直达那一条，悬停提示写明去向；待办 chip 不变\n- 案件页：跑道头条卡与行不可点，去掉悬停变色；hover 只给 .is-openable 或 <a>\n- 共享 caseItemHref()；.tl-item.is-target 高亮（reduced-motion 下静态）\n- 纯前端，无 migration、无接口变化；DESIGN / DESIGN-TOKENS / CHANGES 同步\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+        "tree": {
+          "sha": "a83ace662acbb9754b8fd2bf00b15734647ae2e0",
+          "url": "https://api.github.com/repos/zj-ai-lab/anqi/git/trees/a83ace662acbb9754b8fd2bf00b15734647ae2e0"
+        },
+        "url": "https://api.github.com/repos/zj-ai-lab/anqi/git/commits/5a1c2d55818ab3317531e5e426576a2e505126a8",
+        "comment_count": 0,
+        "verification": {
+          "verified": true,
+          "reason": "valid",
+          "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJq6E78CRC1aQ7uu5UhlAAAqGMQAC044paXRgpIHhUGVCNoHf1D\nQTKzlM25NDnfaSIw2XP0Jwr5LIxlW+/JkBuX19OUYmqeUQn3NLNjJKSgc4ECs0Qa\nXAHB1Mi5nLxSxo+14h/LQK/dBqR1FDnZ3O+xWR7uxyqKY1FYmO57ZFegqyrB/Za+\nbNYCWlOjij8sGyRaS6J2rv0n1al5DUqEf6l2g4gPXCswfJjk5khNM9EvgzstdukW\nzsyjkmLjz8Haq4c35IpJSRwt06ESO2xRSQYdiAXexTDl36C+tAuvLFGJYvHtrUKR\nlQDX9tUU7OI2VWmr9031dayIhtmnj0IiXFpOIAjGw/fhxWObapfWuhqkLoNI3KBv\nd6BGUzYbhFUNmcSs8NbnDKiSafsxbHOl710lDr7JXlXAvaEDuiN1DPJtp+kg/1F3\nCPtrVbkuccL4QsgDfCQsDjBHtNw7rWNyPc4pyM9NUlDhaXmQO4FLVz10JmitddLn\ndalzqxNmx5GvyMTtYSroHknGmw59L4NxnW9hq8Lp8hg0DhZTq22apNVsDgAdaUpo\nHXqbebuDKTEy98E7Zw8I1HvVcwW3AtETI6Klttv0avV7huMuFMgu+Ebj6ihmBhLO\ngpJ50kqsaZQNcIJwtRUsKdjVSz/3ZVUTjtlq7CeYf+K5ZbiKWMmmhXdltz9kRLix\nEQCt1mhiO9M6b1MXAGdM\n=tv4x\n-----END PGP SIGNATURE-----\n",
+          "payload": "tree a83ace662acbb9754b8fd2bf00b15734647ae2e0\nparent a22a84a59b2423865d7d38b826d109313ed5536f\nauthor 2_DoGG <qwejoyfd@gmail.com> 1793609468 +0800\ncommitter GitHub <noreply@github.com> 1793609468 +0800\n\nux: 统一跨页点击口径——期限 / 开庭直达案件页时间线那一条，去掉假悬停 (#68)\n\n- 口径：待办点了原地开弹层；期限、开庭点了直达 case.html?id=N#tl-<kind>-<id>，\n  到达后解除筛选 / 展开折叠、滚到中央并高亮（目标已删时提示）；同页换锚点也重新定位\n- 今日页：跑道行、头条卡整行 / 整卡可点；「打开案件处理」与键盘 1–9 直达该期限，\n  底部提示改为「1 头条 · 2–9 表内各行」；七日内开庭案名直达那场开庭；\n  右栏概览五行都可点（临期死线 / 今日开庭 / 未结待办跳本页分区）\n- 日历：期限 / 开庭 chip 直达那一条，悬停提示写明去向；待办 chip 不变\n- 案件页：跑道头条卡与行不可点，去掉悬停变色；hover 只给 .is-openable 或 <a>\n- 共享 caseItemHref()；.tl-item.is-target 高亮（reduced-motion 下静态）\n- 纯前端，无 migration、无接口变化；DESIGN / DESIGN-TOKENS / CHANGES 同步\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "verified_at": "2026-11-02T08:51:09Z"
+        }
+      },
+      "url": "https://api.github.com/repos/zj-ai-lab/anqi/commits/5a1c2d55818ab3317531e5e426576a2e505126a8",
+      "html_url": "https://github.com/zj-ai-lab/anqi/commit/5a1c2d55818ab3317531e5e426576a2e505126a8",
+      "comments_url": "https://api.github.com/repos/zj-ai-lab/anqi/commits/5a1c2d55818ab3317531e5e426576a2e505126a8/comments",
+      "author": {
+        "login": "doctorllll",
+        "id": 15071091,
+        "node_id": "MDQ6VXNlcjE1MDcxMDkx",
+        "avatar_url": "https://avatars.githubusercontent.com/u/15071091?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/doctorllll",
+        "html_url": "https://github.com/doctorllll",
+        "followers_url": "https://api.github.com/users/doctorllll/followers",
+        "following_url": "https://api.github.com/users/doctorllll/following{/other_user}",
+        "gists_url": "https://api.github.com/users/doctorllll/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/doctorllll/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/doctorllll/subscriptions",
+        "organizations_url": "https://api.github.com/users/doctorllll/orgs",
+        "repos_url": "https://api.github.com/users/doctorllll/repos",
+        "events_url": "https://api.github.com/users/doctorllll/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/doctorllll/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "committer": {
+        "login": "web-flow",
+        "id": 19864447,
+        "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+        "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/web-flow",
+        "html_url": "https://github.com/web-flow",
+        "followers_url": "https://api.github.com/users/web-flow/followers",
+        "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+        "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+        "organizations_url": "https://api.github.com/users/web-flow/orgs",
+        "repos_url": "https://api.github.com/users/web-flow/repos",
+        "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/web-flow/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "parents": [
+        {
+          "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+          "url": "https://api.github.com/repos/zj-ai-lab/anqi/commits/a22a84a59b2423865d7d38b826d109313ed5536f",
+          "html_url": "https://github.com/zj-ai-lab/anqi/commit/a22a84a59b2423865d7d38b826d109313ed5536f"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "sha": "1ad20df1370b982835e03fe2f4285560023b2d8c",
+      "filename": "docs/CHANGES.md",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/zj-ai-lab/anqi/blob/5a1c2d55818ab3317531e5e426576a2e505126a8/docs%2FCHANGES.md",
+      "raw_url": "https://github.com/zj-ai-lab/anqi/raw/5a1c2d55818ab3317531e5e426576a2e505126a8/docs%2FCHANGES.md",
+      "contents_url": "https://api.github.com/repos/zj-ai-lab/anqi/contents/docs%2FCHANGES.md?ref=5a1c2d55818ab3317531e5e426576a2e505126a8",
+      "patch": "@@ -214,6 +214,16 @@\n - 测试：`test-agent-direct-tools.js`（两个 scope 的枚举 = 词表、说明含每个 `id=中文`、非法值不发请求、注入缺失/损坏拒绝加载）、`test-agent-supervisor.js`（两种 worker 注入同一份词表）、`test-agent-runtime-composition.js`（真实 DSH 缺词表即挂载失败）、`test-agent-global-internal-http.js`（服务端仍拒绝词表外 type 且不落库）。\n - 真模型复测（DeepSeek，隔离临时库、虚构案件）：总入口一句「今天在测试人民法院领了张三诉李四案的一审判决书」首次调用即选 `judgment_served`，引擎派生上诉期；「下周三去测试人民法院领判决」按将来的事记成待办，没有试错事件类型。\n \n+## 未发布 — 跨页点击规则统一\n+\n+**状态：开发分支 `click-rules`，尚未合并 `main`。**\n+\n+- 统一口径：待办点了原地开弹层；期限、开庭点了直达案件页时间线上**那一条**（`#tl-<kind>-<id>`），到达后自动解除筛选、展开被「只看最近几条」藏住的条目、滚到视口中央并高亮约 2.4 秒；目标已删除时提示「已不在本案时间线」。同一案件页内换锚点（粘贴链接、前进后退）也会重新定位。\n+- 今日页：跑道行、头条卡整行 / 整卡可点（此前悬停整块变色却只有按钮或事项名能点），「打开案件处理」与键盘 `1`–`9` 也直达该期限；底部提示改为「1 头条 · 2–9 表内各行」（此前写「按行序」，但 1 其实是表格上方的头条）；「七日内开庭」案名直达那场开庭；右栏概览「临期/逾期死线」「今日开庭」「未结待办」也可点（跳到本页对应分区），五行外观一样、行为一致。\n+- 日历：期限 / 开庭 chip 直达案件页那一条（此前只到案件页顶部），悬停提示写明点击去向；待办 chip 照旧原地开弹层。\n+- 案件页：期限跑道的头条卡与行本身不可点，去掉悬停变色，不再假装能点。\n+- 纯前端，无 migration、无接口变化。\n+\n ## 2.12.6 — 时间线条目可改内容\n \n - 案件时间线：事件、工作日志的「改日期 / 改期」换成「编辑」，期限在「改期」旁新增「编辑」。此前三者都只能改日期，开庭时刻 / 地点打错只能删了重录，而挂着派生期限的事件又删不掉。"
+    },
+    {
+      "sha": "2b54beb78042e82bb320670121f078809f41f03c",
+      "filename": "docs/DESIGN-TOKENS.md",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/zj-ai-lab/anqi/blob/5a1c2d55818ab3317531e5e426576a2e505126a8/docs%2FDESIGN-TOKENS.md",
+      "raw_url": "https://github.com/zj-ai-lab/anqi/raw/5a1c2d55818ab3317531e5e426576a2e505126a8/docs%2FDESIGN-TOKENS.md",
+      "contents_url": "https://api.github.com/repos/zj-ai-lab/anqi/contents/docs%2FDESIGN-TOKENS.md?ref=5a1c2d55818ab3317531e5e426576a2e505126a8",
+      "patch": "@@ -150,6 +150,7 @@ v5.3 上线当天二审反馈：案与案区分仍不够、字重层级不可辨\n \n - `.p-head-actions` 只负责在栏头右侧并排数量/说明与轻量动作；其中 `.p-meta` 必须取消自身的自动左边距。`.panel-quick-action` 使用既有 green 语义槽位，不升级为实心主按钮；手机仍继承 `.btn.small` 的 44px 触控高度。\n - `.money-section-title` 是资金面板的三级小标题，必须作为 `#case-money` 直接子元素；`.money-entry` 只承载相邻录入器，禁止再嵌套 `.panel-body`。律师费“记款项”默认展开，分成约定与历史特殊直记默认收起。\n+- **可点才给 hover**：`.rw-lead` / `.rw-row` 只有带 `.is-openable`（今日页，整卡 / 整行直达该期限）或本身是 `<a>` 时才有 hover 底色与 pointer；案件页同款卡 / 行不可点，不再悬停变色。`.tl-item.is-target`（`@keyframes tl-target`，`--sel` 底 + 左侧 `--focus` 3px）标记从别页直达的那一条，约 2.4s 褪回；`prefers-reduced-motion` 下改为静态高亮。\n - 时间线折叠控制复用 `.p-foot`，不另造浮动控件；默认只挂载最近 20 条 `.tl-item`，展开按钮保持原生 button、`aria-controls`、`aria-expanded` 与焦点，不允许用隐藏全量 DOM 冒充截断。\n - `.file-upload-zone` 常态就是 1px 虚线可发现区；`.dropping` 只允许改变 `border-color`、`background` 与 inset shadow，前后 margin/padding/border-width/rect 必须一致。窄屏 `.file-upload-controls` 改为单列，select/file/button 均至少 44px；`prefers-reduced-motion` 下 transition 为 `none`。\n "
+    },
+    {
+      "sha": "cb8550d33144b2fd1da19be9f30765e7bf11e2ef",
+      "filename": "docs/DESIGN.md",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/zj-ai-lab/anqi/blob/5a1c2d55818ab3317531e5e426576a2e505126a8/docs%2FDESIGN.md",
+      "raw_url": "https://github.com/zj-ai-lab/anqi/raw/5a1c2d55818ab3317531e5e426576a2e505126a8/docs%2FDESIGN.md",
+      "contents_url": "https://api.github.com/repos/zj-ai-lab/anqi/contents/docs%2FDESIGN.md?ref=5a1c2d55818ab3317531e5e426576a2e505126a8",
+      "patch": "@@ -304,6 +304,8 @@ due_on = roll(count(occurred_on, rule), holidays, rule.roll)\n 1. **今日看板**（首页）——🔴 ≤3 日必办 / 🟠 本周 / 🟡 关注（时效临界 + ❓待补）/ 📅 今日开庭，每条带下一步动作。P4 克制：只放今天与临期。1.8 起按“先处理这个 / 还在追的期限 / 今天要做的 / 等你裁决”分组：最近死线脱离普通白卡成为全页唯一焦点区，右栏五张等权卡合并为一张分区仪表。顶部信号仍为收件箱待裁决数（P1）+ 活跃案件数（P6 WIP，只提示不硬卡）。推荐卡明确提供「采纳 / 稍后 / 不再建议」；状态变化后重提时必须展示变化原因。期限跑道与案件页使用同一“改期 / 完成”动作语义：手动改期仍标记人工设定，不被级联重算覆盖；手机端头条动作不得隐藏。「今天要做的」分三层待办：今日（effective ≤ 今天，强调）/ 本周（今天 < effective ≤ today+7，与今日互斥）/ 全部（兜底，含所有 open task 与无日期「未排期」项），effective = due_on 优先否则 plan_date；无日期项标「未排期」chip 沉底。\n 2. **案件列表**——按程序分组 + 停留天数信号（D6）+ status 过滤。关键词搜索覆盖案件名、案号、双方当事人、案由与法院；非输入状态按 `/` 直接聚焦本页搜索框。\n 3. **案件详情**——1.8 起改为 1400px 双栏工作台，但九个 section 与既有写入口全部留在同页：粘性案件抬头持续显示案名、身份摘要、下一个死线和“概览 / 期限与待办 / 资金 / 文件 / 留痕”锚点；左栏放期限、待办、资金与时间线，右栏放纵向阶段、案件文件、联系人、案件信息与低频录入。≤1180px 回到单列，锚点只滚动定位，不隐藏内容、不新增路由。未结待办与时间线栏头分别常驻“记待办 / 记日志”，点击后展开同页录入器、定位并聚焦首字段；空态复用同一动作。资金区按“律师费款项 / 分成约定 / 已经形成的应收 / 应付”三级阅读，记款项默认展开，低频直记保持收起。时间线仍将 events+deadlines+worklog 全局合流倒序，增加“全部 / 事件 / 期限 / 日志”纯前端过滤；默认只构建当前过滤结果最近 20 条 DOM，总数超过 20 才显示原生按钮展开全部，站内刷新保留当前展开态、硬刷新恢复 20 条。\n+**跨页点击口径（2.12.7 起）**：看着能点的就能点，点了做什么由对象类型决定、全站一致——待办在任何页面点开都是原地弹层；期限与开庭 / 程序事件点了都直达案件页时间线上那一条（`case.html?id=N#tl-<deadline|event|log>-<id>`，到达后自动解除筛选 / 折叠、滚到视口中央并高亮），编辑、改期、完成都在那一条上；案件名才跳案件页顶部。今日页的跑道行与头条卡整行 / 整卡可点，键盘 `1` = 头条、`2`–`9` = 跑道表内各行；右栏概览五行都可点（三行为本页锚点）。\n+\n 4. **日历**——月视图铺 deadlines+开庭+待办（待办与期限同口径：全状态返回，已处理项灰显划线，不在 SQL 层剔除）。底部图例即筛选开关：致命/重要·一般死线/开庭/待办按类型显隐，「已处理」单独控制 done/dropped 项是否上历，偏好存 localStorage 跨月保留。待办支持 `due_time`（仅截止时刻，`HH:MM`；空串为全天）：有计划日与截止日且两日不同才画跨日长条，单日或只有截止日仍画 chip；长条在当前月只画可见段，中间段不重复标题，月内可见端点可在桌面拖拽，越过另一端由服务端夹到同日，触屏不做端点拖拽而由任务弹层修改。任务弹层（`calendar-task-modal.js`）日历、今日、案件三页共用：标题 / 优先级 / 日期 / 备注可改，挂靠案件只读；已完成 / 已放弃项给「重新打开」。「完成 / 放弃」类一键动作（待办与期限）统一走 `record-actions.js`，提示条带 5 秒「撤销」；案件时间线上已结期限可「恢复」为在追。未排期托盘仍收 `status=open && due_on=''`，与月格之间的拖拽只接受真实日期格。P3 加只读 .ics 订阅（Mac/手机日历直接看，token 化 URL）。\n 5. **费用台账**——以律师能直接阅读的“案件资金卡”呈现律师费、扣费、分成比例、应收/应付、结算状态与下一步；案件页与费用页复用同一结算组件和款项凭证组件。输入端主路径固定为“记律师费 → 记钱怎么走 → 收到钱了”，确认收款时在同一窗口列出本款已关联的应收与应付；版本、快照、预览、修正与技术校验收进“历史与高级”。1.8 起粘性总账抬头只保留全页唯一 56px 净额，并把“要追的钱”作为相邻焦点；分区锚点直达按案款项、待处理分成、分成约定与历史修复。主体为双栏：左栏一案一卡，右栏为经营信号、待处理分成与低频附属区。页首不得把所有金额平铺成同权 KPI：第一层只突出“总账净额”，并直接展示 `我方律师费已收 − 已发生应付分成 + 已发生应收分成` 的全期权责等式；待收、已到期、放弃/减免与金额待定属于第二层经营信号。律师费 `paid` 是我方收款毛额；**若某款只挂有效 `receivable` 分成而没有 `payable` 分成，该款金额只是他方收款基数，不进入我的收入、待收、逾期或统计**，页面仍保留“他方基数”记录。若同一款同时存在应收和应付，则按双向结算仍计入我方律师费毛额。每案面板同样展示 `本案净额 = 本案我方律师费已收 − 本案应付分成 + 本案应收分成`；无 `case_id` 的外部应收只进入全局总账，不摊入任一案件。\n 6. **历史分成修复**——仅人工认领、保留或逻辑作废升级前孤儿台账。"
+    },
+    {
+      "sha": "7b842076abfdd76fa19e6250977e99524bd7b228",
+      "filename": "public/css/style.css",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 2,
+      "changes": 16,
+      "blob_url": "https://github.com/zj-ai-lab/anqi/blob/5a1c2d55818ab3317531e5e426576a2e505126a8/public%2Fcss%2Fstyle.css",
+      "raw_url": "https://github.com/zj-ai-lab/anqi/raw/5a1c2d55818ab3317531e5e426576a2e505126a8/public%2Fcss%2Fstyle.css",
+      "contents_url": "https://api.github.com/repos/zj-ai-lab/anqi/contents/public%2Fcss%2Fstyle.css?ref=5a1c2d55818ab3317531e5e426576a2e505126a8",
+      "patch": "@@ -642,7 +642,9 @@ a.chip:hover { background: var(--hover); border-color: var(--border-h); text-dec\n \n /* 头条区（最近死线 = 全页最大的数字，SPEC §4.6 要求 ≥48px） */\n .rw-lead { background: var(--hd-bg); box-shadow: var(--hd-edge); transition: background .12s; }\n-.rw-lead:hover { background: var(--hd-bg-h); text-decoration: none; }\n+/* 只有真能点的才给 hover（今日页头条整卡直达该期限；案件页头条不可点） */\n+.rw-lead.is-openable { cursor: pointer; }\n+.rw-lead.is-openable:hover { background: var(--hd-bg-h); text-decoration: none; }\n .hd-main { padding: 18px 14px 16px; min-width: 0; }\n .hd-kick { margin-bottom: 6px; font-size: 12px; font-weight: 650; letter-spacing: .14em; color: var(--red); }\n .hd-num { display: flex; align-items: baseline; gap: 8px; color: var(--red); font-family: var(--f-num); white-space: nowrap; }\n@@ -678,7 +680,8 @@ a.chip:hover { background: var(--hover); border-color: var(--border-h); text-dec\n \n /* 紧凑跑道行 */\n .rw-row { border-top: 1px solid var(--line); color: var(--ink); transition: background .12s; }\n-.rw-row:hover { background: var(--hover); text-decoration: none; }\n+.rw-row.is-openable { cursor: pointer; }\n+a.rw-row:hover, .rw-row.is-openable:hover { background: var(--hover); text-decoration: none; }\n .rw-days {\n   display: flex; align-items: baseline; justify-content: flex-start; gap: 6px;\n   padding: 0 14px; white-space: nowrap;\n@@ -1233,6 +1236,15 @@ details.adder[open] { border-style: solid; border-color: var(--green-line); }\n }\n .tl-item { position: relative; display: flex; gap: 14px; padding: 10px 6px 10px 8px; border-radius: var(--r-btn); }\n .tl-item:hover { background: var(--hover); }\n+/* 从今日页 / 日历直达的那一条（case.js revealTimelineTarget）：选区色闪一下再褪回 */\n+.tl-item.is-target { animation: tl-target 2.4s ease-out; }\n+@keyframes tl-target {\n+  0%, 45% { background: var(--sel); box-shadow: inset 3px 0 0 var(--focus); }\n+  100% { background: transparent; box-shadow: inset 3px 0 0 transparent; }\n+}\n+@media (prefers-reduced-motion: reduce) {\n+  .tl-item.is-target { animation: none; background: var(--sel); box-shadow: inset 3px 0 0 var(--focus); }\n+}\n .tl-node {\n   position: absolute; left: -24px; top: 16px;\n   width: 11px; height: 11px; border-radius: 50%;"
+    },
+    {
+      "sha": "aa4ccefa7c6b420118904bb89cff61f11fb50279",
+      "filename": "public/index.html",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/zj-ai-lab/anqi/blob/5a1c2d55818ab3317531e5e426576a2e505126a8/public%2Findex.html",
+      "raw_url": "https://github.com/zj-ai-lab/anqi/raw/5a1c2d55818ab3317531e5e426576a2e505126a8/public%2Findex.html",
+      "contents_url": "https://api.github.com/repos/zj-ai-lab/anqi/contents/public%2Findex.html?ref=5a1c2d55818ab3317531e5e426576a2e505126a8",
+      "patch": "@@ -46,7 +46,7 @@ <h3 class=\"p-title\" id=\"h-runway\">期限跑道<span class=\"count\" id=\"runway-cou\n           <div id=\"sec-runway\"></div>\n           <div class=\"p-foot\">\n             <span class=\"fk\"><span class=\"kbd\">/</span> 聚焦快录</span>\n-            <span class=\"fk\"><span class=\"kbd\">1</span>–<span class=\"kbd\">9</span> 按行序直达案件</span>\n+            <span class=\"fk\"><span class=\"kbd\">1</span> 头条 · <span class=\"kbd\">2</span>–<span class=\"kbd\">9</span> 表内各行，直达该期限</span>\n             <span class=\"tail\">刻度 = 1 天 · 原点 = 今日 · 满格 ≥ 14 日</span>\n           </div>\n         </section>"
+    },
+    {
+      "sha": "1104d2def5174f394a591ba119a2e0caf35856cd",
+      "filename": "public/js/api.js",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/zj-ai-lab/anqi/blob/5a1c2d55818ab3317531e5e426576a2e505126a8/public%2Fjs%2Fapi.js",
+      "raw_url": "https://github.com/zj-ai-lab/anqi/raw/5a1c2d55818ab3317531e5e426576a2e505126a8/public%2Fjs%2Fapi.js",
+      "contents_url": "https://api.github.com/repos/zj-ai-lab/anqi/contents/public%2Fjs%2Fapi.js?ref=5a1c2d55818ab3317531e5e426576a2e505126a8",
+      "patch": "@@ -93,6 +93,10 @@ export function fmtDaysLeft(n) {\n   return `剩 ${n} 日`;\n }\n \n+// 案件页时间线某一条的直达链接；落点与高亮由 case.js 的 revealTimelineTarget 负责。\n+// 全站口径：期限、开庭等法定事实点了都到这里（编辑 / 改期 / 完成在那一条上），待办则原地开弹层。\n+export const caseItemHref = (caseId, kind, itemId) => `/case.html?id=${caseId}#tl-${kind}-${itemId}`;\n+\n export function todayStr() {\n   return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' });\n }"
+    },
+    {
+      "sha": "eff88f36a2414444765cd51440ea0dce5260c053",
+      "filename": "public/js/calendar.js",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 5,
+      "changes": 11,
+      "blob_url": "https://github.com/zj-ai-lab/anqi/blob/5a1c2d55818ab3317531e5e426576a2e505126a8/public%2Fjs%2Fcalendar.js",
+      "raw_url": "https://github.com/zj-ai-lab/anqi/raw/5a1c2d55818ab3317531e5e426576a2e505126a8/public%2Fjs%2Fcalendar.js",
+      "contents_url": "https://api.github.com/repos/zj-ai-lab/anqi/contents/public%2Fjs%2Fcalendar.js?ref=5a1c2d55818ab3317531e5e426576a2e505126a8",
+      "patch": "@@ -4,7 +4,7 @@\n //   周行 .cal-week 是 7 列嵌套网格；日期格 / 日期数字 / 车道长条 / chip 堆都是它的同级网格项：\n //   .cal-cell 占 grid-row 1/-1 当背景与命中面，.cal-daynum 占第 1 行，长条占车道行，.cal-day-chips 占末行。\n //   —— 长条因此在整个周行里恒占同一水平车道，不再被格内 chip 数量顶得高低错落。\n-import { api, el, toast, todayStr, SEV_LABEL, STATUS_LABEL } from './api.js';\n+import { api, el, toast, todayStr, SEV_LABEL, STATUS_LABEL, caseItemHref } from './api.js';\n import { mountNav } from './nav.js';\n import { openTaskModal } from './calendar-task-modal.js';\n import { caseColorStyle } from './calendar-ui.js';\n@@ -528,21 +528,22 @@ async function load({ refresh = true } = {}) {\n     // 事项名在前、案件在后 —— 与期限跑道 .rw-main 同一信息层级：格子窄，先保住「要做什么」。\n     // 全文走 title 悬浮（格内必然截断）。\n     // 期限 / 开庭是法定事实，永不可拖（安全铁律）：不挂 pointerdown，并显式关掉 <a> 的原生拖走。\n+    // 点击直达案件页时间线上这一条（改期 / 完成 / 编辑都在那里）；待办则原地开弹层。\n       push(d.due_on, el('a', {\n         class: chipClass(d.severity, d.status),\n-        href: `/case.html?id=${d.case_id}`,\n+        href: caseItemHref(d.case_id, 'deadline', d.id),\n         draggable: 'false',\n-      title: `${sev}期限 · ${d.name} · ${d.case_name}${st}${d.rolled_from && d.rolled_from < d.due_on ? `\\n原届满 ${d.rolled_from} 逢节假日，已顺延至 ${d.due_on} · 建议节前办` : ''}`,\n+      title: `${sev}期限 · ${d.name} · ${d.case_name}${st}${d.rolled_from && d.rolled_from < d.due_on ? `\\n原届满 ${d.rolled_from} 逢节假日，已顺延至 ${d.due_on} · 建议节前办` : ''}\\n点击到案件页处理这条期限`,\n       }, el('span', { class: 'cal-chip-label' }, `${d.name}·${d.case_name}`)), 0);\n   }\n   for (const h of data.hearings) {\n     if (!filters.hearing) continue;\n     const time = h.occurred_time ? `${h.occurred_time} ` : '';\n     push(h.occurred_on, el('a', {\n       class: 'cal-chip hearing',\n-      href: `/case.html?id=${h.case_id}`,\n+      href: caseItemHref(h.case_id, 'event', h.id),\n       draggable: 'false',\n-      title: `开庭 · ${h.case_name}${h.location ? ' · ' + h.location : ''}${h.note ? ' · ' + h.note : ''}`,\n+      title: `开庭 · ${h.case_name}${h.location ? ' · ' + h.location : ''}${h.note ? ' · ' + h.note : ''}\\n点击到案件页这场开庭（可改时刻 / 地点）`,\n     }, el('span', { class: 'cal-chip-label' }, `${time}开庭·${h.case_name}`)), 1, h.occurred_time || '');\n   }\n   for (const t of monthTasks) {"
+    },
+    {
+      "sha": "c07ab1013eb6eae6935b6b1f33d185ced6f578b6",
+      "filename": "public/js/case.js",
+      "status": "modified",
+      "additions": 47,
+      "deletions": 9,
+      "changes": 56,
+      "blob_url": "https://github.com/zj-ai-lab/anqi/blob/5a1c2d55818ab3317531e5e426576a2e505126a8/public%2Fjs%2Fcase.js",
+      "raw_url": "https://github.com/zj-ai-lab/anqi/raw/5a1c2d55818ab3317531e5e426576a2e505126a8/public%2Fjs%2Fcase.js",
+      "contents_url": "https://api.github.com/repos/zj-ai-lab/anqi/contents/public%2Fjs%2Fcase.js?ref=5a1c2d55818ab3317531e5e426576a2e505126a8",
+      "patch": "@@ -85,7 +85,9 @@ function initSectionNav() {\n   };\n   const applyHash = (scroll = false) => {\n     const targetId = decodeURIComponent(location.hash.slice(1)) || 'case-overview';\n-    setActive(byId.has(targetId) ? targetId : (targetId.startsWith('case-') ? targetId : 'case-overview'));\n+    setActive(byId.has(targetId) ? targetId\n+      : targetId.startsWith('tl-') ? 'case-trace'\n+      : (targetId.startsWith('case-') ? targetId : 'case-overview'));\n     openTarget(targetId, scroll);\n   };\n   applyHash(false);\n@@ -1377,8 +1379,9 @@ async function editDeadline(d) {\n   toast('已保存 ✓'); load();\n }\n \n-function tlItem(date, nodeCls, kindPill, bodyEls, actions = null, extraClass = '') {\n-  return el('div', { class: `tl-item ${extraClass}`.trim() },\n+// anchor = `${kind}-${id}`：其它页用 case.html?id=N#tl-<anchor> 直达这一条\n+function tlItem(date, nodeCls, kindPill, bodyEls, actions = null, extraClass = '', anchor = '') {\n+  return el('div', { class: `tl-item ${extraClass}`.trim(), id: anchor ? `tl-${anchor}` : undefined },\n     el('span', { class: `tl-node ${nodeCls}`, 'aria-hidden': 'true' }),\n     el('span', { class: 'tl-date' }, date),\n     el('div', { class: 'tl-body' }, kindPill, ' ', ...bodyEls),\n@@ -1444,6 +1447,33 @@ function drawTimeline(nextItems = timelineItems) {\n     : `已显示 ${visible.length} / 共 ${total} 条（含待处理参考期限）`;\n }\n \n+// 今日页 / 日历带 #tl-<kind>-<id> 跳进来：落到时间线那一条并闪一下。\n+// 目标被「只看最近几条」或筛选藏住时先放开。只在首次加载后做一次（load 会被反复触发）。\n+let timelineTargetRevealed = false;\n+function revealTimelineTarget() {\n+  if (timelineTargetRevealed) return;\n+  const match = /^#tl-((?:event|deadline|log)-\\d+)$/.exec(location.hash);\n+  if (!match) return;\n+  timelineTargetRevealed = true;\n+  const anchor = match[1];\n+  if (!timelineItems.some((item) => item.anchor === anchor)) {\n+    toast('要找的那条记录已不在本案时间线（可能已删除）');\n+    return;\n+  }\n+  if (!document.getElementById(`tl-${anchor}`)) {\n+    timelineFilter = 'all';\n+    timelineExpanded = true;\n+    for (const item of document.querySelectorAll('[data-timeline-filter]')) {\n+      item.classList.toggle('is-active', item.dataset.timelineFilter === 'all');\n+    }\n+    drawTimeline();\n+  }\n+  const target = document.getElementById(`tl-${anchor}`);\n+  target.scrollIntoView({ block: 'center' });\n+  target.classList.add('is-target');\n+  setTimeout(() => target.classList.remove('is-target'), 2600);\n+}\n+\n for (const button of document.querySelectorAll('[data-timeline-filter]')) {\n   button.addEventListener('click', () => {\n     timelineFilter = button.dataset.timelineFilter;\n@@ -1773,7 +1803,7 @@ function render() {\n \n   // 时间线合流：event / deadline / worklog\n   const items = [\n-    ...bundle.events.map((e) => ({ kind: 'event', date: e.occurred_on, sort2: 2, build: () => tlItem(e.occurred_on, 'tl-node-event',\n+    ...bundle.events.map((e) => ({ kind: 'event', anchor: `event-${e.id}`, date: e.occurred_on, sort2: 2, build: () => tlItem(e.occurred_on, 'tl-node-event',\n       el('span', { class: 'pill acc' }, evLabel[e.type] || e.type),\n       [\n         ['llm', 'ai'].includes(e.created_by) ? el('span', { class: 'pill acc' }, 'AI 加的') : null,\n@@ -1794,7 +1824,9 @@ function render() {\n             toast('已删除'); load();\n           },\n         }, '删')\n-      )\n+      ),\n+      '',\n+      `event-${e.id}`\n     ) })),\n     ...bundle.deadlines.map((d) => {\n       const rule = ruleById.get(d.rule_id);\n@@ -1807,7 +1839,7 @@ function render() {\n         ? el('span', { class: `pill ${d.severity === 'critical' ? 'crit' : d.severity === 'high' ? 'warn' : 'ok'}` },\n             `死线 · ${SEV_LABEL[d.severity]}${overdue ? ' · 已逾期' : ''}`)\n         : el('span', { class: `pill ${d.status === 'done' ? 'ok' : ''}` }, `死线 · ${STATUS_LABEL[d.status]}`);\n-      return { kind: 'deadline', date: d.due_on, sort2: 1, keepVisible: d.status === 'pending' && !!d.advisory, build: () => tlItem(d.due_on, nodeCls, buildPill(),\n+      return { kind: 'deadline', anchor: `deadline-${d.id}`, date: d.due_on, sort2: 1, keepVisible: d.status === 'pending' && !!d.advisory, build: () => tlItem(d.due_on, nodeCls, buildPill(),\n         [\n           el('b', {}, d.name), ' ',\n           basisBtn(d),\n@@ -1833,10 +1865,11 @@ function render() {\n             onclick: async () => { await api(`/deadlines/${d.id}`, { method: 'PATCH', body: { status: 'pending' } }); toast('已恢复为在追 ✓'); load(); },\n           }, '恢复')\n         ),\n-        d.advisory ? 'deadline-advisory' : ''\n+        d.advisory ? 'deadline-advisory' : '',\n+        `deadline-${d.id}`\n       ) };\n     }),\n-    ...bundle.worklog.map((w) => ({ kind: 'log', date: w.worked_on, sort2: 3, build: () => tlItem(w.worked_on, 'tl-node-log',\n+    ...bundle.worklog.map((w) => ({ kind: 'log', anchor: `log-${w.id}`, date: w.worked_on, sort2: 3, build: () => tlItem(w.worked_on, 'tl-node-log',\n       el('span', { class: 'pill' }, '日志'),\n       // AI 标签必须放进正文数组（同事件行）：tlItem 第 4 参是要展开的正文，插成独立位置参数会把\n       // 正文挤到 actions 位、让 null 被展开，整页时间线崩溃（2026-10-13 真机验收抓到）。\n@@ -1848,7 +1881,9 @@ function render() {\n           class: 'btn small danger', type: 'button',\n           onclick: async () => { if (!confirm('删除该日志？')) return; await api(`/worklog/${w.id}`, { method: 'DELETE' }); toast('已删除'); load(); },\n         }, '删')\n-      )\n+      ),\n+      '',\n+      `log-${w.id}`\n     ) })),\n   ];\n   items.sort((a, b) => (b.date + b.sort2).localeCompare(a.date + a.sort2));\n@@ -2433,6 +2468,9 @@ async function loadReminders() {\n \n document.addEventListener('anjian:changed', load);\n await load();\n+revealTimelineTarget();\n+// 同一案件页内换 #tl-…（粘贴链接、前进后退）不会重载页面，也要重新定位\n+window.addEventListener('hashchange', () => { timelineTargetRevealed = false; revealTimelineTarget(); });\n stopFolderWatch = watchFolder();\n \n // AI 助理抽屉：counts.agent=false（未启用/未配置）时 mountAgentDrawer() 自己"
+    },
+    {
+      "sha": "797626ad234799092394b847ef23204e510c375d",
+      "filename": "public/js/today.js",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 10,
+      "changes": 28,
+      "blob_url": "https://github.com/zj-ai-lab/anqi/blob/5a1c2d55818ab3317531e5e426576a2e505126a8/public%2Fjs%2Ftoday.js",
+      "raw_url": "https://github.com/zj-ai-lab/anqi/raw/5a1c2d55818ab3317531e5e426576a2e505126a8/public%2Fjs%2Ftoday.js",
+      "contents_url": "https://api.github.com/repos/zj-ai-lab/anqi/contents/public%2Fjs%2Ftoday.js?ref=5a1c2d55818ab3317531e5e426576a2e505126a8",
+      "patch": "@@ -10,7 +10,7 @@\n //   #h-fees #fees-meta #sec-fees\n //   #h-gap #sec-gap\n // 卡片标题不再 prepend 图标（CRITIQUE 修复项 3「禁每标题配 icon」）——旧 H 循环已删。\n-import { api, el, toast, todayStr } from './api.js';\n+import { api, el, toast, todayStr, caseItemHref } from './api.js';\n import { mountNav } from './nav.js';\n import { strip14 } from './charts.js';\n import { datePrompt } from './dateedit.js';\n@@ -132,7 +132,11 @@ function leadRow(d) {\n   const band = bandOf(days);\n   const tone = band === 'warn' ? ' amb' : band === 'ok' ? ' ok' : '';\n   const kick = days < 0 ? '最近死线 · 已逾期' : days === 0 ? '最近死线 · 今日截止' : '最近死线';\n-  return el('article', { class: 'rw-lead' + tone, title: rowTitle(d) },\n+  const href = caseItemHref(d.case_id, 'deadline', d.id);\n+  return el('article', {\n+    class: 'rw-lead is-openable' + tone, title: rowTitle(d),\n+    onclick: (e) => { if (!e.target.closest('a, button')) location.href = href; },\n+  },\n     el('div', { class: 'hd-main' },\n       el('div', { class: 'hd-kick' }, kick),\n       el('div', { class: 'hd-num' },\n@@ -153,7 +157,7 @@ function leadRow(d) {\n     trkBar(d, band),\n     el('div', { class: 'rw-due' }, md(d.due_on)),\n     el('div', { class: 'focus-actions' },\n-      el('a', { class: 'btn primary', href: `/case.html?id=${d.case_id}` }, '打开案件处理'),\n+      el('a', { class: 'btn primary', href }, '打开案件处理'),\n       deadlineActions(d, true)\n     )\n   );\n@@ -165,13 +169,17 @@ function compactRow(d, i) {\n   const band = bandOf(days);\n   const size = i === 1 ? 'd1' : i === 2 ? 'd2' : 'd3';\n   const tone = band === 'warn' ? ' amb' : band === 'ok' ? '' : ' crit';\n-  return el('article', { class: `rw-row ${size}${tone}`, title: rowTitle(d) },\n+  const href = caseItemHref(d.case_id, 'deadline', d.id);\n+  return el('article', {\n+    class: `rw-row is-openable ${size}${tone}`, title: rowTitle(d),\n+    onclick: (e) => { if (!e.target.closest('a, button')) location.href = href; },\n+  },\n     el('div', { class: 'rw-days' },\n       el('span', { class: 'pre' }, days < 0 ? '逾期' : '剩'),\n       el('span', { class: 'n' }, String(Math.abs(days))),\n       el('span', { class: 'u' }, '天')\n     ),\n-    el('a', { class: 'rw-main', href: `/case.html?id=${d.case_id}` },\n+    el('a', { class: 'rw-main', href },\n       el('div', { class: 'm1' }, d.name),\n       el('div', { class: 'm2' },\n         el('span', {}, d.case_name),\n@@ -330,7 +338,7 @@ function hearRow(h, today) {\n         el('span', { class: chip }, n <= 0 ? '今日开庭' : `剩 ${n} 天`)\n       )\n     ),\n-    el('div', { class: 'hear-name' }, caseLink(h.case_id, h.case_name)),\n+    el('div', { class: 'hear-name' }, el('a', { href: caseItemHref(h.case_id, 'event', h.id), title: '到案件页这场开庭' }, h.case_name)),\n     h.occurred_time ? el('div', { class: 'hear-tags' }, el('span', { class: 'chip c-blue' }, h.occurred_time)) : null,\n     h.location ? el('div', { class: 'hear-tags' }, el('span', { class: 'chip' }, h.location)) : null,\n     h.instrument ? el('div', { class: 'hear-no' }, h.instrument) : null,\n@@ -442,15 +450,15 @@ async function load() {\n   const hearTmr = d.hearings.filter((h) => h.occurred_on === shift(today, 1)).length;\n   document.getElementById('tiles').replaceChildren(\n     kpiRow({\n-      k: '临期/逾期死线', v: d.red.length, alert: d.red.length > 0,\n+      k: '临期/逾期死线', v: d.red.length, alert: d.red.length > 0, href: '#sec-lead',\n       note: overdue ? ['含 ', m(overdue), ' 逾期'] : null,\n     }),\n     kpiRow({\n-      k: '今日开庭', v: hearToday, alert: hearToday > 0,\n+      k: '今日开庭', v: hearToday, alert: hearToday > 0, href: '#h-hearings',\n       note: hearTmr ? ['明日 ', m(hearTmr)] : null,\n     }),\n     kpiRow({ k: '在办案件', v: d.counts.active_cases, href: '/cases.html' }),\n-    kpiRow({ k: '未结待办', v: d.counts.open_tasks }),\n+    kpiRow({ k: '未结待办', v: d.counts.open_tasks, href: '#h-tasks' }),\n     kpiRow({ k: '待收', v: yuan(d.counts.unpaid_fees), href: '/fees.html' })\n   );\n \n@@ -474,7 +482,7 @@ async function load() {\n     '按剩余天数升序', sep(), m(`${allDl.length} 项`),\n     ...(overdue ? [sep(), el('span', { class: 'm hot' }, `${overdue} 逾期`)] : [])\n   );\n-  rwLinks = allDl.map((x) => `/case.html?id=${x.case_id}`);\n+  rwLinks = allDl.map((x) => caseItemHref(x.case_id, 'deadline', x.id));\n   document.getElementById('sec-lead').replaceChildren(\n     allDl.length ? leadRow(allDl[0]) : el('div', { class: 'section-empty focus-empty' }, '30 日内无在追死线')\n   );"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "platform": "win32",
+  "exitCode": 0,
+  "results": [
+    {
+      "value": "CON",
+      "directory": "CON",
+      "upload": "CON"
+    },
+    {
+      "value": "NUL",
+      "directory": "NUL",
+      "upload": "NUL"
+    },
+    {
+      "value": "a:b",
+      "directory": "a:b",
+      "upload": "a:b"
+    },
+    {
+      "value": "test.",
+      "directory": "test.",
+      "upload": "test."
+    },
+    {
+      "value": "file:stream.pdf",
+      "directory": "file:stream.pdf",
+      "upload": "file:stream.pdf"
+    }
+  ],
+  "wroteSpecialFiles": false
+}

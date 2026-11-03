@@ -1,0 +1,317 @@
+[
+  {
+    "id": "A01",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "package.json",
+    "line": 22,
+    "meaning": "技术栈、AGPL only、mac target、资源清单与发布地址",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/package.json#L22"
+  },
+  {
+    "id": "A02",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "src/middleware/auth.js",
+    "line": 156,
+    "meaning": "env 登录、无用户 Session、可指定 actor、token/internal 路径",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/src/middleware/auth.js#L156"
+  },
+  {
+    "id": "A03",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "src/db.js",
+    "line": 18,
+    "meaning": "WAL/外键、迁移原子性、withImmediateTransaction/withChangeContext/audit",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/src/db.js#L18"
+  },
+  {
+    "id": "A04",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "src/lib/password-hash.cjs",
+    "line": 5,
+    "meaning": "scrypt 版本化哈希及 legacy 校验；DEFAULT_N=16384",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/src/lib/password-hash.cjs#L5"
+  },
+  {
+    "id": "A05",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "src/migrations/024_change_log.sql",
+    "line": 7,
+    "meaning": "change_log 快照、change_context、append-only 触发器；另见 026",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/src/migrations/024_change_log.sql#L7"
+  },
+  {
+    "id": "A06",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "src/routes/cases.js",
+    "line": 300,
+    "meaning": "案件/阶段编辑，UPDATE 按 id；无 DELETE 案件声明",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/src/routes/cases.js#L300"
+  },
+  {
+    "id": "A07",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "src/routes/records.js",
+    "line": 172,
+    "meaning": "事件/期限/任务/日志、快速录入和重算入口",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/src/routes/records.js#L172"
+  },
+  {
+    "id": "A08",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "src/lib/engine.js",
+    "line": 10,
+    "meaning": "确定性派生规则和期限计算；另见 deadline-core.js、rules/",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/src/lib/engine.js#L10"
+  },
+  {
+    "id": "A09",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "src/routes/views.js",
+    "line": 266,
+    "meaning": "日历/摘要/统计/收件箱及接受后写业务表",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/src/routes/views.js#L266"
+  },
+  {
+    "id": "A10",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "src/routes/files.js",
+    "line": 147,
+    "meaning": "文件上传先落盘后登记；GET 流；DELETE 仅解除引用",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/src/routes/files.js#L147"
+  },
+  {
+    "id": "A11",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "src/lib/secure-files.js",
+    "line": 63,
+    "meaning": "名称/路径/真实位置、同名独占写和身份核验",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/src/lib/secure-files.js#L63"
+  },
+  {
+    "id": "A12",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "src/routes/reminders.js",
+    "line": 29,
+    "meaning": "GET 派生维护、expected_version、全局通知/ack/SSE",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/src/routes/reminders.js#L29"
+  },
+  {
+    "id": "A13",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "src/lib/reminder-worker.js",
+    "line": 33,
+    "meaning": "缺省 60 分钟追赶、去重、missed、start/stop；另见 reminder-plan 与 030",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/src/lib/reminder-worker.js#L33"
+  },
+  {
+    "id": "A14",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "tools/backup.cjs",
+    "line": 22,
+    "meaning": "SQLite 在线备份和 secret.key，固定容器输出目录，无案件文件打包",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/tools/backup.cjs#L22"
+  },
+  {
+    "id": "A15",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "electron/main.js",
+    "line": 94,
+    "meaning": "后端生命周期、onboarding、窗口/单实例/退出；另见 backend-env/preload",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/electron/main.js#L94"
+  },
+  {
+    "id": "A16",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "build/build-ocr-helper.mjs",
+    "line": 5,
+    "meaning": "swiftc/lipo OCR；另见 afterpack/adhoc-sign/ensure-cross-arch-optional-deps",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/build/build-ocr-helper.mjs#L5"
+  },
+  {
+    "id": "A17",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "electron/updater.js",
+    "line": 28,
+    "meaning": "上游 Release、DMG URL、浏览器下载而非 Windows 更新流程",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/electron/updater.js#L28"
+  },
+  {
+    "id": "A18",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "server.js",
+    "line": 89,
+    "meaning": "路由挂载、agent/IM/提醒 worker 和退出；另见 src/agent/config.js",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/server.js#L89"
+  },
+  {
+    "id": "A19",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "LEGAL-NOTICE.md",
+    "line": 32,
+    "meaning": "AGPL only、名称/图标权利及来源说明；另见 LICENSE、ACKNOWLEDGEMENTS",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/LEGAL-NOTICE.md#L32"
+  },
+  {
+    "id": "A20",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "src/migrations/001_init.sql",
+    "line": 26,
+    "meaning": "业务表/时间/created_by 来源语义；另见 002、031",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/src/migrations/001_init.sql#L26"
+  },
+  {
+    "id": "A21",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "tools/check.sh",
+    "line": 11,
+    "meaning": "上游自检、bash 工具链和多阶段测试",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/tools/check.sh#L11"
+  },
+  {
+    "id": "L01",
+    "repo": "lawflow-boop/LawLink",
+    "sha": "5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "file": "prisma/schema.prisma",
+    "line": 439,
+    "meaning": "用户、passwordHash、active、sessionVersion；另见 RoleDefinition、AuditLog",
+    "url": "https://github.com/lawflow-boop/LawLink/blob/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd/prisma/schema.prisma#L439"
+  },
+  {
+    "id": "L02",
+    "repo": "lawflow-boop/LawLink",
+    "sha": "5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "file": "src/lib/auth/options.ts",
+    "line": 154,
+    "meaning": "Credentials/bcrypt、JWT active/sessionVersion 复核",
+    "url": "https://github.com/lawflow-boop/LawLink/blob/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd/src/lib/auth/options.ts#L154"
+  },
+  {
+    "id": "L03",
+    "repo": "lawflow-boop/LawLink",
+    "sha": "5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "file": "src/lib/auth/session.ts",
+    "line": 14,
+    "meaning": "服务端读取用户状态和角色；requireSession/requireSystemAdmin",
+    "url": "https://github.com/lawflow-boop/LawLink/blob/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd/src/lib/auth/session.ts#L14"
+  },
+  {
+    "id": "L04",
+    "repo": "lawflow-boop/LawLink",
+    "sha": "5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "file": "src/lib/permissions/index.ts",
+    "line": 47,
+    "meaning": "OWN/TEAM/ALL 等关联案件过滤，不适合直接移入模式 A",
+    "url": "https://github.com/lawflow-boop/LawLink/blob/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd/src/lib/permissions/index.ts#L47"
+  },
+  {
+    "id": "L05",
+    "repo": "lawflow-boop/LawLink",
+    "sha": "5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "file": "src/server/users/actions.ts",
+    "line": 236,
+    "meaning": "用户管理事务、最后管理员和 sessionVersion 撤销",
+    "url": "https://github.com/lawflow-boop/LawLink/blob/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd/src/server/users/actions.ts#L236"
+  },
+  {
+    "id": "L06",
+    "repo": "lawflow-boop/LawLink",
+    "sha": "5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "file": "src/app/(admin)/admin/users/_components/users-view.tsx",
+    "line": 94,
+    "meaning": "用户管理界面；另见 admin/roles 和 src/lib/roles/catalog.ts",
+    "url": "https://github.com/lawflow-boop/LawLink/blob/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd/src/app/(admin)/admin/users/_components/users-view.tsx#L94"
+  },
+  {
+    "id": "L07",
+    "repo": "lawflow-boop/LawLink",
+    "sha": "5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "file": "src/server/audit.ts",
+    "line": 68,
+    "meaning": "普通 audit 吞错、auditStrict、auditTx 严格事务审计",
+    "url": "https://github.com/lawflow-boop/LawLink/blob/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd/src/server/audit.ts#L68"
+  },
+  {
+    "id": "L08",
+    "repo": "lawflow-boop/LawLink",
+    "sha": "5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "file": "src/tests/server/account-session.test.ts",
+    "line": 8,
+    "meaning": "会话测试源码存在；本轮未运行 LawLink 测试",
+    "url": "https://github.com/lawflow-boop/LawLink/blob/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd/src/tests/server/account-session.test.ts#L8"
+  },
+  {
+    "id": "L09",
+    "repo": "lawflow-boop/LawLink",
+    "sha": "5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "file": "LICENSE",
+    "line": 3,
+    "meaning": "MIT 授权/版权；另见 package.json",
+    "url": "https://github.com/lawflow-boop/LawLink/blob/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd/LICENSE#L3"
+  },
+  {
+    "id": "W01",
+    "repo": "bluntvoice/wechat-chat-summary",
+    "sha": "a7e522e072f6a621231701e5a773c25b39c0cdef",
+    "file": ".github/workflows/release.yml",
+    "line": 4,
+    "meaning": "正式发布门禁、Windows runner；另见 build-test.yml",
+    "url": "https://github.com/bluntvoice/wechat-chat-summary/blob/a7e522e072f6a621231701e5a773c25b39c0cdef/.github/workflows/release.yml#L4"
+  },
+  {
+    "id": "W02",
+    "repo": "bluntvoice/wechat-chat-summary",
+    "sha": "a7e522e072f6a621231701e5a773c25b39c0cdef",
+    "file": "desktop/src-tauri/src/updater.rs",
+    "line": 277,
+    "meaning": "版本/资产解析、进度/取消/摘要校验、失败重试测试",
+    "url": "https://github.com/bluntvoice/wechat-chat-summary/blob/a7e522e072f6a621231701e5a773c25b39c0cdef/desktop/src-tauri/src/updater.rs#L277"
+  },
+  {
+    "id": "W03",
+    "repo": "bluntvoice/wechat-chat-summary",
+    "sha": "a7e522e072f6a621231701e5a773c25b39c0cdef",
+    "file": "desktop/src/pages/AboutPage.tsx",
+    "line": 83,
+    "meaning": "Release 说明、更新状态和失败重下",
+    "url": "https://github.com/bluntvoice/wechat-chat-summary/blob/a7e522e072f6a621231701e5a773c25b39c0cdef/desktop/src/pages/AboutPage.tsx#L83"
+  },
+  {
+    "id": "W04",
+    "repo": "bluntvoice/wechat-chat-summary",
+    "sha": "a7e522e072f6a621231701e5a773c25b39c0cdef",
+    "file": "desktop/src/services/releaseNotes.ts",
+    "line": 1,
+    "meaning": "说明解析；另见 desktop/tests/release-notes-ui.test.mjs、version-workflow.test.mjs",
+    "url": "https://github.com/bluntvoice/wechat-chat-summary/blob/a7e522e072f6a621231701e5a773c25b39c0cdef/desktop/src/services/releaseNotes.ts#L1"
+  },
+  {
+    "id": "A22",
+    "repo": "zj-ai-lab/anqi",
+    "sha": "a22a84a59b2423865d7d38b826d109313ed5536f",
+    "file": "src/routes/fees.js",
+    "line": 33,
+    "meaning": "律师费金额/状态/备注、分单位/版本、概览混合分账及 PATCH 结算保护；无独立折扣字段",
+    "url": "https://github.com/zj-ai-lab/anqi/blob/a22a84a59b2423865d7d38b826d109313ed5536f/src/routes/fees.js#L33"
+  }
+]

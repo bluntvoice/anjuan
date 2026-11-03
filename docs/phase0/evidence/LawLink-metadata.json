@@ -1,0 +1,290 @@
+{
+  "repository": {
+    "id": 1261406772,
+    "node_id": "R_kgDOSy-KNA",
+    "name": "LawLink",
+    "full_name": "lawflow-boop/LawLink",
+    "private": false,
+    "owner": {
+      "login": "lawflow-boop",
+      "id": 280251958,
+      "node_id": "U_kgDOELRONg",
+      "avatar_url": "https://avatars.githubusercontent.com/u/280251958?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/lawflow-boop",
+      "html_url": "https://github.com/lawflow-boop",
+      "followers_url": "https://api.github.com/users/lawflow-boop/followers",
+      "following_url": "https://api.github.com/users/lawflow-boop/following{/other_user}",
+      "gists_url": "https://api.github.com/users/lawflow-boop/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/lawflow-boop/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/lawflow-boop/subscriptions",
+      "organizations_url": "https://api.github.com/users/lawflow-boop/orgs",
+      "repos_url": "https://api.github.com/users/lawflow-boop/repos",
+      "events_url": "https://api.github.com/users/lawflow-boop/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/lawflow-boop/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "html_url": "https://github.com/lawflow-boop/LawLink",
+    "description": "事有经纬，案有始终。面向独立律师与小型律所的开源自部署案件管理系统：墨案工作台、管理后台、审批、法院来件、财务与归档。Open-source, self-hosted legal case management.",
+    "fork": false,
+    "url": "https://api.github.com/repos/lawflow-boop/LawLink",
+    "forks_url": "https://api.github.com/repos/lawflow-boop/LawLink/forks",
+    "keys_url": "https://api.github.com/repos/lawflow-boop/LawLink/keys{/key_id}",
+    "collaborators_url": "https://api.github.com/repos/lawflow-boop/LawLink/collaborators{/collaborator}",
+    "teams_url": "https://api.github.com/repos/lawflow-boop/LawLink/teams",
+    "hooks_url": "https://api.github.com/repos/lawflow-boop/LawLink/hooks",
+    "issue_events_url": "https://api.github.com/repos/lawflow-boop/LawLink/issues/events{/number}",
+    "events_url": "https://api.github.com/repos/lawflow-boop/LawLink/events",
+    "assignees_url": "https://api.github.com/repos/lawflow-boop/LawLink/assignees{/user}",
+    "branches_url": "https://api.github.com/repos/lawflow-boop/LawLink/branches{/branch}",
+    "tags_url": "https://api.github.com/repos/lawflow-boop/LawLink/tags",
+    "blobs_url": "https://api.github.com/repos/lawflow-boop/LawLink/git/blobs{/sha}",
+    "git_tags_url": "https://api.github.com/repos/lawflow-boop/LawLink/git/tags{/sha}",
+    "git_refs_url": "https://api.github.com/repos/lawflow-boop/LawLink/git/refs{/sha}",
+    "trees_url": "https://api.github.com/repos/lawflow-boop/LawLink/git/trees{/sha}",
+    "statuses_url": "https://api.github.com/repos/lawflow-boop/LawLink/statuses/{sha}",
+    "languages_url": "https://api.github.com/repos/lawflow-boop/LawLink/languages",
+    "stargazers_url": "https://api.github.com/repos/lawflow-boop/LawLink/stargazers",
+    "contributors_url": "https://api.github.com/repos/lawflow-boop/LawLink/contributors",
+    "subscribers_url": "https://api.github.com/repos/lawflow-boop/LawLink/subscribers",
+    "subscription_url": "https://api.github.com/repos/lawflow-boop/LawLink/subscription",
+    "commits_url": "https://api.github.com/repos/lawflow-boop/LawLink/commits{/sha}",
+    "git_commits_url": "https://api.github.com/repos/lawflow-boop/LawLink/git/commits{/sha}",
+    "comments_url": "https://api.github.com/repos/lawflow-boop/LawLink/comments{/number}",
+    "issue_comment_url": "https://api.github.com/repos/lawflow-boop/LawLink/issues/comments{/number}",
+    "contents_url": "https://api.github.com/repos/lawflow-boop/LawLink/contents/{+path}",
+    "compare_url": "https://api.github.com/repos/lawflow-boop/LawLink/compare/{base}...{head}",
+    "merges_url": "https://api.github.com/repos/lawflow-boop/LawLink/merges",
+    "archive_url": "https://api.github.com/repos/lawflow-boop/LawLink/{archive_format}{/ref}",
+    "downloads_url": "https://api.github.com/repos/lawflow-boop/LawLink/downloads",
+    "issues_url": "https://api.github.com/repos/lawflow-boop/LawLink/issues{/number}",
+    "pulls_url": "https://api.github.com/repos/lawflow-boop/LawLink/pulls{/number}",
+    "milestones_url": "https://api.github.com/repos/lawflow-boop/LawLink/milestones{/number}",
+    "notifications_url": "https://api.github.com/repos/lawflow-boop/LawLink/notifications{?since,all,participating}",
+    "labels_url": "https://api.github.com/repos/lawflow-boop/LawLink/labels{/name}",
+    "releases_url": "https://api.github.com/repos/lawflow-boop/LawLink/releases{/id}",
+    "deployments_url": "https://api.github.com/repos/lawflow-boop/LawLink/deployments",
+    "created_at": "2026-06-06T16:35:30Z",
+    "updated_at": "2026-11-02T06:32:28Z",
+    "pushed_at": "2026-11-02T01:14:28Z",
+    "git_url": "git://github.com/lawflow-boop/LawLink.git",
+    "ssh_url": "git@github.com:lawflow-boop/LawLink.git",
+    "clone_url": "https://github.com/lawflow-boop/LawLink.git",
+    "svn_url": "https://github.com/lawflow-boop/LawLink",
+    "homepage": "",
+    "size": 23947,
+    "stargazers_count": 103,
+    "watchers_count": 103,
+    "language": "TypeScript",
+    "has_issues": true,
+    "has_projects": true,
+    "has_downloads": false,
+    "has_wiki": true,
+    "has_pages": false,
+    "has_discussions": false,
+    "forks_count": 34,
+    "mirror_url": null,
+    "archived": false,
+    "disabled": false,
+    "open_issues_count": 16,
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "allow_forking": true,
+    "is_template": false,
+    "web_commit_signoff_required": false,
+    "has_pull_requests": true,
+    "pull_request_creation_policy": "all",
+    "topics": [
+      "case-management",
+      "legaltech",
+      "self-hosted"
+    ],
+    "visibility": "public",
+    "forks": 34,
+    "open_issues": 16,
+    "watchers": 103,
+    "default_branch": "main",
+    "temp_clone_token": null,
+    "network_count": 34,
+    "subscribers_count": 1
+  },
+  "releases": [
+    [
+      {
+        "url": "https://api.github.com/repos/lawflow-boop/LawLink/releases/393078826",
+        "assets_url": "https://api.github.com/repos/lawflow-boop/LawLink/releases/393078826/assets",
+        "upload_url": "https://uploads.github.com/repos/lawflow-boop/LawLink/releases/393078826/assets{?name,label}",
+        "html_url": "https://github.com/lawflow-boop/LawLink/releases/tag/v2.0.0",
+        "id": 393078826,
+        "author": {
+          "login": "lawflow-boop",
+          "id": 280251958,
+          "node_id": "U_kgDOELRONg",
+          "avatar_url": "https://avatars.githubusercontent.com/u/280251958?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/lawflow-boop",
+          "html_url": "https://github.com/lawflow-boop",
+          "followers_url": "https://api.github.com/users/lawflow-boop/followers",
+          "following_url": "https://api.github.com/users/lawflow-boop/following{/other_user}",
+          "gists_url": "https://api.github.com/users/lawflow-boop/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/lawflow-boop/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/lawflow-boop/subscriptions",
+          "organizations_url": "https://api.github.com/users/lawflow-boop/orgs",
+          "repos_url": "https://api.github.com/users/lawflow-boop/repos",
+          "events_url": "https://api.github.com/users/lawflow-boop/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/lawflow-boop/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "node_id": "RE_kwDOSy-KNM4Xbegq",
+        "tag_name": "v2.0.0",
+        "target_commitish": "main",
+        "name": "LawLink 2.0 正式版｜墨案界面、案卷工作台与业务流程升级",
+        "draft": false,
+        "immutable": false,
+        "prerelease": false,
+        "created_at": "2026-09-21T15:27:12Z",
+        "updated_at": "2026-09-21T15:32:22Z",
+        "published_at": "2026-09-21T15:32:22Z",
+        "assets": [],
+        "tarball_url": "https://api.github.com/repos/lawflow-boop/LawLink/tarball/v2.0.0",
+        "zipball_url": "https://api.github.com/repos/lawflow-boop/LawLink/zipball/v2.0.0",
+        "body": "## LawLink 2.0 正式发布\r\n\r\n面向独立律师、小团队和小型律所的开源、自部署案件管理系统，采用 MIT 协议。本次将原计划的 1.4 正式命名为 2.0。\r\n\r\n正式提交：`5b814c9`。包含 `597404b` 的升级脚本、数据库守卫和验收修复，另补充提醒测试的固定时钟及发布文档。\r\n\r\n## 相比 1.0 的累计变化\r\n\r\n| 方面 | 2.0 的变化 |\r\n|---|---|\r\n| UI | 全新“墨案”界面，统一工作台、列表、表单、弹窗和导航；收案与案件集中管理 |\r\n| 案件办理 | 案卷工作台按程序、办案环节组织待办、材料与记录；支持卷宗打包导出 |\r\n| 管理后台 | 独立后台管理律所、人员、团队、岗位、审批、模板和外部接入；系统管理与业务权限分离 |\r\n| 冲突核查 | 区分收案前预检、正式收案检索和办理中动态复核 |\r\n| 法院短信 | 保存短信、提取附件、可选 OCR/AI 阅读、形成整理建议，经律师确认后更新案件或建立事项 |\r\n| 财务 | 实收先登记后确认；发票与收款关联、应收核销、补充协议、财务更正及分成结算 |\r\n| 提醒 | 送达台账、保全补扫、接收人有效性核查、邮件通道状态提示 |\r\n| 归档 | 制度配置、送审快照、财务收尾、补充归档与限时只读借阅 |\r\n\r\n以上为相对 1.0 的累计变化，管理后台等已在 1.3 系列引入，并非全部在本次首次出现。\r\n\r\n## 重点修复与 RC1 缺口补齐\r\n\r\n- 修复部署与备份配置、部分漏提醒、权限过滤、短信重复执行和字段复核、财务统计、归档收尾及上海时区问题。\r\n- 补齐并实测 1.3.x 增量升级路径、数据库保护触发器和约束；审计记录防删除已在独立库实测。\r\n- 修复验收发现的生产中文错误提示、结案程序联动、归档快照、财务收尾资格、借阅可见性和自审批入口、其他期限环节回退等问题。\r\n- 修复上海 23:00 后开庭提醒测试受当前时间影响的问题，分别覆盖开庭前与开庭后提示。\r\n\r\n## 安装与升级必读\r\n\r\n**发布包不包含开发者本地的演示案件、测试业务数据、客户、财务记录、附件或数据库备份。** 全新初始化只建立管理员、基础配置及空白模板，业务列表为空。\r\n\r\n**1.3.x 升级必须按四步走：增量 SQL → 两次 resolve → deploy。旧两步说明已作废。**\r\n\r\n1. 执行 `prisma/upgrade/v1_3_x_to_v1_4_0.sql`，遇错即停。\r\n2. `npx prisma migrate resolve --applied 0_init`\r\n3. `npx prisma migrate resolve --applied 20260921000004_archive_borrow`\r\n4. `npx prisma migrate deploy`，随后检查迁移状态。\r\n\r\n升级前备份数据库及材料，并在自己的部署副本按[完整升级指南](https://github.com/lawflow-boop/LawLink/blob/v2.0.0/docs/RELEASE-GUIDE-v1.3.md)演练。脚本名中的 1.4.0 为保留的内部名称。1.0–1.2 不在本次增量升级实测范围。**RC1 已初始化的新库不重复运行该增量 SQL**，请看[2.0 使用指南](https://github.com/lawflow-boop/LawLink/blob/v2.0.0/docs/RELEASE-GUIDE-v2.md)。\r\n\r\n## 验证与已知限制\r\n\r\n独立发布副本 **775 项测试、lint、typecheck、生产构建全部通过**。空库迁移、旧版合成数据升级、审计防删和空白初始化已复测。业务全流程验收与本次独立复测范围分别记录，不混同。\r\n\r\n未覆盖多用户并发实测、OCR 可信度完整评估、全部法院短信平台兼容性、借阅到期真实时间等待验证。短信逐页来源回看、开庭改期更正和环节归类仍有完善空间；提醒按单体单进程部署。\r\n\r\n- [完整版本介绍](https://github.com/lawflow-boop/LawLink/blob/v2.0.0/docs/RELEASE-NOTES-v2.0.0.md)\r\n- [发布验证记录](https://github.com/lawflow-boop/LawLink/blob/v2.0.0/docs/RELEASE-VALIDATION-v2.0.0.md)\r\n- [安装说明](https://github.com/lawflow-boop/LawLink/blob/v2.0.0/README.md)\r\n- [详细 CHANGELOG](https://github.com/lawflow-boop/LawLink/blob/v2.0.0/CHANGELOG.md)\r\n- [与 RC1 的代码比较](https://github.com/lawflow-boop/LawLink/compare/v2.0.0-rc.1...v2.0.0)"
+      },
+      {
+        "url": "https://api.github.com/repos/lawflow-boop/LawLink/releases/392889334",
+        "assets_url": "https://api.github.com/repos/lawflow-boop/LawLink/releases/392889334/assets",
+        "upload_url": "https://uploads.github.com/repos/lawflow-boop/LawLink/releases/392889334/assets{?name,label}",
+        "html_url": "https://github.com/lawflow-boop/LawLink/releases/tag/v2.0.0-rc.1",
+        "id": 392889334,
+        "author": {
+          "login": "lawflow-boop",
+          "id": 280251958,
+          "node_id": "U_kgDOELRONg",
+          "avatar_url": "https://avatars.githubusercontent.com/u/280251958?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/lawflow-boop",
+          "html_url": "https://github.com/lawflow-boop",
+          "followers_url": "https://api.github.com/users/lawflow-boop/followers",
+          "following_url": "https://api.github.com/users/lawflow-boop/following{/other_user}",
+          "gists_url": "https://api.github.com/users/lawflow-boop/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/lawflow-boop/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/lawflow-boop/subscriptions",
+          "organizations_url": "https://api.github.com/users/lawflow-boop/orgs",
+          "repos_url": "https://api.github.com/users/lawflow-boop/repos",
+          "events_url": "https://api.github.com/users/lawflow-boop/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/lawflow-boop/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "node_id": "RE_kwDOSy-KNM4XawP2",
+        "tag_name": "v2.0.0-rc.1",
+        "target_commitish": "main",
+        "name": "LawLink 2.0 RC1｜墨案界面、案卷工作台与业务流程升级",
+        "draft": false,
+        "immutable": false,
+        "prerelease": true,
+        "created_at": "2026-09-21T11:00:00Z",
+        "updated_at": "2026-09-21T11:02:30Z",
+        "published_at": "2026-09-21T11:02:30Z",
+        "assets": [],
+        "tarball_url": "https://api.github.com/repos/lawflow-boop/LawLink/tarball/v2.0.0-rc.1",
+        "zipball_url": "https://api.github.com/repos/lawflow-boop/LawLink/zipball/v2.0.0-rc.1",
+        "body": "**版本：v2.0.0-rc.1 · 候选版 / Pre-release**\r\n\r\nLawLink 2.0 是一次覆盖界面、案件办理、权限管理、财务和归档流程的重要更新。继续采用 MIT 协议，面向独立律师、小团队和小型律所，保持开源、自部署的定位。\r\n\r\n> 本文介绍相对 **1.0 的累计变化**。管理后台、岗位与审批权限等已在 1.3 系列引入；法院短信、日历订阅和期限引擎在早期已有基础能力，本次继续增强。原计划的 1.4.0 尚未公开发布，本次统一命名为 2.0 候选版。\r\n>\r\n> **仅限独立空库试用，暂不用于正式案件，不支持 1.x 原库直接升级。** 标记 `0_init` 已应用不会转换旧数据。新库基线还缺少历史审计日志防删除触发器，数据库层保护需补齐后再验收。\r\n\r\n## 相比 1.0，有哪些变化？\r\n\r\n### 全新“墨案”界面与案卷工作台\r\n\r\n重新设计登录页、工作台、案件、审批、财务、日程和管理后台，统一页面、表单与弹窗。收案和正式案件集中管理，法院短信改为顶栏入口及未处理角标。\r\n\r\n案件详情分为“案件档案、办案进程、委托与财务、审批用印”，按程序和办案环节组织待办、材料与经办记录；支持卷宗打包导出。财务对账改为四个分区页签，长列表可展开收起。\r\n\r\n### 管理后台、岗位与审批\r\n\r\n独立后台集中维护律所、人员、岗位、团队、审批权限、归档制度、模板、外部接入和审计。系统管理、业务岗位和事项审批分别授权；支持自定义岗位、团队只读访问、受限案件及独立执业组合权限模板。\r\n\r\n### 收案与利益冲突核查\r\n\r\n区分收案前预检、收案正式检索和办理中动态复核。预检展示命中与风险线索，不直接出具“无冲突”结论；主体或代理范围变化后，相关操作前要求重新复核。名称匹配增加双向匹配和归一化处理。\r\n\r\n### 法院短信阅读与整理\r\n\r\n在既有解析和附件提取基础上，增加私有暂存、多文件取件、后台处理、OCR 和整理建议：\r\n\r\n**保存短信 → 提取附件 → 阅读分析 → 形成建议 → 律师确认 → 更新案件或建立事项。**\r\n\r\nAI 输出不会直接覆盖正式信息。需要登录、验证码或无法自动取件时，可人工下载补传；服务未配置或失败时明确显示状态。\r\n\r\n### 财务流程与统计口径\r\n\r\n- 实收先登记，再由有权限人员确认；待确认金额不计入正式实收和分成。\r\n- 开票不以已收款为前提，支持审批与电子发票上传。\r\n- 补充协议按追加、调减、替代总价、范围变更或终止结算分别处理。\r\n- 收款可按最早到期应收生成分配建议，经预览确认后应用。\r\n- 财务更正、分成支付和扣回分别授权留痕；核销率采用同一批应收口径。\r\n\r\n### 提醒、归档与借阅\r\n\r\n增加提醒送达台账、保全补扫、接收人有效性核对及邮件通道状态提示。发送前复核当前事项，改期、确认和交接后作废旧提醒。放假安排供期限顺延核对，不自动改写律师填写的到期日。\r\n\r\n完善归档制度、送审快照、财务收尾及补充归档；借阅支持申请、审批、限时只读查阅和归还留痕。\r\n\r\n## 重点修复\r\n\r\n- 部署与备份：Compose 配置、镜像备份工具、输出卷及存储路径问题。\r\n- 提醒：部分停机漏提醒、停用账号接收、邮件摘要截断及进程内重复投递。\r\n- 权限与检索：部分写入授权不一致、权限过滤与取数窗口造成的条目遗漏。\r\n- 短信：归属校验、重复执行保护、字段原值复核与失败重试。\r\n- 财务与归档：部分金额、退款扣回、收尾校验和责任交接问题。\r\n- 时区：日期、日历、报表和编号统一中国大陆时区。\r\n- 安全与审计：AI 调用发起人、中文审计标签、出站请求校验、AI 输出限制及已知漏洞依赖更新。\r\n\r\n## 验证与限制\r\n\r\n独立发布副本通过 **769 项测试、lint、类型检查、Prisma 校验及生产构建**；全量与生产依赖审计均为 0 个已知漏洞（2026-09-21）。空库迁移、初始化、生产登录与 11 个页面访问检查通过。测试通过不等于完整业务或安全验收。\r\n\r\n- **不包含本地展示案件、客户、财务记录、附件或数据库备份。** 初始化后 76 个模型为空；仅建立管理员及案由、空白模板等系统基础配置。\r\n- 1.x 原库升级路径及新库审计防删触发器仍待完善。\r\n- 短信来源逐页定位、开庭改期更正、环节级归类和专门分诊界面尚未完成。\r\n- 法院取件兼容性、OCR 准确性、完整业务写入闭环、多用户并发及整套云部署仍需进一步验收。\r\n- 提醒投递当前按单体单进程部署，多实例协调尚未完成。\r\n\r\n## 文档\r\n\r\n- [完整发布说明](https://github.com/lawflow-boop/LawLink/blob/v2.0.0-rc.1/docs/RELEASE-NOTES-v2.0.0-rc.1.md)\r\n- [安装与首次配置](https://github.com/lawflow-boop/LawLink/blob/v2.0.0-rc.1/README.md)\r\n- [使用与升级边界](https://github.com/lawflow-boop/LawLink/blob/v2.0.0-rc.1/docs/RELEASE-GUIDE-v2.md)\r\n- [发布检查记录](https://github.com/lawflow-boop/LawLink/blob/v2.0.0-rc.1/docs/RELEASE-VALIDATION-v2.0.0-rc.1.md)\r\n- [详细变更记录](https://github.com/lawflow-boop/LawLink/blob/v2.0.0-rc.1/CHANGELOG.md)\r\n- [自 v1.3.2 起的代码比较](https://github.com/lawflow-boop/LawLink/compare/v1.3.2...v2.0.0-rc.1)\r\n\r\n欢迎通过 Issues 提交可复现问题，案件、身份和财务信息请先脱敏。"
+      }
+    ]
+  ],
+  "tags": [
+    [
+      {
+        "name": "v2.0.1",
+        "zipball_url": "https://api.github.com/repos/lawflow-boop/LawLink/zipball/refs/tags/v2.0.1",
+        "tarball_url": "https://api.github.com/repos/lawflow-boop/LawLink/tarball/refs/tags/v2.0.1",
+        "commit": {
+          "sha": "4736aa100515bb15f47443cdb6b0ae65745e5fff",
+          "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/4736aa100515bb15f47443cdb6b0ae65745e5fff"
+        },
+        "node_id": "REF_kwDOSy-KNLByZWZzL3RhZ3MvdjIuMC4x"
+      },
+      {
+        "name": "v2.0.0",
+        "zipball_url": "https://api.github.com/repos/lawflow-boop/LawLink/zipball/refs/tags/v2.0.0",
+        "tarball_url": "https://api.github.com/repos/lawflow-boop/LawLink/tarball/refs/tags/v2.0.0",
+        "commit": {
+          "sha": "5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+          "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd"
+        },
+        "node_id": "REF_kwDOSy-KNLByZWZzL3RhZ3MvdjIuMC4w"
+      },
+      {
+        "name": "v2.0.0-rc.1",
+        "zipball_url": "https://api.github.com/repos/lawflow-boop/LawLink/zipball/refs/tags/v2.0.0-rc.1",
+        "tarball_url": "https://api.github.com/repos/lawflow-boop/LawLink/tarball/refs/tags/v2.0.0-rc.1",
+        "commit": {
+          "sha": "d2cbb201396af9230ba8617d1bb38ded2572fc44",
+          "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/d2cbb201396af9230ba8617d1bb38ded2572fc44"
+        },
+        "node_id": "REF_kwDOSy-KNLVyZWZzL3RhZ3MvdjIuMC4wLXJjLjE"
+      },
+      {
+        "name": "v1.3.2",
+        "zipball_url": "https://api.github.com/repos/lawflow-boop/LawLink/zipball/refs/tags/v1.3.2",
+        "tarball_url": "https://api.github.com/repos/lawflow-boop/LawLink/tarball/refs/tags/v1.3.2",
+        "commit": {
+          "sha": "24163b0319335c0eaf5641adb6f0b6b78daa360b",
+          "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/24163b0319335c0eaf5641adb6f0b6b78daa360b"
+        },
+        "node_id": "REF_kwDOSy-KNLByZWZzL3RhZ3MvdjEuMy4y"
+      },
+      {
+        "name": "v1.3.1",
+        "zipball_url": "https://api.github.com/repos/lawflow-boop/LawLink/zipball/refs/tags/v1.3.1",
+        "tarball_url": "https://api.github.com/repos/lawflow-boop/LawLink/tarball/refs/tags/v1.3.1",
+        "commit": {
+          "sha": "56fb8f6fdf88f4567f1bf61c7e4a0405b46ea8dd",
+          "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/56fb8f6fdf88f4567f1bf61c7e4a0405b46ea8dd"
+        },
+        "node_id": "REF_kwDOSy-KNLByZWZzL3RhZ3MvdjEuMy4x"
+      },
+      {
+        "name": "v1.3.0",
+        "zipball_url": "https://api.github.com/repos/lawflow-boop/LawLink/zipball/refs/tags/v1.3.0",
+        "tarball_url": "https://api.github.com/repos/lawflow-boop/LawLink/tarball/refs/tags/v1.3.0",
+        "commit": {
+          "sha": "55b486a05459275f4a6ab4ef3e020c0288c67f06",
+          "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/55b486a05459275f4a6ab4ef3e020c0288c67f06"
+        },
+        "node_id": "REF_kwDOSy-KNLByZWZzL3RhZ3MvdjEuMy4w"
+      },
+      {
+        "name": "v1.2",
+        "zipball_url": "https://api.github.com/repos/lawflow-boop/LawLink/zipball/refs/tags/v1.2",
+        "tarball_url": "https://api.github.com/repos/lawflow-boop/LawLink/tarball/refs/tags/v1.2",
+        "commit": {
+          "sha": "18c60f4ad90067987e3c5db5eb1d8effcb1de9c2",
+          "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/18c60f4ad90067987e3c5db5eb1d8effcb1de9c2"
+        },
+        "node_id": "REF_kwDOSy-KNK5yZWZzL3RhZ3MvdjEuMg"
+      },
+      {
+        "name": "v0.47",
+        "zipball_url": "https://api.github.com/repos/lawflow-boop/LawLink/zipball/refs/tags/v0.47",
+        "tarball_url": "https://api.github.com/repos/lawflow-boop/LawLink/tarball/refs/tags/v0.47",
+        "commit": {
+          "sha": "c991a08a1eaffa5aef5c88706c042394c9acfd0a",
+          "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/c991a08a1eaffa5aef5c88706c042394c9acfd0a"
+        },
+        "node_id": "REF_kwDOSy-KNK9yZWZzL3RhZ3MvdjAuNDc"
+      }
+    ]
+  ]
+}

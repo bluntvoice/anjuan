@@ -1,0 +1,265 @@
+{
+  "url": "https://api.github.com/repos/lawflow-boop/LawLink/compare/v2.0.0...main",
+  "html_url": "https://github.com/lawflow-boop/LawLink/compare/v2.0.0...main",
+  "permalink_url": "https://github.com/lawflow-boop/LawLink/compare/lawflow-boop:5b814c9...lawflow-boop:4736aa1",
+  "diff_url": "https://github.com/lawflow-boop/LawLink/compare/v2.0.0...main.diff",
+  "patch_url": "https://github.com/lawflow-boop/LawLink/compare/v2.0.0...main.patch",
+  "base_commit": {
+    "sha": "5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "node_id": "C_kwDOSy-KNNoAKDViODE0YzllNWEyYmQ2NGUxMTc5NGI5NGYyZjRmYmEyZjRjNGE2ZGQ",
+    "commit": {
+      "author": {
+        "name": "lawlink",
+        "email": "lawlink@local",
+        "date": "2026-09-21T15:26:54Z"
+      },
+      "committer": {
+        "name": "lawlink",
+        "email": "lawlink@local",
+        "date": "2026-09-21T15:26:54Z"
+      },
+      "message": "release: publish v2.0.0 with validated upgrade and deterministic reminder tests",
+      "tree": {
+        "sha": "efc8d3686794e24931c8eb2be29a2c94a9e3cd5f",
+        "url": "https://api.github.com/repos/lawflow-boop/LawLink/git/trees/efc8d3686794e24931c8eb2be29a2c94a9e3cd5f"
+      },
+      "url": "https://api.github.com/repos/lawflow-boop/LawLink/git/commits/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "html_url": "https://github.com/lawflow-boop/LawLink/commit/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "comments_url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "d2cbb201396af9230ba8617d1bb38ded2572fc44",
+        "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/d2cbb201396af9230ba8617d1bb38ded2572fc44",
+        "html_url": "https://github.com/lawflow-boop/LawLink/commit/d2cbb201396af9230ba8617d1bb38ded2572fc44"
+      },
+      {
+        "sha": "597404b55c1284c6c563b7f980df6451aea54eb6",
+        "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/597404b55c1284c6c563b7f980df6451aea54eb6",
+        "html_url": "https://github.com/lawflow-boop/LawLink/commit/597404b55c1284c6c563b7f980df6451aea54eb6"
+      }
+    ]
+  },
+  "merge_base_commit": {
+    "sha": "5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "node_id": "C_kwDOSy-KNNoAKDViODE0YzllNWEyYmQ2NGUxMTc5NGI5NGYyZjRmYmEyZjRjNGE2ZGQ",
+    "commit": {
+      "author": {
+        "name": "lawlink",
+        "email": "lawlink@local",
+        "date": "2026-09-21T15:26:54Z"
+      },
+      "committer": {
+        "name": "lawlink",
+        "email": "lawlink@local",
+        "date": "2026-09-21T15:26:54Z"
+      },
+      "message": "release: publish v2.0.0 with validated upgrade and deterministic reminder tests",
+      "tree": {
+        "sha": "efc8d3686794e24931c8eb2be29a2c94a9e3cd5f",
+        "url": "https://api.github.com/repos/lawflow-boop/LawLink/git/trees/efc8d3686794e24931c8eb2be29a2c94a9e3cd5f"
+      },
+      "url": "https://api.github.com/repos/lawflow-boop/LawLink/git/commits/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "html_url": "https://github.com/lawflow-boop/LawLink/commit/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+    "comments_url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "d2cbb201396af9230ba8617d1bb38ded2572fc44",
+        "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/d2cbb201396af9230ba8617d1bb38ded2572fc44",
+        "html_url": "https://github.com/lawflow-boop/LawLink/commit/d2cbb201396af9230ba8617d1bb38ded2572fc44"
+      },
+      {
+        "sha": "597404b55c1284c6c563b7f980df6451aea54eb6",
+        "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/597404b55c1284c6c563b7f980df6451aea54eb6",
+        "html_url": "https://github.com/lawflow-boop/LawLink/commit/597404b55c1284c6c563b7f980df6451aea54eb6"
+      }
+    ]
+  },
+  "status": "ahead",
+  "ahead_by": 2,
+  "behind_by": 0,
+  "total_commits": 2,
+  "commits": [
+    {
+      "sha": "b50c56ba29466f98d9de90267b79facf137cc965",
+      "node_id": "C_kwDOSy-KNNoAKGI1MGM1NmJhMjk0NjZmOThkOWRlOTAyNjdiNzlmYWNmMTM3Y2M5NjU",
+      "commit": {
+        "author": {
+          "name": "lawlink",
+          "email": "lawlink@local",
+          "date": "2026-09-21T15:56:22Z"
+        },
+        "committer": {
+          "name": "lawlink",
+          "email": "lawlink@local",
+          "date": "2026-09-21T15:56:22Z"
+        },
+        "message": "docs: 定稿 LawLink 品牌标语",
+        "tree": {
+          "sha": "a4068e529735c7c8628557e35f0d54255ad86a68",
+          "url": "https://api.github.com/repos/lawflow-boop/LawLink/git/trees/a4068e529735c7c8628557e35f0d54255ad86a68"
+        },
+        "url": "https://api.github.com/repos/lawflow-boop/LawLink/git/commits/b50c56ba29466f98d9de90267b79facf137cc965",
+        "comment_count": 0,
+        "verification": {
+          "verified": false,
+          "reason": "unsigned",
+          "signature": null,
+          "payload": null,
+          "verified_at": null
+        }
+      },
+      "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/b50c56ba29466f98d9de90267b79facf137cc965",
+      "html_url": "https://github.com/lawflow-boop/LawLink/commit/b50c56ba29466f98d9de90267b79facf137cc965",
+      "comments_url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/b50c56ba29466f98d9de90267b79facf137cc965/comments",
+      "author": null,
+      "committer": null,
+      "parents": [
+        {
+          "sha": "5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+          "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd",
+          "html_url": "https://github.com/lawflow-boop/LawLink/commit/5b814c9e5a2bd64e11794b94f2f4fba2f4c4a6dd"
+        }
+      ]
+    },
+    {
+      "sha": "4736aa100515bb15f47443cdb6b0ae65745e5fff",
+      "node_id": "C_kwDOSy-KNNoAKDQ3MzZhYTEwMDUxNWJiMTVmNDc0NDNjZGI2YjBhZTY1NzQ1ZTVmZmY",
+      "commit": {
+        "author": {
+          "name": "lawlink",
+          "email": "lawlink@local",
+          "date": "2026-09-22T05:31:30Z"
+        },
+        "committer": {
+          "name": "lawlink",
+          "email": "lawlink@local",
+          "date": "2026-09-22T05:31:30Z"
+        },
+        "message": "release: v2.0.1 修补容器部署两处断点\n\nDocker 全新部署实机验证（隔离环境，未触碰主库）暴露两个阻断性问题，v2.0.0\n的容器部署路径整条不可用。业务逻辑、数据库结构与界面均无改动。\n\n一、镜像缺少 openssl\n- node:22-alpine 只带 libssl3，不带 openssl 命令行；Prisma 在 npm ci /\n  prisma generate 阶段靠它探测 OpenSSL 版本，探测失败会静默回退选择\n  openssl-1.1.x 的引擎二进制，而运行环境只有 libssl3，引擎加载失败。\n- 表现：Could not parse schema engine response: ... \"Error load\"...\n- 影响：容器内 prisma migrate deploy / db seed 与应用自身的数据库查询全部\n  不可用，即按云服务器安装指南部署会卡在初始化第一步。\n- 修复：deps / builder / runner 三阶段均补装 openssl。\n\n二、runner 镜像缺少 next.config.mjs\n- 本项目 distDir 取自 NEXT_DIST_DIR（产物在 .next-build 而非默认 .next），\n  配置文件不在镜像中时 next start 去找 .next，报 Could not find a\n  production build，容器无限重启。\n- 该文件还承载 serverExternalPackages（缺失让 @napi-rs/canvas / unpdf 依赖\n  链上的路由 500）、serverActions 25MB 上传上限、全站安全响应头——即使容器\n  能启动，缺配置同样是错误部署。\n- 修复：runner 阶段补 COPY next.config.mjs。\n\n验证（隔离 project lawlink-verify，独立容器名/端口/卷/密钥）：\n- 全新安装 10 项全通过：migrate deploy、db seed（按指南挂载 src）、健康端点\n  200、/login 200、六张业务表合计 0 行、守卫对象 10 触发器/5 函数/25 CHECK、\n  审计防删触发器实际拦截 DELETE（返回中文拒绝原因）、备份链跑出\n  database.dump + manifest.json + storage.tar.gz。\n- 本机：lint / typecheck 干净，775 测试全绿，生产构建通过。\n\n两条教训固化进 AGENTS §五 6.2 / 6.3，核心一句：该故障不会被任何本机验证\n发现（宿主机有 openssl，构建、测试、生产构建、浏览器走查全部正常），容器\n部署路径必须实机验证，不能从本机推断。\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+        "tree": {
+          "sha": "c467361bd9cfc5b20a23d90a59747f99432c7beb",
+          "url": "https://api.github.com/repos/lawflow-boop/LawLink/git/trees/c467361bd9cfc5b20a23d90a59747f99432c7beb"
+        },
+        "url": "https://api.github.com/repos/lawflow-boop/LawLink/git/commits/4736aa100515bb15f47443cdb6b0ae65745e5fff",
+        "comment_count": 0,
+        "verification": {
+          "verified": false,
+          "reason": "unsigned",
+          "signature": null,
+          "payload": null,
+          "verified_at": null
+        }
+      },
+      "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/4736aa100515bb15f47443cdb6b0ae65745e5fff",
+      "html_url": "https://github.com/lawflow-boop/LawLink/commit/4736aa100515bb15f47443cdb6b0ae65745e5fff",
+      "comments_url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/4736aa100515bb15f47443cdb6b0ae65745e5fff/comments",
+      "author": null,
+      "committer": null,
+      "parents": [
+        {
+          "sha": "b50c56ba29466f98d9de90267b79facf137cc965",
+          "url": "https://api.github.com/repos/lawflow-boop/LawLink/commits/b50c56ba29466f98d9de90267b79facf137cc965",
+          "html_url": "https://github.com/lawflow-boop/LawLink/commit/b50c56ba29466f98d9de90267b79facf137cc965"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "sha": "ce1b179c585face26b775aad501a2f10d4d5822f",
+      "filename": "AGENTS.md",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/lawflow-boop/LawLink/blob/4736aa100515bb15f47443cdb6b0ae65745e5fff/AGENTS.md",
+      "raw_url": "https://github.com/lawflow-boop/LawLink/raw/4736aa100515bb15f47443cdb6b0ae65745e5fff/AGENTS.md",
+      "contents_url": "https://api.github.com/repos/lawflow-boop/LawLink/contents/AGENTS.md?ref=4736aa100515bb15f47443cdb6b0ae65745e5fff",
+      "patch": "@@ -8,6 +8,7 @@\n ### 一、项目定位\n \n - **LawLink** 是面向独立律师、小团队和小型律所的**开源、自部署**案件/项目管理系统。\n+- **品牌标语（2026-09-21 用户定稿）**：**事有经纬，案有始终。** README、GitHub 仓库简介及后续品牌展示统一使用此句；产品功能说明另行保留。\n - 第一版主线工作流：\n   `收案登记 → 冲突检索 → 转正式案件 → 持续跟进 → 财务记录 → 结案归档 → 数据导出`\n - **不做共享 SaaS 多租户**。一个律所/团队部署一套实例，单体应用 + 单库。\n@@ -262,6 +263,12 @@ v1 报告两条头牌 P1 经独立核对证伪/收窄后出 v2 修订版，本\n 4. **不为了让代码跑起来**注释掉校验、绕过权限判断、`@ts-ignore` 整段。找根因。\n 5. **密钥、token、密码**不进代码、不进 commit、不进日志、不进截图。`.env` 永远在 `.gitignore`。\n 6. **Prisma 迁移**先用 `prisma migrate dev --create-only` 生成 SQL 给叶森看，再执行。生产迁移走 `prisma migrate deploy`。\n+6.1 **Prisma schema 不表达数据库对象——重建迁移基线必须单独补守卫**（2026-09-21 v2.0.0 发布前实测暴露）。`prisma migrate diff --from-empty` 生成的基线只含表、列、外键、普通索引与枚举；**触发器、函数、CHECK 约束、部分（条件）唯一索引一律不在其中**。2026-09-21 重建 `0_init` 后，全新安装的库缺 10 个触发器、5 个函数、25 个 CHECK 约束、8 个部分唯一索引——**其中包括 §八 明令的 AuditLog 防删触发器**，即\"审计日志不可由业务代码删除\"在新装库里当时是失效的；已由 `20260921000005_restore_db_guards` 幂等恢复。\n+   - 今后任何基线重建 / squash，验收标准不是\"能建表、能跑通\"，而是**新库与主库的数据库对象集逐类比对为空差**：`pg_trigger`（排除系统触发器）、`pg_proc`（用户函数）、`pg_constraint` 的 CHECK、`pg_index` 中带 `indpred` 的部分索引。\n+   - 同理，**升级路径的验证库必须由真实旧版本全链重放得到**，不能用新基线建库冒充。2026-09-21 曾用 `0_init` 建的探针库验证 v1.3.x 升级步骤并写入文档，实测发现该步骤对真实 v1.3.x 必然失败（`20260921000004` 报 42704 枚举不存在，且失败记录阻断后续迁移）——形似而神不似的验证环境比不验证更危险，因为它会产出一份看起来已验证的错误文档。\n+6.2 **容器镜像必须显式安装 `openssl`——Prisma 靠它选引擎二进制**（2026-09-21 v2.0.0 发布后 Docker 部署验证暴露）。`node:22-alpine` 只带 `libssl3`，不带 `openssl` 命令行。Prisma 在 `npm ci` / `prisma generate` 时用它探测 OpenSSL 版本，探测失败会**静默回退**选择 `openssl-1.1.x` 的引擎（`schema-engine-linux-musl-arm64-openssl-1.1.x`、`libquery_engine-…-openssl-1.1.x.so.node`），而运行环境只有 libssl3 —— 引擎加载失败，报 `Could not parse schema engine response: … \"Error load\"…`。后果是**容器内 `prisma migrate deploy` / `db seed` 与应用自身的数据库查询全部不可用，Docker 部署路径整条断掉**；deps / builder / runner 三个阶段都要装。\n+   - 该故障**不会被任何本机验证发现**：宿主机有 openssl，`npm run build`、全部单测、生产构建与浏览器走查都正常；只有真正构建镜像并在容器内执行 Prisma 命令才会暴露。**容器部署路径必须实机验证，不能从本机通过推断。**\n+6.3 **runner 镜像必须带 `next.config.mjs`**（2026-09-21 同批暴露）。本项目的 `distDir` 读 `NEXT_DIST_DIR`（构建产物在 `.next-build`，非默认 `.next`），配置文件不进镜像则 `next start` 去找 `.next` 并报 `Could not find a production build`，容器无限重启。该文件还承载 `serverExternalPackages`（缺则 `@napi-rs/canvas`/`unpdf` 依赖链上的路由 500）、`serverActions.bodySizeLimit`（材料上传 25MB）与全站安全响应头——**即便容器能起来，缺配置也是错的部署**。非 standalone 模式下 `next start` 的运行时最小集为：`next.config.mjs` + `.next-build` + `public` + `node_modules` + `package.json`；`instrumentation.ts` 已编译进 `.next-build/server/`，无需单独 COPY。\n 7. **删除文件、`.env` / CI 修改、`git reset/rebase/push`、生产部署**必须先征得叶森确认（红线）。\n 8. **附件**默认私有存储在 `storage/`，下载经鉴权 API，不暴露公开直链。\n "
+    },
+    {
+      "sha": "0fad6ac62037359ea3680a52a97e0759ac35ce69",
+      "filename": "CHANGELOG.md",
+      "status": "modified",
+      "additions": 26,
+      "deletions": 0,
+      "changes": 26,
+      "blob_url": "https://github.com/lawflow-boop/LawLink/blob/4736aa100515bb15f47443cdb6b0ae65745e5fff/CHANGELOG.md",
+      "raw_url": "https://github.com/lawflow-boop/LawLink/raw/4736aa100515bb15f47443cdb6b0ae65745e5fff/CHANGELOG.md",
+      "contents_url": "https://api.github.com/repos/lawflow-boop/LawLink/contents/CHANGELOG.md?ref=4736aa100515bb15f47443cdb6b0ae65745e5fff",
+      "patch": "@@ -7,6 +7,32 @@\n > **升级前请先运行 `./scripts/backup.sh`**，这是唯一可靠的回退手段。\n > 想继续使用旧版本的，见 [v0.47 tag](https://github.com/lawflow-boop/LawLink/releases/tag/v0.47)。\n \n+## [2.0.1] - 2026-09-21\n+\n+修补版。**仅修复容器部署，业务逻辑、数据库结构与界面均无改动**；已用源码方式（`npm ci` + 本机 Node）部署的实例不受影响，无需升级。\n+\n+### 修复\n+\n+- **容器镜像缺少 `openssl`，导致 Docker 部署整条路径不可用**。`node:22-alpine` 只带 `libssl3`，不带 `openssl` 命令行；Prisma 在安装与生成阶段靠它探测 OpenSSL 版本，探测失败会静默回退选择 `openssl-1.1.x` 的引擎二进制，而运行环境只有 libssl3，引擎无法加载。表现为：\n+\n+  ```\n+  prisma:warn Prisma failed to detect the libssl/openssl version to use,\n+              Defaulting to \"openssl-1.1.x\".\n+  Error: Could not parse schema engine response:\n+         SyntaxError: Unexpected token 'E', \"Error load\"... is not valid JSON\n+  ```\n+\n+  受影响的是容器内的 `prisma migrate deploy`、`prisma db seed`，以及应用自身的数据库查询——即按[云服务器安装指南](./docs/CLOUD-SERVER-INSTALLATION-GUIDE.md)部署会卡在初始化第一步。`Dockerfile` 的 deps / builder / runner 三个阶段均已补装 `openssl`。\n+\n+- **运行镜像缺少 `next.config.mjs`，容器无法启动**。本项目的 `distDir` 取自 `NEXT_DIST_DIR`（构建产物在 `.next-build` 而非默认 `.next`），配置文件不在镜像中时 `next start` 会去找 `.next` 并报 `Could not find a production build`，容器反复重启。该文件同时承载 `serverExternalPackages`（缺失会让 `@napi-rs/canvas` / `unpdf` 依赖链上的路由返回 500）、Server Actions 的 25MB 上传上限（缺失则材料上传超 1MB 即失败）与全站安全响应头——**即使容器能启动，缺少该配置也是错误的部署**。runner 阶段已补 COPY。\n+\n+  该故障不会被本机验证发现：宿主机自带 openssl，构建、测试、生产构建与浏览器走查全部正常，只有实际构建镜像并在容器内执行 Prisma 命令才会暴露。发布流程已相应增加容器部署实机验证环节。\n+\n+### 升级\n+\n+- 从 v2.0.0 升级：拉取新代码后 **重新构建镜像**（`docker compose build app`），无需执行任何数据库迁移。\n+- 从 v1.3.x 升级：步骤不变，见 [升级说明](./docs/RELEASE-GUIDE-v1.3.md#从-v13x-升级迁移基线重建必读含手工步骤)。\n+\n ## [2.0.0] - 2026-09-21\n \n 正式标签指向以 `597404b` 为基线、包含测试时钟修复和发布文档的正式提交。包版本已统一为 2.0.0；旧文档及升级脚本保留 1.4.0 名称。补充固定时钟测试，同时覆盖开庭前和开庭后提醒。"
+    },
+    {
+      "sha": "b97d42a402f053b44603a4585c1dd63f6c7f1d74",
+      "filename": "Dockerfile",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 2,
+      "changes": 17,
+      "blob_url": "https://github.com/lawflow-boop/LawLink/blob/4736aa100515bb15f47443cdb6b0ae65745e5fff/Dockerfile",
+      "raw_url": "https://github.com/lawflow-boop/LawLink/raw/4736aa100515bb15f47443cdb6b0ae65745e5fff/Dockerfile",
+      "contents_url": "https://api.github.com/repos/lawflow-boop/LawLink/contents/Dockerfile?ref=4736aa100515bb15f47443cdb6b0ae65745e5fff",
+      "patch": "@@ -3,13 +3,19 @@\n \n FROM node:22-alpine AS deps\n WORKDIR /app\n-RUN apk add --no-cache libc6-compat\n+# openssl 必须显式安装（2026-09-21 Docker 部署验证暴露）：node:22-alpine 只带\n+# libssl3，不带 openssl 命令行；Prisma 在安装/生成时用它探测 OpenSSL 版本，探测\n+# 失败会回退选择 openssl-1.1.x 的引擎二进制，而运行环境只有 libssl3 —— 引擎加载\n+# 失败，容器内 migrate/seed 与应用查询全部不可用。见 AGENTS §五 6.2。\n+RUN apk add --no-cache libc6-compat openssl\n COPY package*.json ./\n COPY prisma ./prisma\n RUN npm ci\n \n FROM node:22-alpine AS builder\n WORKDIR /app\n+# 同 deps：prisma generate 同样按探测到的 OpenSSL 版本选引擎\n+RUN apk add --no-cache openssl\n COPY --from=deps /app/node_modules ./node_modules\n COPY . .\n RUN npx prisma generate\n@@ -23,14 +29,21 @@ ENV NEXT_TELEMETRY_DISABLED=1\n # 自动备份链依赖（2026-09-20 第六轮体检 P1-1）：backup.sh 以 bash 运行并调用\n # pg_dump。postgresql16-client 对齐 db 服务的 postgres:16（pg_dump 客户端主版本\n # 须等于或高于服务器）。缺了这两样，镜像里备份每天失败。\n-RUN apk add --no-cache bash postgresql16-client\n+# openssl：运行时 Prisma Client 加载 query engine 需要（同 deps 阶段说明）\n+RUN apk add --no-cache bash postgresql16-client openssl\n \n RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs\n \n COPY --from=builder --chown=nextjs:nodejs /app/public ./public\n COPY --from=builder --chown=nextjs:nodejs /app/.next-build ./.next-build\n COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules\n COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json\n+# next.config.mjs 必须进镜像（2026-09-21 Docker 部署验证暴露）：其中 distDir 读\n+# NEXT_DIST_DIR（构建产物在 .next-build 而非默认 .next），缺了它 next start 会去\n+# 找 .next 并报 \"Could not find a production build\"，容器无限重启。该文件还带着\n+# serverExternalPackages（缺则 /matters 等路由 500）、serverActions 25MB 上传上限\n+# 与全站安全响应头——即便能启动，缺配置同样是错的。见 AGENTS §五 6.3。\n+COPY --from=builder --chown=nextjs:nodejs /app/next.config.mjs ./next.config.mjs\n COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma\n # 备份脚本必须进镜像：cron job 通过 process.cwd()/scripts/backup.sh 调用\n COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts"
+    },
+    {
+      "sha": "77cc71121024242f07a8cc0be3c49d5ce1460b6b",
+      "filename": "README.md",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4,
+      "blob_url": "https://github.com/lawflow-boop/LawLink/blob/4736aa100515bb15f47443cdb6b0ae65745e5fff/README.md",
+      "raw_url": "https://github.com/lawflow-boop/LawLink/raw/4736aa100515bb15f47443cdb6b0ae65745e5fff/README.md",
+      "contents_url": "https://api.github.com/repos/lawflow-boop/LawLink/contents/README.md?ref=4736aa100515bb15f47443cdb6b0ae65745e5fff",
+      "patch": "@@ -1,10 +1,12 @@\n # LawLink\n \n+**事有经纬，案有始终。**\n+\n LawLink 是面向独立律师、小团队和中小律所的开源、自部署案件 / 项目管理系统。一家律所或团队部署一套实例，使用自己的数据库和文件存储。\n \n `收案登记 → 冲突检索 → 转正式案件 → 持续跟进 → 财务记录 → 结案归档 → 数据导出`\n \n-> 当前正式版：**[v2.0.0](https://github.com/lawflow-boop/LawLink/releases/tag/v2.0.0)**，以 `597404b` 为基线并补充提醒测试时钟修复，包含升级路径、数据库守卫及完整业务主流程验收修复。旧文档及升级脚本中的 1.4.0 为内部名称，对外版本为 2.0.0。见[正式发布说明](./docs/RELEASE-NOTES-v2.0.0.md)。\n+> 当前正式版：**[v2.0.1](https://github.com/lawflow-boop/LawLink/releases/tag/v2.0.1)**（修补容器镜像缺少 `openssl` 导致 Docker 部署不可用；业务逻辑与数据库结构同 v2.0.0，源码方式部署的实例不受影响）。v2.0.0，以 `597404b` 为基线并补充提醒测试时钟修复，包含升级路径、数据库守卫及完整业务主流程验收修复。旧文档及升级脚本中的 1.4.0 为内部名称，对外版本为 2.0.0。见[正式发布说明](./docs/RELEASE-NOTES-v2.0.0.md)。\n \n > **依赖安全维护（最近核对 2026-09-21）**：2026-09-21 复审时 `nodemailer` 出现 2 项 high 级公告（≤9.1.0），已升级至 10.x 并加 `overrides` 固定，复审后全量与生产依赖审计均为 0 个已知漏洞。审计结果按核对日期计，**不随时间自动成立**——部署与升级前请自行重跑 `npm audit`。该结果不等于系统安全认证，正式部署仍须完成权限与备份恢复验收。详见[安全状态](./SECURITY.md#依赖审计状态)。\n "
+    },
+    {
+      "sha": "c3184e5963339d28ab386986b7b5cb9e792751e0",
+      "filename": "next-env.d.ts",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/lawflow-boop/LawLink/blob/4736aa100515bb15f47443cdb6b0ae65745e5fff/next-env.d.ts",
+      "raw_url": "https://github.com/lawflow-boop/LawLink/raw/4736aa100515bb15f47443cdb6b0ae65745e5fff/next-env.d.ts",
+      "contents_url": "https://api.github.com/repos/lawflow-boop/LawLink/contents/next-env.d.ts?ref=4736aa100515bb15f47443cdb6b0ae65745e5fff",
+      "patch": "@@ -1,7 +1,7 @@\n /// <reference types=\"next\" />\n /// <reference types=\"next/image-types/global\" />\n-import \"./.next-dev/dev/types/routes.d.ts\";\n-import \"./.next-dev/dev/types/root-params.d.ts\";\n+import \"./.next-build/types/routes.d.ts\";\n+import \"./.next-build/types/root-params.d.ts\";\n \n // NOTE: This file should not be edited\n // see https://nextjs.org/docs/app/api-reference/config/typescript for more information."
+    },
+    {
+      "sha": "421447af863748cf82d8cc92281af6860b764143",
+      "filename": "package.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/lawflow-boop/LawLink/blob/4736aa100515bb15f47443cdb6b0ae65745e5fff/package.json",
+      "raw_url": "https://github.com/lawflow-boop/LawLink/raw/4736aa100515bb15f47443cdb6b0ae65745e5fff/package.json",
+      "contents_url": "https://api.github.com/repos/lawflow-boop/LawLink/contents/package.json?ref=4736aa100515bb15f47443cdb6b0ae65745e5fff",
+      "patch": "@@ -1,6 +1,6 @@\n {\n   \"name\": \"lawlink\",\n-  \"version\": \"2.0.0\",\n+  \"version\": \"2.0.1\",\n   \"private\": true,\n   \"license\": \"MIT\",\n   \"engines\": {"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "command": "gh api POST /repos/zj-ai-lab/anqi/forks name=anjuan default_branch_only=false",
+  "exit": 0,
+  "stdout": "{\"fork\":true,\"full_name\":\"bluntvoice/anjuan\",\"parent\":\"zj-ai-lab/anqi\",\"source\":\"zj-ai-lab/anqi\"}\n",
+  "stderr": ""
+}

@@ -1,0 +1,9 @@
+{
+  "status": "fork_verified",
+  "full_name": "bluntvoice/anjuan",
+  "url": "https://github.com/bluntvoice/anjuan",
+  "fork": true,
+  "parent": "zj-ai-lab/anqi",
+  "source": "zj-ai-lab/anqi",
+  "default_branch": "main"
+}

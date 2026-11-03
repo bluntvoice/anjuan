@@ -1,0 +1,1050 @@
+[
+  {
+    "file": "src/routes/agent.js",
+    "line": 196,
+    "method": "GET",
+    "path": "/api/agent/status",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 241,
+    "method": "POST",
+    "path": "/api/agent/global/start",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 252,
+    "method": "POST",
+    "path": "/api/agent/global/prompt",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 269,
+    "method": "POST",
+    "path": "/api/agent/global/cancel",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 277,
+    "method": "POST",
+    "path": "/api/agent/global/approval-tier",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 287,
+    "method": "GET",
+    "path": "/api/agent/global/events",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 310,
+    "method": "POST",
+    "path": "/api/agent/models",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 388,
+    "method": "POST",
+    "path": "/api/cases/:id/agent/start",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 427,
+    "method": "GET",
+    "path": "/api/cases/:id/agent/commands",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 455,
+    "method": "POST",
+    "path": "/api/cases/:id/agent/attachments",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 488,
+    "method": "GET",
+    "path": "/api/cases/:id/agent/attachments/:attachmentId",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 512,
+    "method": "POST",
+    "path": "/api/cases/:id/agent/prompt",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 575,
+    "method": "POST",
+    "path": "/api/cases/:id/agent/approval-tier",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 592,
+    "method": "POST",
+    "path": "/api/cases/:id/agent/cancel",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 611,
+    "method": "GET",
+    "path": "/api/cases/:id/agent/events",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/agent.js",
+    "line": 675,
+    "method": "POST",
+    "path": "/api/agent/interactions/:id/answer",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/auth.js",
+    "line": 11,
+    "method": "POST",
+    "path": "/api/login",
+    "permission": "auth.login",
+    "note": "公开登录/限速；不授予业务权"
+  },
+  {
+    "file": "src/routes/auth.js",
+    "line": 32,
+    "method": "POST",
+    "path": "/api/logout",
+    "permission": "session.self",
+    "note": "仅撤销本次本人会话"
+  },
+  {
+    "file": "src/routes/cases.js",
+    "line": 106,
+    "method": "GET",
+    "path": "/api/cases",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/cases.js",
+    "line": 123,
+    "method": "GET",
+    "path": "/api/case-folders",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/cases.js",
+    "line": 134,
+    "method": "POST",
+    "path": "/api/cases",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/cases.js",
+    "line": 186,
+    "method": "PUT",
+    "path": "/api/cases/:id/workspace",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/cases.js",
+    "line": 244,
+    "method": "POST",
+    "path": "/api/cases/batch-type",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/cases.js",
+    "line": 276,
+    "method": "GET",
+    "path": "/api/cases/:id",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/cases.js",
+    "line": 300,
+    "method": "PATCH",
+    "path": "/api/cases/:id",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/changes.js",
+    "line": 23,
+    "method": "GET",
+    "path": "/api/changes",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/contacts.js",
+    "line": 61,
+    "method": "GET",
+    "path": "/api/cases/:id/contacts",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/contacts.js",
+    "line": 65,
+    "method": "POST",
+    "path": "/api/cases/:id/contacts",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/contacts.js",
+    "line": 73,
+    "method": "PATCH",
+    "path": "/api/contacts/:id",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/contacts.js",
+    "line": 88,
+    "method": "DELETE",
+    "path": "/api/contacts/:id",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/fees.js",
+    "line": 102,
+    "method": "GET",
+    "path": "/api/fees/overview",
+    "permission": "fees.read",
+    "note": "三角色可读；改为五项简单费用投影，不能沿用混入分账的原响应"
+  },
+  {
+    "file": "src/routes/fees.js",
+    "line": 228,
+    "method": "GET",
+    "path": "/api/cases/:id/fees",
+    "permission": "fees.read",
+    "note": "三角色可读；改为五项简单费用投影，不能沿用混入分账的原响应"
+  },
+  {
+    "file": "src/routes/fees.js",
+    "line": 255,
+    "method": "POST",
+    "path": "/api/cases/:id/fees",
+    "permission": "fees.write",
+    "note": "管理员/编辑可新建或修改五项基本信息；强制版本/白名单/审计，复杂历史保护另核对"
+  },
+  {
+    "file": "src/routes/fees.js",
+    "line": 280,
+    "method": "PUT",
+    "path": "/api/fees/:id/files",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭：费用删除、专用凭证/发票、分账方案及结算不属首版"
+  },
+  {
+    "file": "src/routes/fees.js",
+    "line": 339,
+    "method": "DELETE",
+    "path": "/api/fees/:id/files/:fileId",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭：费用删除、专用凭证/发票、分账方案及结算不属首版"
+  },
+  {
+    "file": "src/routes/fees.js",
+    "line": 352,
+    "method": "GET",
+    "path": "/api/fees/:id/share-plans",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭：费用删除、专用凭证/发票、分账方案及结算不属首版"
+  },
+  {
+    "file": "src/routes/fees.js",
+    "line": 360,
+    "method": "PUT",
+    "path": "/api/fees/:id/share-plans",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭：费用删除、专用凭证/发票、分账方案及结算不属首版"
+  },
+  {
+    "file": "src/routes/fees.js",
+    "line": 368,
+    "method": "POST",
+    "path": "/api/fees/:id/settlements/preview",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭：费用删除、专用凭证/发票、分账方案及结算不属首版"
+  },
+  {
+    "file": "src/routes/fees.js",
+    "line": 376,
+    "method": "POST",
+    "path": "/api/fees/:id/settlements/confirm",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭：费用删除、专用凭证/发票、分账方案及结算不属首版"
+  },
+  {
+    "file": "src/routes/fees.js",
+    "line": 384,
+    "method": "PATCH",
+    "path": "/api/fees/:id",
+    "permission": "fees.write",
+    "note": "管理员/编辑可新建或修改五项基本信息；强制版本/白名单/审计，复杂历史保护另核对"
+  },
+  {
+    "file": "src/routes/fees.js",
+    "line": 474,
+    "method": "DELETE",
+    "path": "/api/fees/:id",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭：费用删除、专用凭证/发票、分账方案及结算不属首版"
+  },
+  {
+    "file": "src/routes/files.js",
+    "line": 88,
+    "method": "GET",
+    "path": "/api/cases/:id/files",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/files.js",
+    "line": 129,
+    "method": "GET",
+    "path": "/api/cases/:id/file",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/files.js",
+    "line": 147,
+    "method": "PUT",
+    "path": "/api/cases/:id/files",
+    "permission": "files.write",
+    "note": "管理员/编辑；上传/关联校验同案及字段白名单"
+  },
+  {
+    "file": "src/routes/files.js",
+    "line": 189,
+    "method": "POST",
+    "path": "/api/cases/:id/attachments",
+    "permission": "files.write",
+    "note": "管理员/编辑；上传/关联校验同案及字段白名单"
+  },
+  {
+    "file": "src/routes/files.js",
+    "line": 239,
+    "method": "GET",
+    "path": "/api/cases/:id/files/events",
+    "permission": "cases.read",
+    "note": "全部启用账号；停用/退出须撤销流"
+  },
+  {
+    "file": "src/routes/files.js",
+    "line": 281,
+    "method": "GET",
+    "path": "/api/cases/:id/files/sig",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/files.js",
+    "line": 300,
+    "method": "DELETE",
+    "path": "/api/attachments/:aid",
+    "permission": "files.unlink",
+    "note": "管理员/编辑解除附件引用并审计；原件保留，不提供本体删除/恢复"
+  },
+  {
+    "file": "src/routes/im.js",
+    "line": 6,
+    "method": "GET",
+    "path": "/api/im/wecom/status",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/im.js",
+    "line": 7,
+    "method": "POST",
+    "path": "/api/im/wecom/bind/start",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/im.js",
+    "line": 12,
+    "method": "POST",
+    "path": "/api/im/wecom/unbind",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/im.js",
+    "line": 13,
+    "method": "POST",
+    "path": "/api/im/wecom/reconnect",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/im.js",
+    "line": 17,
+    "method": "POST",
+    "path": "/api/im/wecom/test",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/internal.js",
+    "line": 20,
+    "method": "GET",
+    "path": "/internal/digest",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/internal.js",
+    "line": 22,
+    "method": "GET",
+    "path": "/internal/cases",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/internal.js",
+    "line": 67,
+    "method": "GET",
+    "path": "/internal/cases/byname/:name",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/internal.js",
+    "line": 143,
+    "method": "GET",
+    "path": "/internal/agent-case-view",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/internal.js",
+    "line": 163,
+    "method": "POST",
+    "path": "/internal/agent-case-resolve",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/internal.js",
+    "line": 189,
+    "method": "POST",
+    "path": "/internal/agent-case-select",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/internal.js",
+    "line": 205,
+    "method": "GET",
+    "path": "/internal/agent-digest",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/internal.js",
+    "line": 213,
+    "method": "POST",
+    "path": "/internal/inbox",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/internal.js",
+    "line": 248,
+    "method": "POST",
+    "path": "/internal/agent-proposals",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/legalrag.js",
+    "line": 119,
+    "method": "GET",
+    "path": "/api/cases/:id/facts",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/legalrag.js",
+    "line": 127,
+    "method": "POST",
+    "path": "/api/cases/:id/facts",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/legalrag.js",
+    "line": 135,
+    "method": "PATCH",
+    "path": "/api/facts/:id",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/legalrag.js",
+    "line": 158,
+    "method": "DELETE",
+    "path": "/api/facts/:id",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/legalrag.js",
+    "line": 166,
+    "method": "GET",
+    "path": "/api/cases/:id/legalrag/status",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/legalrag.js",
+    "line": 184,
+    "method": "POST",
+    "path": "/api/cases/:id/files/process",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/legalrag.js",
+    "line": 202,
+    "method": "POST",
+    "path": "/api/cases/:id/legalrag/reconcile",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/legalrag.js",
+    "line": 214,
+    "method": "GET",
+    "path": "/api/cases/:id/legalrag/candidates",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/legalrag.js",
+    "line": 236,
+    "method": "POST",
+    "path": "/api/legalrag/candidates/:id/accept",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/legalrag.js",
+    "line": 384,
+    "method": "POST",
+    "path": "/api/legalrag/candidates/:id/link-fee",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/legalrag.js",
+    "line": 429,
+    "method": "POST",
+    "path": "/api/legalrag/candidates/:id/decline",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/legalrag.js",
+    "line": 473,
+    "method": "POST",
+    "path": "/api/legalrag/candidate-facts/:id/reopen",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/people.js",
+    "line": 64,
+    "method": "GET",
+    "path": "/api/people",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/people.js",
+    "line": 69,
+    "method": "POST",
+    "path": "/api/people",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/people.js",
+    "line": 81,
+    "method": "PATCH",
+    "path": "/api/people/:id",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/people.js",
+    "line": 95,
+    "method": "DELETE",
+    "path": "/api/people/:id",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/people.js",
+    "line": 113,
+    "method": "GET",
+    "path": "/api/cases/:id/participants",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/people.js",
+    "line": 123,
+    "method": "POST",
+    "path": "/api/cases/:id/participants",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/people.js",
+    "line": 144,
+    "method": "PATCH",
+    "path": "/api/cases/:id/participants/:personId",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/people.js",
+    "line": 157,
+    "method": "DELETE",
+    "path": "/api/cases/:id/participants/:personId",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 172,
+    "method": "POST",
+    "path": "/api/cases/:id/events",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 193,
+    "method": "PATCH",
+    "path": "/api/events/:id",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 241,
+    "method": "DELETE",
+    "path": "/api/events/:id",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 254,
+    "method": "POST",
+    "path": "/api/cases/:id/deadlines",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 262,
+    "method": "POST",
+    "path": "/api/deadlines/:id/confirm-review",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 280,
+    "method": "PATCH",
+    "path": "/api/deadlines/:id",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 380,
+    "method": "DELETE",
+    "path": "/api/deadlines/:id",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 393,
+    "method": "GET",
+    "path": "/api/tasks",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 407,
+    "method": "POST",
+    "path": "/api/tasks",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 416,
+    "method": "PATCH",
+    "path": "/api/tasks/:id",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 486,
+    "method": "DELETE",
+    "path": "/api/tasks/:id",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 497,
+    "method": "POST",
+    "path": "/api/worklog",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 505,
+    "method": "PATCH",
+    "path": "/api/worklog/:id",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 534,
+    "method": "DELETE",
+    "path": "/api/worklog/:id",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 545,
+    "method": "POST",
+    "path": "/api/quick/extract",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 581,
+    "method": "POST",
+    "path": "/api/quick",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/records.js",
+    "line": 736,
+    "method": "POST",
+    "path": "/api/quick/parse",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/reminders.js",
+    "line": 31,
+    "method": "GET",
+    "path": "/api/reminders",
+    "permission": "cases.read",
+    "note": "所有启用账号；syncCase 派生维护归 system，已读按账号"
+  },
+  {
+    "file": "src/routes/reminders.js",
+    "line": 46,
+    "method": "POST",
+    "path": "/api/reminders",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/reminders.js",
+    "line": 63,
+    "method": "PATCH",
+    "path": "/api/reminders/:id",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/reminders.js",
+    "line": 81,
+    "method": "POST",
+    "path": "/api/reminders/:id/cancel",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/reminders.js",
+    "line": 92,
+    "method": "GET",
+    "path": "/api/notifications/status",
+    "permission": "ui.config.read",
+    "note": "仅普通界面必要的脱敏开关/状态白名单；不能原样返回完整设置、原始错误或他人投递记录"
+  },
+  {
+    "file": "src/routes/reminders.js",
+    "line": 97,
+    "method": "GET",
+    "path": "/api/notifications",
+    "permission": "notifications.self.read",
+    "note": "列表/投递历史仅真实会话 user_id；不接受客户端指定其他账号"
+  },
+  {
+    "file": "src/routes/reminders.js",
+    "line": 106,
+    "method": "GET",
+    "path": "/api/notifications/stream",
+    "permission": "notifications.self.read",
+    "note": "SSE 首次补发/实时事件均按真实账号过滤；停用/退出撤销；不能跨账号订阅"
+  },
+  {
+    "file": "src/routes/reminders.js",
+    "line": 117,
+    "method": "POST",
+    "path": "/api/notifications/:deliveryId/ack",
+    "permission": "notifications.self",
+    "note": "展示确认/已读只处理本人投递；同时约束 deliveryId 与会话 user_id；管理员普通接口也仅本人"
+  },
+  {
+    "file": "src/routes/settings.js",
+    "line": 304,
+    "method": "GET",
+    "path": "/api/settings",
+    "permission": "system.manage",
+    "note": "仅管理员；关闭的复杂模块配置不因 admin 而重新开放"
+  },
+  {
+    "file": "src/routes/settings.js",
+    "line": 308,
+    "method": "PUT",
+    "path": "/api/settings",
+    "permission": "system.manage",
+    "note": "仅管理员；关闭的复杂模块配置不因 admin 而重新开放"
+  },
+  {
+    "file": "src/routes/shares.js",
+    "line": 279,
+    "method": "GET",
+    "path": "/api/cases/:id/shares",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/shares.js",
+    "line": 303,
+    "method": "GET",
+    "path": "/api/share-repairs",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/shares.js",
+    "line": 314,
+    "method": "POST",
+    "path": "/api/share-repairs/:id/claim",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/shares.js",
+    "line": 385,
+    "method": "POST",
+    "path": "/api/share-repairs/:id/retain",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/shares.js",
+    "line": 410,
+    "method": "POST",
+    "path": "/api/share-repairs/:id/void",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/shares.js",
+    "line": 440,
+    "method": "POST",
+    "path": "/api/cases/:id/share-agreements",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/shares.js",
+    "line": 501,
+    "method": "POST",
+    "path": "/api/share-agreements/:id/revisions",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/shares.js",
+    "line": 550,
+    "method": "PATCH",
+    "path": "/api/share-agreements/:id",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/shares.js",
+    "line": 625,
+    "method": "DELETE",
+    "path": "/api/share-agreements/:id",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/shares.js",
+    "line": 650,
+    "method": "POST",
+    "path": "/api/shares",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/shares.js",
+    "line": 822,
+    "method": "PATCH",
+    "path": "/api/shares/:id",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/shares.js",
+    "line": 1038,
+    "method": "DELETE",
+    "path": "/api/shares/:id",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/shares.js",
+    "line": 1057,
+    "method": "GET",
+    "path": "/api/shares/overview",
+    "permission": "feature.disabled",
+    "note": "所有角色关闭；保留源码/历史数据，不开放专用读写接口"
+  },
+  {
+    "file": "src/routes/views.js",
+    "line": 28,
+    "method": "GET",
+    "path": "/api/meta",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/views.js",
+    "line": 42,
+    "method": "GET",
+    "path": "/api/counts",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/views.js",
+    "line": 68,
+    "method": "GET",
+    "path": "/api/digest",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/views.js",
+    "line": 72,
+    "method": "GET",
+    "path": "/api/stats",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/views.js",
+    "line": 219,
+    "method": "GET",
+    "path": "/api/calendar",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/views.js",
+    "line": 255,
+    "method": "GET",
+    "path": "/api/inbox",
+    "permission": "cases.read",
+    "note": "全部启用账号；响应须排除复杂财务/AI 专用数据"
+  },
+  {
+    "file": "src/routes/views.js",
+    "line": 266,
+    "method": "POST",
+    "path": "/api/inbox/:id/accept",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/views.js",
+    "line": 382,
+    "method": "POST",
+    "path": "/api/inbox/:id/decline",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  },
+  {
+    "file": "src/routes/views.js",
+    "line": 406,
+    "method": "POST",
+    "path": "/api/inbox/:id/snooze",
+    "permission": "cases.write",
+    "note": "管理员/编辑；普通记录修改/删除留痕与版本校验，不包含案件/文件本体删除"
+  }
+]

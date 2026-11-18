@@ -1,107 +1,40 @@
-// 鉴权 v2（0.3.0 起）：应用内账号密码登录 + 30 天滚动会话。
-// - 网页/API：登录后发 anjian_sess cookie（HttpOnly，30 天，滚动续期）。
-// - CLI/受信任客户端兼容：cookie anjian_token 与 env ANJIAN_STATIC_TOKEN 恒时比较后放行（actor=cli）。
-// - /internal/*：X-Anjian-Key header，供受信任自动化使用。
-// - 密码存版本化 scrypt 哈希（env ANJIAN_PASS_HASH）；兼容旧 salt:hex，明文不落任何地方。
-// - 无鉴权只认显式 ANJIAN_UNSAFE_NO_AUTH=1，且启动守卫将其限制在非 production 回环实例。
+// Phase 1 identity authentication. Unreviewed business APIs are gated separately.
 import crypto from 'node:crypto';
-import { db, audit } from '../db.js';
+import { audit } from '../db.js';
 import passwordHash from '../lib/password-hash.cjs';
+import { identity } from '../lib/identity.js';
+import { normalizedUsername } from '../lib/identity-service.js';
+import { trackAuthConnection } from '../lib/auth-connections.js';
 import { unsafeNoAuthAllowed } from '../lib/startup-config.js';
-
-const SESS_DAYS = 30;
-const LOGIN_FAILS = 5;
-const LOGIN_WINDOW_MS = 15 * 60 * 1000;
-const LOGIN_LOCK_MS = 15 * 60 * 1000;
-const LOGIN_FAIL_CAPACITY = 2048;
-const fails = new Map(); // [req.ip, username] -> {count, windowStartedAt, lockUntil, expiresAt}
-
-// 默认 actor：产品化后不再硬编码个人名。env 可覆盖（如自用部署设 ANJIAN_DEFAULT_ACTOR=fang）。
-export const DEFAULT_ACTOR = process.env.ANJIAN_DEFAULT_ACTOR || 'web';
-
-function parseCookies(req) {
-  const out = {};
-  for (const kv of (req.headers.cookie || '').split(';')) {
-    const i = kv.indexOf('=');
-    if (i > 0) out[kv.slice(0, i).trim()] = kv.slice(i + 1).trim();
+const LOGIN_FAILS=5, LOGIN_WINDOW_MS=15*60*1000, LOGIN_LOCK_MS=LOGIN_WINDOW_MS, LOGIN_FAIL_CAPACITY=2048;
+const fails=new Map();
+export const DEFAULT_ACTOR='web';
+export const {hashPassword,parsePasswordHash,verifyPassword,verifyPasswordDetailed}=passwordHash;
+export function secretMatches(candidate,expected) {
+  const digest=value=>crypto.createHash('sha256').update(String(value ?? ''),'utf8').digest();
+  const same=crypto.timingSafeEqual(digest(candidate),digest(expected));
+  return typeof expected==='string' && expected.length>0 && same;
+}
+// Legacy credential verification is retained for migration compatibility tests only.
+// No production login route calls this env-based helper.
+export function verifyLoginCredentials(username,password,env=process.env) {
+  const result=verifyPasswordDetailed(password || '',env.ANJIAN_PASS_HASH);
+  return {ok:secretMatches(username,env.ANJIAN_USER)&&result.ok,legacy:result.legacy};
+}
+export function parseCookies(req) {
+  const out={};
+  for(const kv of (req.headers.cookie || '').split(';')) {
+    const index=kv.indexOf('='); if(index>0) out[kv.slice(0,index).trim()]=kv.slice(index+1).trim();
   }
   return out;
 }
-
-export const {
-  hashPassword,
-  parsePasswordHash,
-  verifyPassword,
-  verifyPasswordDetailed,
-} = passwordHash;
-
-function fixedDigest(value) {
-  return crypto.createHash('sha256').update(String(value ?? ''), 'utf8').digest();
+export function setSessionCookie(res,req,token,maxAge=2592000) {
+  res.setHeader('Set-Cookie','anjian_sess='+token+'; Path=/; HttpOnly; SameSite=Lax; Max-Age='+maxAge+(req.secure?'; Secure':''));
 }
-
-// 先摘要到固定长度，再恒时比较；配置缺失时仍完成比较但永不放行。
-export function secretMatches(candidate, expected) {
-  const candidateDigest = fixedDigest(candidate);
-  const expectedDigest = fixedDigest(expected);
-  const configured = typeof expected === 'string' && expected.length > 0;
-  return configured && crypto.timingSafeEqual(candidateDigest, expectedDigest);
+export function destroySession(req,res) {
+  identity.logout(parseCookies(req).anjian_sess,{requestId:req.requestId,excludeResponse:res});
+  setSessionCookie(res,req,'',0);
 }
-
-// 无论用户名是否命中，都执行配置 hash 对应的 scrypt 路径，避免账号存在性时序差。
-export function verifyLoginCredentials(username, password, env = process.env) {
-  const passwordResult = verifyPasswordDetailed(password || '', env.ANJIAN_PASS_HASH);
-  const usernameOk = secretMatches(username, env.ANJIAN_USER);
-  return {
-    ok: usernameOk && passwordResult.ok,
-    legacy: passwordResult.legacy,
-  };
-}
-
-function nowPlusDays(n) {
-  return new Date(Date.now() + n * 86400000).toISOString().slice(0, 19).replace('T', ' ');
-}
-
-function sessionCookie(token, req, maxAge) {
-  const secure = req.secure ? '; Secure' : '';
-  return `anjian_sess=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
-}
-
-export function createSession(res, req) {
-  const token = crypto.randomBytes(32).toString('hex');
-  db.prepare('DELETE FROM sessions WHERE expires_at < datetime(\'now\')').run();
-  db.prepare(
-    "INSERT INTO sessions (token, created_at, expires_at, last_seen) VALUES (?, datetime('now'), ?, datetime('now'))"
-  ).run(token, nowPlusDays(SESS_DAYS));
-  res.setHeader('Set-Cookie', sessionCookie(token, req, SESS_DAYS * 86400));
-  return token;
-}
-
-export function destroySession(req, res) {
-  const t = parseCookies(req).anjian_sess;
-  if (t) db.prepare('DELETE FROM sessions WHERE token = ?').run(t);
-  res.setHeader('Set-Cookie', sessionCookie('', req, 0));
-}
-
-// 返回 'session' | 'token' | false
-function authed(req, res) {
-  const cookies = parseCookies(req);
-  if (cookies.anjian_sess) {
-    const row = db.prepare("SELECT * FROM sessions WHERE token = ? AND expires_at > datetime('now')").get(cookies.anjian_sess);
-    if (row) {
-      // 滚动续期：距上次续期超过 1 天才写库
-      if (row.last_seen < nowPlusDays(-1).slice(0, 19)) {
-        db.prepare("UPDATE sessions SET expires_at = ?, last_seen = datetime('now') WHERE token = ?")
-          .run(nowPlusDays(SESS_DAYS), row.token);
-        res.setHeader('Set-Cookie', sessionCookie(row.token, req, SESS_DAYS * 86400));
-      }
-      return 'session';
-    }
-  }
-  const staticToken = process.env.ANJIAN_STATIC_TOKEN;
-  if (staticToken && secretMatches(cookies.anjian_token, staticToken)) return 'token';
-  return false;
-}
-
 function pruneLoginFails(now) {
   for (const [key, state] of fails) {
     if (state.expiresAt <= now) fails.delete(key);
@@ -109,7 +42,8 @@ function pruneLoginFails(now) {
 }
 
 function loginFailKey(req) {
-  const username = String(req.body?.username || '').slice(0, 128);
+  let username = String(req.body?.username || '').slice(0, 128);
+  try { username = normalizedUsername(username).normalized; } catch { /* keep a bounded invalid-name bucket */ }
   return JSON.stringify([req.ip || '?', username]);
 }
 
@@ -152,69 +86,44 @@ export function clearLoginFail(key) {
   fails.delete(key);
 }
 
-// /api 面（除 /api/login）
-export function apiAuth(req, res, next) {
-  if (unsafeNoAuthAllowed()) {
-    req.actor = req.get('X-Anjian-Actor') || DEFAULT_ACTOR;
-    return next();
-  }
-  const how = authed(req, res);
-  if (!how) return res.status(401).json({ error: 'unauthorized' });
-  req.actor = req.get('X-Anjian-Actor') || (how === 'token' ? 'cli' : DEFAULT_ACTOR);
+
+export function apiAuth(req,res,next) {
+  if(unsafeNoAuthAllowed()) { req.actor='isolated-test'; return next(); }
+  const token=parseCookies(req).anjian_sess;
+  const found=identity.session(token,{renew:true});
+  if(!found) return res.status(401).json({error:'unauthorized'});
+  req.user=found.user; req.actor=found.user.id; req.authSession=found;
+  req.requestId=crypto.randomUUID();
+  if(found.renewed) setSessionCookie(res,req,token);
+  trackAuthConnection(req,res,found,()=>Boolean(identity.session(token)));
   next();
 }
-
-// 页面面：未登录跳 /login.html
-export function pageAuth(req, res, next) {
-  if (unsafeNoAuthAllowed()) return next();
-  const open = req.path === '/login.html' || req.path === '/healthz'
-    || req.path.startsWith('/css/') || req.path.startsWith('/js/')
-    || req.path.startsWith('/assets/') || req.path === '/favicon.ico';
-  if (open || authed(req, res)) return next();
-  if (req.method === 'GET' && (req.path === '/' || req.path.endsWith('.html'))) {
-    return res.redirect('/login.html');
-  }
-  res.status(401).json({ error: 'unauthorized' });
+export function pageAuth(req,res,next) {
+  if(unsafeNoAuthAllowed()) return next();
+  const open=req.path==='/login.html' || req.path.startsWith('/css/') || req.path.startsWith('/js/')
+    || req.path.startsWith('/assets/') || req.path==='/favicon.ico';
+  if(open) return next();
+  const session=identity.session(parseCookies(req).anjian_sess);
+  if(!session) return res.redirect('/login.html');
+  if(req.path==='/' || req.path==='/index.html') return res.redirect('/users.html');
+  if(req.path==='/users.html') return next();
+  return res.status(403).send('此业务功能尚未开放');
 }
-
-// electron/main.js 每次桌面版启动都随机生成一份 ANJIAN_INTERNAL_KEY 并注入子进程
-// env（见该文件注释）——这不是用户显式选择开放 /internal 全面自动化，只是为了
-// 让 DSH sidecar 子进程能回调它自己需要的那几个只读/提案端点。同一份 key 如果
-// 像"用户自己配置的 ANJIAN_INTERNAL_KEY"一样放行整个 /internal/*（含
-// /internal/cases、/internal/cases/byname/:name、/internal/digest 这类面向外部
-// 自动化、可以枚举/读出任意案件的面），就等于桌面版每次启动都悄悄打开了一整套
-// 自动化读面，而用户从未做出这个决定。electron/main.js 注入时同时设一个来源标
-// 记 ANJIAN_INTERNAL_KEY_SOURCE=electron-auto；这里看到该标记时，把放行范围收
-// 窄到 agent 系列端点（这几个端点自己在 session 未绑定/agent 未启用时已经
-// 403/404，不会因为放行就等于开了口子）。用户如果自己显式配置了
-// ANJIAN_INTERNAL_KEY（不带这个来源标记），行为完全不变，仍然放行整个 /internal
-// 面——这是显式选择，不是本函数替用户做决定。
-const ELECTRON_AUTO_KEY_ALLOWED_PATHS = new Set([
-  '/agent-proposals',
-  '/agent-case-view',
-  '/agent-digest',
-]);
-
-export function internalAuth(req, res, next) {
-  if (unsafeNoAuthAllowed()) {
-    req.actor = req.get('X-Anjian-Actor') || 'internal';
-    return next();
-  }
-  const key = process.env.ANJIAN_INTERNAL_KEY;
-  if (!key) {
-    return res.status(503).json({ error: 'ANJIAN_INTERNAL_KEY not configured' });
-  }
-  if (!secretMatches(req.get('X-Anjian-Key'), key)) {
-    return res.status(401).json({ error: 'unauthorized' });
-  }
-  if (process.env.ANJIAN_INTERNAL_KEY_SOURCE === 'electron-auto' && !ELECTRON_AUTO_KEY_ALLOWED_PATHS.has(req.path)) {
-    return res.status(403).json({
-      error: '桌面版自动生成的 internal key 仅开放 AI 助理读写面；如需完整 /internal 自动化面，请显式配置 ANJIAN_INTERNAL_KEY',
-      code: 'electron_auto_key_scoped',
-    });
-  }
-  req.actor = req.get('X-Anjian-Actor') || 'internal';
+export function internalAuth(req,res,next) {
+  if(unsafeNoAuthAllowed()) {req.actor='isolated-test';return next();}
+  return res.status(403).json({error:'内部自动化接口尚未开放',code:'feature_disabled'});
+}
+export function phase1BusinessGate(req,res,next) {
+  if(unsafeNoAuthAllowed()) return next();
+  return res.status(403).json({error:'业务权限尚未开放',code:'phase1_business_closed'});
+}
+export function requestBoundary(req,res,next) {
+  const host=req.get('host') || '';
+  const port=req.socket.localPort;
+  const allowed=new Set(['127.0.0.1:'+port,'localhost:'+port,'[::1]:'+port]);
+  if(!allowed.has(host)) return res.status(403).json({error:'请求来源不正确',code:'request_origin_invalid'});
+  const origin=req.get('origin');
+  if(origin && origin!=='http://'+host) return res.status(403).json({error:'请求来源不正确',code:'request_origin_invalid'});
   next();
 }
-
-export { audit };
+export {audit};

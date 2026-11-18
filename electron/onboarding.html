@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>案齐 · 初始设置</title>
+<title>案卷 · 初始设置</title>
 <style>
   :root {
     --bg: #050D0A;
@@ -78,56 +78,27 @@
 </head>
 <body>
 
-<div class="logo">齐</div>
-<h1>欢迎使用案齐</h1>
-<p class="sub">首次使用，需要做三个简单设置。完成后数据保存在你自己的电脑上。</p>
-
-<form id="form">
+<div class="logo">卷</div>
+<h1>欢迎使用案卷</h1>
+<p class="sub">案件管理 · 配置本地数据目录和管理员账号。</p>
+<form id="form" method="post">
   <div class="field">
-    <span class="step-tag">第 1 步</span>
     <label for="dir">数据保存位置</label>
-    <div class="dir-row">
-      <input type="text" id="dir" readonly placeholder="点击右侧选择文件夹">
-      <button type="button" class="btn sec" id="pick">选择…</button>
-    </div>
-    <div class="hint">会在你选的位置下新建一个「案齐数据」文件夹，案件数据库和案件夹文件都存在里面。建议放在 Documents 或 iCloud Drive。</div>
+    <div class="dir-row"><input type="text" id="dir" readonly placeholder="请选择本机文件夹"><button type="button" class="btn sec" id="pick">选择…</button></div>
+    <div class="hint">在所选位置新建“案卷数据”目录。请选择本机可写目录，避免网盘同步目录。</div>
   </div>
-
   <div class="field">
-    <span class="step-tag">第 2 步</span>
-    <label for="user">登录用户名</label>
-    <input type="text" id="user" autocomplete="username">
-    <label for="pass" style="margin-top:14px">登录密码</label>
-    <input type="password" id="pass" autocomplete="new-password" placeholder="设置一个密码保护你的案件数据">
-    <div class="hint">密码本地保存（哈希存储），不联网。之后每次打开 App 用它登录。</div>
+    <label for="user">管理员用户名</label><input type="text" id="user" autocomplete="username">
+    <label for="pass" id="pass-label" style="margin-top:14px">管理员密码</label>
+    <input type="password" id="pass" autocomplete="new-password">
+    <div class="hint" id="password-hint">12–128 个字符，可使用中文、空格和长口令，无强制字符组合。</div>
   </div>
-
-  <div class="divider"></div>
-
-  <div class="field">
-    <span class="step-tag">第 3 步 · 可选</span>
-    <label for="key">DeepSeek API key</label>
-    <input type="password" id="key" placeholder="留空也可正常使用">
-    <div class="hint">
-      不填 = 纯台账模式，全部期限 / 待办 / 费用功能正常，仅「快录整理」和 AI 建议不可用。<br>
-      填写 = 解锁 AI 功能。在 platform.deepseek.com 申请，数据按 DeepSeek 政策处理。
-    </div>
-  </div>
-
-  <div class="err" id="err"></div>
-
-  <button type="submit" class="btn primary" id="submit">完成设置，开始使用</button>
-
-  <p class="foot">
-    案齐是你的本地案件管理系统，数据完全保存在本机，不依赖云端服务。<br>
-    法定期限由确定性引擎推算，不经 LLM，即使不填 API key 也准确可靠。
-  </p>
+  <label id="legacy-confirm" hidden><input type="checkbox" id="confirm"> 我确认旧程序已退出，同意先备份数据库、案件文件和必要配置，再验证并迁移原账号。</label>
+  <div class="err" id="err" role="alert"></div>
+  <button type="submit" class="btn primary" id="submit" disabled>创建管理员，进入登录</button>
+  <p class="foot">密码仅保存安全哈希。初始化完成后使用独立账号登录。案件等业务功能尚未开放。</p>
 </form>
-
-<div class="checking" id="checking">
-  正在初始化数据库…<br>首次启动需要几秒钟。
-</div>
-
-<script src="onboarding.js"></script>
+<div class="checking" id="checking" role="status">正在处理，请等待结果…</div>
+<script type="module" src="onboarding.js"></script>
 </body>
 </html>

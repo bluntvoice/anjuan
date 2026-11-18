@@ -1,73 +1,51 @@
-// 引导页逻辑：三步收集配置 → 哈希密码 → 写 config.json → 关窗触发主进程启动后端。
-// window.anjianOnboarding 由 preload.js 注入（contextIsolation 安全通道）。
-//
-// 🔴 局部绑定不能重名叫 anjianOnboarding：contextBridge.exposeInMainWorld 在 global 上建的是
-// 不可配置属性，本文件是 classic script，顶层再声明同名 const 会直接抛
-// "SyntaxError: Identifier 'anjianOnboarding' has already been declared"——整个脚本解析失败、
-// 一个监听器都绑不上，表现为引导页所有按钮点了没反应。（bba4e7b 起一直如此，2.1.1 修复。）
-const api = window.anjianOnboarding;
-const $ = (id) => document.getElementById(id);
-
-// 默认用户名取系统用户名（Electron 没有 os.userInfo 到 renderer，用 home 目录名兜底）
-// 这里先留空让用户自己填，避免猜错。
-
-// 第 1 步：选数据目录
-$('pick').addEventListener('click', async () => {
-  const dir = await api.chooseDir();
-  if (dir) $('dir').value = dir;
-  validate();
-});
-
-// 实时校验
-['dir', 'user', 'pass'].forEach((id) => {
-  $(id).addEventListener('input', validate);
-});
-
-function validate() {
-  const ok = $('dir').value.trim() && $('user').value.trim() && $('pass').value.length >= 4;
-  $('submit').disabled = !ok;
-  $('err').textContent = '';
-}
-validate();
-
-// 提交：哈希密码 → 保存配置
-$('form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const dir = $('dir').value.trim();
-  const user = $('user').value.trim();
-  const pass = $('pass').value;
-  const key = $('key').value.trim();
-
-  if (pass.length < 4) {
-    $('err').textContent = '密码至少 4 位';
-    return;
+// Only this trusted onboarding document receives the narrow preload bridge.
+(async () => {
+  const { newPasswordError } = await import('../public/js/password-policy.js');
+  const api = window.anjianOnboarding;
+  const $ = id => document.getElementById(id);
+  let context, busy = false;
+  function validate() {
+    const legacy = context?.mode === 'legacy';
+    const ready = context && context.mode !== 'blocked' && $('dir').value
+      && (legacy ? $('pass').value.length > 0 && $('confirm').checked
+        : $('user').value.trim() && !newPasswordError($('pass').value));
+    $('submit').disabled = busy || !ready;
   }
-
-  $('submit').disabled = true;
-  $('submit').textContent = '正在保存…';
-  $('err').textContent = '';
-
   try {
-    // 哈希在主进程跑（不暴露哈希逻辑给 renderer）
-    const passHash = await api.hash(pass);
-    await api.complete({
-      dataDir: dir,
-      user,
-      passHash,
-      deepseekKey: key || '',
-      createdAt: new Date().toISOString(),
-    });
-
-    // 保存成功：切到「正在初始化」态，关窗让主进程接管启动后端
-    $('form').style.display = 'none';
-    $('checking').classList.add('show');
-
-    // 主进程的 window-all-closed / 下次 whenReady 会拉起后端 + 主窗口。
-    // 这里延迟一下让用户看到提示，然后关窗。
-    setTimeout(() => window.close(), 1200);
-  } catch (err) {
-    $('submit').disabled = false;
-    $('submit').textContent = '完成设置，开始使用';
-    $('err').textContent = `保存失败：${err.message || err}`;
-  }
+    context = await api.context();
+    if (context.dataDir) $('dir').value = context.dataDir;
+    if (context.mode === 'blocked') {
+      $('err').textContent = context.message; $('pick').disabled = true;
+    } else if (context.mode === 'legacy') {
+      $('user').value = context.username; $('user').readOnly = true; $('pick').disabled = true;
+      $('pass-label').textContent = '原账号密码'; $('pass').autocomplete = 'current-password';
+      $('password-hint').textContent = '验证原凭据后迁移，合法旧密码不受新建密码长度限制。';
+      $('legacy-confirm').hidden = false; $('submit').textContent = '备份并验证迁移';
+    } else if (context.pending) {
+      $('pick').disabled = true; $('submit').textContent = '继续初始化，进入登录';
+    }
+    validate();
+  } catch (error) { $('err').textContent = error.message; }
+  $('pick').addEventListener('click', async () => {
+    try { const directory = await api.chooseDir(); if (directory) $('dir').value = directory; validate(); }
+    catch (error) { $('err').textContent = error.message; }
+  });
+  for (const id of ['user', 'pass', 'confirm']) $(id).addEventListener('input', validate);
+  $('form').addEventListener('submit', async event => {
+    event.preventDefault(); if (busy) return;
+    const legacy = context?.mode === 'legacy';
+    if (!legacy) { const error = newPasswordError($('pass').value); if (error) { $('err').textContent = error; return; } }
+    busy = true; validate(); $('err').textContent = ''; $('checking').classList.add('show');
+    try {
+      const result = await api.complete(legacy
+        ? { old_password: $('pass').value, confirm_legacy: $('confirm').checked }
+        : { username: $('user').value, password: $('pass').value });
+      if (!result?.ok) throw new Error('初始化尚未完成');
+      $('pass').value = '';
+    } catch (error) {
+      $('err').textContent = error.message.replace(/^Error invoking remote method '[^']+': Error: /, '');
+    } finally { busy = false; $('checking').classList.remove('show'); validate(); }
+  });
+})().catch(() => {
+  document.getElementById('err').textContent = '初始化页面未能加载，请退出并核查程序文件';
 });

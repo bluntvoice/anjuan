@@ -13,8 +13,8 @@ const path = require('node:path');
 // 全部在这里拼接，同一处遗漏会同时影响数据库、案件夹和 AI 助理 session
 // transcript 三者中的任意一个都可能写回已签名的 app 资源树本体而不是用户数据
 // 目录（这正是本仓库审查记录里 F1 阻断的病灶之一）。
-function buildBackendEnv({ baseEnv, config, port, internalKey }) {
-  return {
+function buildBackendEnv({ baseEnv, config, port }) {
+  const env = {
     ...baseEnv,
     NODE_ENV: 'production',
     PORT: String(port),
@@ -22,16 +22,13 @@ function buildBackendEnv({ baseEnv, config, port, internalKey }) {
     DB_PATH: path.join(config.dataDir, 'anjian.db'),
     ANJIAN_FILES_ROOT: path.join(config.dataDir, '案件夹'),
     ANJIAN_AGENT_SESSION_ROOT: path.join(config.dataDir, 'agent-sessions'),
-    ANJIAN_USER: config.user,
-    ANJIAN_PASS_HASH: config.passHash,
-    ANJIAN_INTERNAL_KEY: internalKey,
-    // 标记这份 key 是本进程自动生成、不是用户显式配置——src/middleware/auth.js
-    // 的 internalAuth() 看到这个标记时，把这份随机 key 能打开的 /internal 面
-    // 收窄到 AI 助理自己需要的几个端点，不因为桌面版每次启动都要有这份 key
-    // 才能跑 AI 助理，就顺带打开整套面向外部自动化的 /internal 读面。
-    ANJIAN_INTERNAL_KEY_SOURCE: 'electron-auto',
-    ...(config.deepseekKey ? { DEEPSEEK_API_KEY: config.deepseekKey } : {}),
   };
+  // Legacy credentials are used only by the main-process migration IPC.
+  // The desktop backend must never inherit an auth bypass or enable integrations.
+  for (const key of Object.keys(env)) {
+    if (/^(ANJIAN_(USER$|PASS_HASH$|STATIC_TOKEN$|INTERNAL_KEY|UNSAFE_NO_AUTH$)|DEEPSEEK_|LEGALRAG_|NODE_OPTIONS$)/.test(key)) delete env[key];
+  }
+  return env;
 }
 
 // 见 electron/main.js 顶部大段注释：单独一个 ANJIAN_TEST_USERDATA 环境变量不
@@ -47,4 +44,16 @@ function shouldRedirectTestUserData(env, hasSwitch) {
   return Boolean(env.ANJIAN_TEST_USERDATA) && Boolean(hasSwitch(TEST_USERDATA_ACK_SWITCH));
 }
 
-module.exports = { buildBackendEnv, shouldRedirectTestUserData, TEST_USERDATA_ACK_SWITCH };
+function buildPreviewBackendEnv(preview, nonce) {
+  const { previewSystemEnv } = require('./preview-mode.cjs');
+  return {
+    ...buildBackendEnv({ baseEnv: previewSystemEnv(preview), config: preview, port: 0 }),
+    ELECTRON_RUN_AS_NODE: '1',
+    ANJIAN_PREVIEW_ROOT: preview.root,
+    ANJIAN_PREVIEW_RUN_ID: preview.runId,
+    ANJIAN_PREVIEW_GUI: preview.gui ? '1' : '0',
+    ANJIAN_PREVIEW_NONCE: nonce,
+  };
+}
+
+module.exports = { buildBackendEnv, buildPreviewBackendEnv, shouldRedirectTestUserData, TEST_USERDATA_ACK_SWITCH };

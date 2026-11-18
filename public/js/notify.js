@@ -55,7 +55,7 @@ export function mountNotifications(nav) {
     stream.addEventListener('reminder', (event) => {
       const row = JSON.parse(event.data); toast(row.title || '有新的提醒');
       if (window.Notification?.permission === 'granted') {
-        const n = new Notification(row.title || '案齐提醒', { body: row.body || '', tag: `anqi-${row.id}` });
+        const n = new Notification(row.title || '案卷提醒', { body: row.body || '', tag: `anqi-${row.id}` });
         n.onclick = () => { window.focus(); if (row.case_id) window.location.href = `/case.html?id=${row.case_id}`; };
       }
       api(`/notifications/${row.id}/ack`, { method: 'POST' }).catch(() => {}); refresh();

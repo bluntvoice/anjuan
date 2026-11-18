@@ -11,8 +11,9 @@
 //      SCRYPT_SALT/SCRYPT_COST_N）派生成 32 字节 AES key——比裸 sha256 更能
 //      抵抗对短口令的离线爆破，同时保留了"同一个 ANJIAN_SECRET 在所有实例
 //      上派生出同一把 key"这个可移植性——多实例共享同一份加密设置时必需。
-//   2) 否则用数据目录下的 secret.key：不存在就首次生成 32 随机字节、写盘时
-//      指定 mode 0o600，再显式 chmod 一次（writeFileSync 的 mode 参数会被
+//   2) 否则用数据目录下的 secret.key：不存在就首次生成 32 随机字节。Windows
+//      在写入任何密钥字节前设置并独立读回私有 NTFS ACL；已有密钥同样验证，失败即停止。
+//      POSIX 写盘时指定 mode 0o600，再显式 chmod 一次（writeFileSync 的 mode 参数会被
 //      进程 umask 修正，不能保证最终位恰好是 0o600，必须补一次显式 chmod
 //      才能把这件事钉死，不依赖调用环境的 umask 恰好是 022）。
 //   3) 数据目录本身：只在缺失时才 mkdir（recursive），已存在的目录不改它的
@@ -26,6 +27,8 @@
 // 形态，调用方（config.js/settings.js）自己负责不把后者写进日志/响应/审计。
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'node:crypto';
 import fs from 'node:fs';
+import { readWindowsPrivateFile, writeWindowsPrivateTempFile } from './private-key-file.js';
+import dataPaths from './windows-data-paths.cjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -127,21 +130,23 @@ function assertKeyLength(buf, filePath) {
 // 的临时文件在 link 之前已经完整写入并落盘，final 路径这个目录项一旦出现
 // 就已经指向一个内容完整的 inode。
 function loadOrCreateKeyFile(filePath) {
+  dataPaths.assertDataPaths({ dataDir: path.dirname(filePath) });
   if (fs.existsSync(filePath)) {
-    return assertKeyLength(fs.readFileSync(filePath), filePath);
+    return assertKeyLength(process.platform === 'win32' ? readWindowsPrivateFile(filePath) : fs.readFileSync(filePath), filePath);
   }
   // 只在目录缺失时才创建；已存在的父目录权限原样不动。
   const dir = path.dirname(filePath);
   fs.mkdirSync(dir, { recursive: true });
   const key = randomBytes(KEY_BYTES);
   const tmpPath = path.join(dir, `.${SECRET_KEY_FILENAME}.tmp-${randomBytes(8).toString('hex')}`);
-  fs.writeFileSync(tmpPath, key, { mode: 0o600 });
+  if (process.platform === 'win32') writeWindowsPrivateTempFile(tmpPath, key);
+  else fs.writeFileSync(tmpPath, key, { mode: 0o600 });
   try {
     fs.linkSync(tmpPath, filePath);
   } catch (error) {
     if (error && error.code === 'EEXIST') {
       // 另一个进程已经抢先创建：回读它的内容，不覆盖。
-      return assertKeyLength(fs.readFileSync(filePath), filePath);
+      return assertKeyLength(process.platform === 'win32' ? readWindowsPrivateFile(filePath) : fs.readFileSync(filePath), filePath);
     }
     throw error;
   } finally {
@@ -150,7 +155,7 @@ function loadOrCreateKeyFile(filePath) {
   // writeFileSync 的 mode 参数会被进程 umask 修正，不能保证最终位恰好是
   // 0o600，补一次显式 chmod 才能把这件事钉死，不依赖调用环境的 umask 恰好
   // 是 022。linkSync 出的这份共享同一个 inode，chmod 对它同样生效。
-  fs.chmodSync(filePath, 0o600);
+  if (process.platform !== 'win32') fs.chmodSync(filePath, 0o600);
   return key;
 }
 

@@ -49,8 +49,8 @@ export async function mountNav() {
   const nav = el('nav', { class: 'topnav' },
     hamburger,
     el('a', { class: 'brand', href: '/' },
-      el('span', { class: 'seal', 'aria-hidden': 'true' }, '齐'),
-      el('b', {}, '案齐'),
+      el('span', { class: 'seal', 'aria-hidden': 'true' }, '卷'),
+      el('b', {}, '案卷'),
       versionBadge
     ),
     el('div', { class: 'links' },

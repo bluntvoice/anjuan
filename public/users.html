@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>账号管理 · 案卷</title>
+  <link rel="stylesheet" href="/css/fonts.css"><link rel="stylesheet" href="/css/style.css">
+  <style>
+    main.identity { max-width: 960px; margin: 32px auto; padding: 0 20px; }
+    .identity header,.identity .row { display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+    .identity header { justify-content:space-between; margin-bottom:24px; }
+    .identity section { padding:20px 0; border-top:1px solid var(--line,#ddd); }
+    .identity form { display:flex; gap:12px; align-items:end; flex-wrap:wrap; margin:16px 0; }
+    .identity label { display:flex; flex-direction:column; gap:6px; max-width:100%; }
+    .identity input,.identity select,.identity button { font:inherit; padding:8px; min-height:40px; max-width:100%; }
+    .identity .table-wrap { overflow:auto; } .identity table { width:100%; border-collapse:collapse; }
+    .identity th,.identity td { text-align:left; padding:10px; border-bottom:1px solid var(--line,#ddd); }
+    .identity [hidden] { display:none!important; } .identity #message { min-height:24px; overflow-wrap:anywhere; }
+    @media(max-width:480px) { .identity form label { width:100%; } .identity input { width:100%; } }
+  </style>
+</head>
+<body>
+<main class="identity">
+  <header><div><h1>案卷</h1><p>案件管理</p><p id="current" aria-live="polite"></p></div><button id="logout">退出并切换账号</button></header>
+  <p>当前开放账号设置。案件等业务功能尚未开放。</p>
+  <p id="message" role="status" aria-live="polite"></p>
+  <section><h2>修改本人密码</h2>
+    <form id="change-password" method="post" action="/api/auth/change-password">
+      <label>原密码<input type="password" name="old_password" autocomplete="current-password" required></label>
+      <label>新密码<input type="password" name="password" autocomplete="new-password" required></label>
+      <button type="submit">修改并重新登录</button>
+    </form><p>新密码为 12–128 个字符，支持空格及 Unicode，不强制字符组合。</p>
+  </section>
+  <section id="admin" hidden><h2>账号管理</h2>
+    <form id="create-user" method="post" action="/api/users">
+      <label>用户名<input name="username" autocomplete="off" required></label>
+      <label>显示名称<input name="display_name" maxlength="80" required></label>
+      <label>角色<select name="role_key"><option value="editor">编辑人员</option><option value="viewer">只读人员</option><option value="admin">管理员</option></select></label>
+      <label>初始密码<input type="password" name="password" autocomplete="new-password" required></label>
+      <button type="submit">创建账号</button>
+    </form>
+    <button id="refresh" type="button">刷新账号列表</button>
+    <div class="table-wrap"><table><thead><tr><th>用户名 / 名称</th><th>角色</th><th>状态</th><th>操作</th></tr></thead><tbody id="users"></tbody></table></div>
+    <form id="reset-password" method="post" action="/api/users" hidden><label>重置密码的账号<input id="reset-target" readonly></label><label>新密码<input type="password" name="password" autocomplete="new-password" required></label><button type="submit">重置密码</button><button id="cancel-reset" type="button">取消</button></form>
+  </section>
+</main>
+<script type="module" src="/js/users.js"></script>
+</body>
+</html>

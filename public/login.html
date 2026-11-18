@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#F6F7F8">
 <link rel="icon" type="image/png" sizes="256x256" href="/assets/anjian-icon.png">
 <link rel="manifest" href="/assets/manifest.webmanifest">
-<title>登录 · 案齐</title>
+<title>登录 · 案卷</title>
 <!-- 防闪烁：CSS 之前把皮肤铺好。9 页一字不差，逻辑与 js/skin.js 的 getSkin() 一致。
      旧键 anjian-theme(light|dark|auto) 就地迁移到 anjian-skin(pro|paper|jade|auto) 并删除；
      auto = 不设 data-skin（由 CSS @media prefers-color-scheme 回落 jade），契约见 css/style.css 层 B。 -->
@@ -18,9 +18,9 @@
 <body>
 <main class="login-wrap">
   <div class="login-card">
-    <h1 class="brand"><span class="seal" aria-hidden="true">齐</span>案齐 ANQI</h1>
-    <div class="sub">方律个人案件管理 · 登录后 30 天内免密</div>
-    <form id="f">
+    <h1 class="brand"><span class="seal" aria-hidden="true">卷</span>案卷</h1>
+    <div class="sub">案件管理 · 请使用独立账号登录</div>
+    <form id="f" method="post" action="/api/login">
       <label class="f">用户名<input name="username" autocomplete="username" required autofocus></label>
       <label class="f">密码<input name="password" type="password" autocomplete="current-password" required></label>
       <button class="btn primary" type="submit">登录</button>

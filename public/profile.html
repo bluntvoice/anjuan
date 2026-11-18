@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#F6F7F8">
 <link rel="icon" type="image/png" sizes="256x256" href="/assets/anjian-icon.png">
 <link rel="manifest" href="/assets/manifest.webmanifest">
-<title>用户中心 · 案齐</title>
+<title>用户中心 · 案卷</title>
 <!-- 防闪烁：CSS 之前把皮肤铺好。9 页一字不差，逻辑与 js/skin.js 的 getSkin() 一致。
      旧键 anjian-theme(light|dark|auto) 就地迁移到 anjian-skin(pro|paper|jade|auto) 并删除；
      auto = 不设 data-skin（由 CSS @media prefers-color-scheme 回落 jade），契约见 css/style.css 层 B。 -->
@@ -21,7 +21,7 @@
 
 <main class="wrap">
   <h1 class="page-title">用户中心</h1>
-  <p class="page-sub">方律 · 个人设置与系统偏好</p>
+  <p class="page-sub">账号设置与系统偏好</p>
 
   <section class="col">
 
@@ -106,7 +106,7 @@
     <div class="panel" aria-label="企业微信">
       <div class="p-head"><h2 class="p-title">企业微信</h2><span class="p-meta" id="im-connection-state">未启用</span></div>
       <div class="panel-body">
-        <label class="settings-row"><div><div class="label">启用企业微信智能机器人</div><div class="desc">连接由案齐主动建立，默认不外发提醒</div></div><input type="checkbox" id="im-wecom-enabled" aria-label="启用企业微信"></label>
+        <label class="settings-row"><div><div class="label">启用企业微信智能机器人</div><div class="desc">连接由案卷主动建立，默认不外发提醒</div></div><input type="checkbox" id="im-wecom-enabled" aria-label="启用企业微信"></label>
         <div class="formgrid">
           <label class="f">BotID<input id="im-wecom-bot-id" autocomplete="off" placeholder="企业微信后台的 BotID"></label>
           <label class="f">Secret<input id="im-wecom-secret" type="password" autocomplete="new-password" placeholder="按保存时填写"></label>
@@ -197,7 +197,7 @@
       <div class="factstrip" id="profile-security-strip">
         <div class="factstrip-row">
           <span class="factstrip-label">账户</span>
-          <span class="factstrip-fact">单用户自用 · 口令哈希存环境变量 · 会话 30 天滚动续期</span>
+          <span class="factstrip-fact">案件管理 · 独立账号登录 · 会话按账号隔离</span>
           <button class="factstrip-edit" type="button" id="profile-security-toggle" aria-expanded="false">展开</button>
         </div>
         <div class="factstrip-more" id="profile-security-more" hidden>

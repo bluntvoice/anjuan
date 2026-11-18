@@ -1648,7 +1648,7 @@ function renderElapsed(items) {
 function render() {
   const c = bundle.case;
   const isAdminCase = String(c.procedure || '').startsWith('行政') || c.case_type === '行政';
-  document.title = `${c.name} · 案齐`;
+  document.title = `${c.name} · 案卷`;
   document.getElementById('title').textContent = c.name;
   document.getElementById('subtitle').textContent =
     [c.case_no, c.cause, c.court, c.client && `${c.client}（${c.client_role || '我方'}）`, c.opponent && `对方：${c.opponent}`]
@@ -2125,7 +2125,7 @@ async function acceptCandidate(candidate) {
   } else if (candidate.kind === 'event') {
     edited = await datePrompt({
       title: '核对并录入程序事件',
-      hint: `${sourceHint} 期限不会由模型计算；确认事件后由案齐规则引擎派生。`,
+      hint: `${sourceHint} 期限不会由模型计算；确认事件后由案卷规则引擎派生。`,
       fields: [
         { key: 'type', label: '事件类型', value: p.type, type: 'select', required: true,
           options: meta.event_types.map((item) => ({ value: item.id, label: item.label })) },

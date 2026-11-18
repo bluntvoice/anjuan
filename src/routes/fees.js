@@ -277,7 +277,7 @@ r.post('/cases/:id/fees', (req, res) => {
   res.json(db.prepare('SELECT * FROM fee_items WHERE id = ?').get(info.lastInsertRowid));
 });
 
-r.put('/fees/:id/files', express.raw({ type: '*/*', limit: MAX_VOUCHER_SIZE }), (req, res) => {
+r.put('/fees/:id/files', express.raw({ type: '*/*', limit: MAX_VOUCHER_SIZE, inflate: false }), (req, res) => {
   const fee = db.prepare(
     `SELECT f.*, c.name AS case_name, c.folder_path AS case_folder_path
        FROM fee_items f JOIN cases c ON c.id=f.case_id

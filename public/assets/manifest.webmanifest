@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "案齐",
-  "short_name": "案齐",
+  "name": "案卷",
+  "short_name": "案卷",
   "description": "案件管理工作台",
   "start_url": "/",
   "scope": "/",

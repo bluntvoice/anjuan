@@ -3,9 +3,10 @@ import net from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import './src/db.js';
-import { apiAuth, pageAuth, internalAuth } from './src/middleware/auth.js';
+import { apiAuth, pageAuth, internalAuth, phase1BusinessGate, requestBoundary } from './src/middleware/auth.js';
 import { errorHandler } from './src/middleware/errors.js';
-import authRouter from './src/routes/auth.js';
+import authRouter, { bootstrapAuthority } from './src/routes/auth.js';
+import usersRouter from './src/routes/users.js';
 import { createCasesRouter } from './src/routes/cases.js';
 import recordsRouter from './src/routes/records.js';
 import viewsRouter from './src/routes/views.js';
@@ -32,18 +33,36 @@ import { createImRouter } from './src/routes/im.js';
 import { registerChannel } from './src/lib/reminder-channels/index.js';
 import { createWecomChannel } from './src/lib/reminder-channels/wecom.js';
 
-const startupConfig = resolveStartupConfig(process.env);
+const startupConfig = resolveStartupConfig(process.env, { identityMode: true });
+if (process.connected) {
+  process.on('message', message => {
+    if (message?.type === 'anjuan:bootstrap-revoke') { bootstrapAuthority.revoke(); return; }
+    if (message?.type === 'anjuan:shutdown') {
+      gracefulShutdown('IPC').catch(() => process.exit(1));
+      return;
+    }
+    if (message?.type !== 'anjuan:bootstrap-capability') return;
+    try {
+      bootstrapAuthority.configure({ key: message.key, legacy: message.legacy || null });
+      process.send?.({ type: 'anjuan:bootstrap-ready', ok: true });
+    } catch {
+      process.send?.({ type: 'anjuan:bootstrap-ready', ok: false });
+    }
+  });
+}
 
 // migration 011 的语义 backfill 必须与运行时使用同一套规范化/状态指纹代码；
 // 两函数均幂等，并在任何 bridge tick 或 HTTP 请求之前完成。
-backfillCandidateFacts();
-backfillRecommendationMemory();
+if (startupConfig.unsafeNoAuth) {
+  backfillCandidateFacts();
+  backfillRecommendationMemory();
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', resolveTrustProxy(process.env.ANJIAN_TRUST_PROXY));
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '1mb', inflate: false }));
 
 app.get('/healthz', (req, res) => res.json({ ok: true }));
 
@@ -86,9 +105,10 @@ registerChannel(createWecomChannel({ hub: imHub }));
 const imRouter = createImRouter(imHub);
 const remindersRouter = createRemindersRouter(reminderWorker);
 
-app.use('/api', authRouter); // /api/login /api/logout（自带限速，不过会话门）
+app.use(['/api', '/internal'], requestBoundary);
+app.use('/api', authRouter, usersRouter);
 app.use(
-  '/api', apiAuth,
+  '/api', apiAuth, phase1BusinessGate,
   casesRouter, recordsRouter, viewsRouter, feesRouter, sharesRouter,
   filesRouter, contactsRouter, peopleRouter, legalragRouter, settingsRouter, agentRouter, changesRouter, remindersRouter, imRouter
 );
@@ -129,9 +149,11 @@ const httpServer = app.listen(port, host, () => {
   const actualPort = httpServer.address().port;
   agentSupervisor.setInternalBaseURL(`http://${internalCallbackHost(startupConfig.host)}:${actualPort}`);
   console.log(`anjian listening on :${actualPort}`);
-  if (startLegalRagBridge()) console.log('anjian LegalRAG bridge started');
-  imHub.start().catch((error) => console.error('im hub start failed:', error.message));
-  reminderWorker.start();
+  if (startupConfig.unsafeNoAuth) {
+    if (startLegalRagBridge()) console.log('anjian LegalRAG bridge started');
+    imHub.start().catch((error) => console.error('im hub start failed:', error.message));
+    reminderWorker.start();
+  }
 });
 
 // 优雅退出：设计稿 §3.2「server shutdown」是取消当前 turn、终止 worker 的

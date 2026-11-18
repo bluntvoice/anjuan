@@ -187,7 +187,7 @@ export function createAgentRouter(supervisor, {
   fetchModels = fetchProviderModels,
 } = {}) {
   const r = Router();
-  const parseAttachmentJson = parseJson({ type: AGENT_ATTACHMENT_JSON_TYPE, limit: ATTACHMENT_BODY_LIMIT });
+  const parseAttachmentJson = parseJson({ type: AGENT_ATTACHMENT_JSON_TYPE, limit: ATTACHMENT_BODY_LIMIT, inflate: false });
 
   // 只读:配置层可用性 + (可选)某案件当前 worker 状态。不带 case_id 时只反映
   // 设置白名单是否合法/启用,完全不触碰 supervisor.workers——这就是冒烟脚本

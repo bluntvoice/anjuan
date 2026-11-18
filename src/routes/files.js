@@ -144,7 +144,7 @@ r.get('/cases/:id/file', (req, res) => {
 });
 
 // 上传（原始字节流）。query: dir(白名单)、name、entity/entity_id（可选，同时建引用）
-r.put('/cases/:id/files', express.raw({ type: '*/*', limit: MAX_UPLOAD }), (req, res) => {
+r.put('/cases/:id/files', express.raw({ type: '*/*', limit: MAX_UPLOAD, inflate: false }), (req, res) => {
   const m = mustCase(req, res);
   if (!m) return;
   const { c, context } = m;

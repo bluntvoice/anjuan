@@ -54,7 +54,7 @@ export function unsafeNoAuthAllowed(env = process.env) {
     && isLoopbackHost(host);
 }
 
-export function resolveStartupConfig(env = process.env) {
+export function resolveStartupConfig(env = process.env, { identityMode = false } = {}) {
   const host = String(env.HOST || DEFAULT_HOST).trim();
   const nodeEnv = String(env.NODE_ENV || 'development');
   const unsafeRaw = env.ANJIAN_UNSAFE_NO_AUTH;
@@ -76,15 +76,16 @@ export function resolveStartupConfig(env = process.env) {
 
   const hasUser = configured(env.ANJIAN_USER);
   const hasHash = configured(env.ANJIAN_PASS_HASH);
-  if (!unsafeNoAuth && hasUser !== hasHash) {
+  if (!identityMode && !unsafeNoAuth && hasUser !== hasHash) {
     throw new Error('ANJIAN_USER 与 ANJIAN_PASS_HASH 必须同时配置');
   }
-  if (!unsafeNoAuth && !hasUser) {
+  if (!identityMode && !unsafeNoAuth && !hasUser) {
     throw new Error('未配置登录凭据；本机开发如需无鉴权，须显式设置 ANJIAN_UNSAFE_NO_AUTH=1');
   }
   if (!unsafeNoAuth && !isLoopbackHost(host) && !configured(env.ANJIAN_INTERNAL_KEY)) {
     throw new Error('非回环监听必须配置 ANJIAN_INTERNAL_KEY');
   }
+  if (identityMode && !isLoopbackHost(host)) throw new Error('案卷首版仅支持回环监听');
 
   // ANJIAN_SECRET（AI 助理「界面填 key」的加密主密钥来源之一）此前只在用户
   // 第一次保存 key 时才会被 src/lib/secret-box.js 的 resolveMasterKey() 校

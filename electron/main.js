@@ -6,13 +6,41 @@
 // 首启检测：读 userData/config.json
 //   未配置 → 引导窗口（选数据目录 / 设密码 / 可选填 API key）→ 写 config.json → 启动
 //   已配置 → 注入 env → fork server.js → 健康检查 → 主窗口
-const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const electron = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = electron;
 const path = require('node:path');
 const fs = require('node:fs');
 const crypto = require('node:crypto');
+const IS_DEV = !app.isPackaged;
+const APP_ROOT = IS_DEV ? path.resolve(__dirname, '..') : path.join(process.resourcesPath, 'app');
+const { resolvePreviewLaunch, readPreviewConfig, previewSystemEnv } = require('./preview-mode.cjs');
+let preview, previewNode, previewSession;
+try {
+  preview = resolvePreviewLaunch({ appRoot: APP_ROOT, app, env: process.env, argv: process.argv });
+  if (preview) {
+    // Install before application imports capture networking, updater or spawn APIs.
+    previewNode = require('./preview-node.cjs').installNodeGuard(preview);
+    previewSession = require('./preview-session.cjs').createSessionGuard(APP_ROOT);
+    previewSession.installElectron(electron);
+    for (const name of Object.keys(process.env)) delete process.env[name];
+    Object.assign(process.env, previewSystemEnv(preview));
+    app.setPath('userData', preview.userData);
+    app.setPath('sessionData', preview.sessionData);
+    for (const name of ['disable-background-networking','disable-quic','no-proxy-server']) app.commandLine.appendSwitch(name);
+    app.commandLine.appendSwitch('force-webrtc-ip-handling-policy', 'disable_non_proxied_udp');
+  }
+} catch {
+  console.error('WP0: preview startup rejected');
+  app.exit(1);
+  return;
+}
 const { fork } = require('node:child_process');
+const { pathToFileURL } = require('node:url');
+const { createIdentityBackup } = require('./identity-backup.cjs');
+const { assertDataPaths } = require('../src/lib/windows-data-paths.cjs');
+const { verifyPassword, parsePasswordHash } = require('../src/lib/password-hash.cjs');
 const http = require('node:http');
-const { initAutoUpdater } = require('./updater');
+const initAutoUpdater = preview ? null : require('./updater').initAutoUpdater;
 const { buildBackendEnv, shouldRedirectTestUserData } = require('./backend-env');
 const { shouldPreventClose } = require('./window-policy');
 
@@ -42,19 +70,17 @@ if (!app.isPackaged) app.commandLine.appendSwitch('no-sandbox');
 // （不 require('electron')，可以在裸 node 下单测——见
 // tools/test-electron-backend-env.js），这里只是把真实的 app.commandLine.hasSwitch
 // 接进去。
-if (shouldRedirectTestUserData(process.env, (name) => app.commandLine.hasSwitch(name))) {
+const isolatedTestRun = shouldRedirectTestUserData(process.env, (name) => app.commandLine.hasSwitch(name));
+if (isolatedTestRun) {
   app.setPath('userData', process.env.ANJIAN_TEST_USERDATA);
 }
-
-const IS_DEV = !app.isPackaged;
-// 打包后 server.js 在 app.asar.unpacked 里（better-sqlite3 是原生模块，不能进 asar）
-const APP_ROOT = IS_DEV
-  ? path.resolve(__dirname, '..')
-  : path.join(process.resourcesPath, 'app');
 
 let mainWindow = null;
 let backendProc = null;
 let quitting = false;
+let backendBootstrap = null;
+let selectedDataDir = null;
+let initializationRunning = false;
 
 // ── 配置读写（userData/config.json）─────────────────────────────────
 function configPath() {
@@ -62,6 +88,7 @@ function configPath() {
 }
 
 function readConfig() {
+  if (preview) return readPreviewConfig(preview);
   try {
     return JSON.parse(fs.readFileSync(configPath(), 'utf8'));
   } catch {
@@ -69,9 +96,27 @@ function readConfig() {
   }
 }
 
-function writeConfig(cfg) {
-  fs.mkdirSync(path.dirname(configPath()), { recursive: true });
-  fs.writeFileSync(configPath(), JSON.stringify(cfg, null, 2), 'utf8');
+const { atomicJson } = require('./atomic-json.cjs');
+function writeConfig(cfg) { atomicJson(configPath(), cfg); }
+function backendRequest(route, body) {
+  if (!backendBootstrap) return Promise.reject(new Error('后端尚未就绪'));
+  return new Promise((resolve, reject) => {
+    const data = body === undefined ? null : Buffer.from(JSON.stringify(body));
+    const request = preview ? previewNode.requestBootstrap : http.request;
+    const req = request({ hostname: '127.0.0.1', port: backendBootstrap.port, path: '/api' + route,
+      method: data ? 'POST' : 'GET', headers: { 'X-Anjuan-Bootstrap': backendBootstrap.key,
+        ...(data ? { 'Content-Type': 'application/json', 'Content-Length': data.length } : {}) } }, res => {
+      let response = ''; res.on('data', chunk => { response += chunk; });
+      res.on('end', () => {
+        try {
+          const result = JSON.parse(response);
+          if (res.statusCode >= 400) reject(new Error(result.error || '初始化请求失败')); else resolve(result);
+        } catch { reject(new Error('初始化响应无效')); }
+      });
+    });
+    req.on('error', reject); req.setTimeout(10000, () => req.destroy(new Error('初始化请求超时')));
+    if (data) req.write(data); req.end();
+  });
 }
 
 // ── 选一个空闲端口 ──────────────────────────────────────────────────
@@ -92,32 +137,42 @@ function pickFreePort() {
 // ── fork 后端子进程 ─────────────────────────────────────────────────
 // server.js 监听 PORT，stdout 会打印 "anjian listening on :<port>"。
 async function startBackend(config) {
+  assertDataPaths({ dataDir: config.dataDir, userData: app.getPath('userData') });
+  if (preview) {
+    const checked = readPreviewConfig(preview);
+    if (!checked || config.dataDir !== checked.dataDir) throw new Error('WP0: untrusted backend config');
+    const key = crypto.randomBytes(32).toString('hex');
+    const port = await previewNode.startBackend(key, child => {
+      backendProc = child;
+      child.stdout.resume();
+      child.stderr.resume();
+    }, stopPreview);
+    backendBootstrap = { key, port };
+    return port;
+  }
   const port = await pickFreePort();
-  // AI 助理 sidecar（agent_enabled=true 时）的 DSH 子进程要靠 X-Anjian-Key
-  // 回调 /internal/agent-proposals；DESIGN.md 原先「Electron 显式回环并带账
-  // 号/hash，可不启用 internal 面」的前提是没有任何东西需要走 /internal——
-  // sidecar 落地后这个前提不再成立，桌面版必须也配一份 ANJIAN_INTERNAL_KEY，
-  // 否则 supervisor.start() 会在 internal_key_missing 上直接短路，AI 助理在
-  // 桌面版永远起不来。这里每次启动随机生成一份，只活在这一次后端子进程的
-  // env 里，不写 config.json/磁盘、不持久化——重启即换新值，不需要用户感知。
-  const internalKey = crypto.randomBytes(32).toString('hex');
-  // env 的具体拼接（含 DB_PATH/ANJIAN_FILES_ROOT/ANJIAN_AGENT_SESSION_ROOT 这
-  // 三条必须落在用户 dataDir 下的路径——AI 助理 session transcript 那一条同
-  // DB_PATH 是同一个模式：src/agent/supervisor.js 的默认值是 __dirname 相对
-  // 路径，打包后会解析进 Contents/Resources/app 这份已签名的 app 资源树本体，
-  // 而不是用户的 dataDir）抽到 ./backend-env.js，逻辑本身不 require('electron')，
-  // 可以在裸 node 下直接单测（tools/test-electron-backend-env.js）——这里只是
-  // 传入真实的 process.env/config/port/internalKey。
-  const env = buildBackendEnv({ baseEnv: process.env, config, port, internalKey });
-
+  const key = crypto.randomBytes(32).toString('hex');
+  const env = buildBackendEnv({ baseEnv: process.env, config, port });
   return new Promise((resolve, reject) => {
     const proc = fork(path.join(APP_ROOT, 'server.js'), [], {
       env,
       cwd: APP_ROOT,
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
-      execArgv: IS_DEV ? ['--env-file=' + path.join(APP_ROOT, '.env')] : [],
+      execArgv: [],
     });
     backendProc = proc;
+    backendBootstrap = { key, port };
+    const legacy = config.user && parsePasswordHash(config.passHash) ? { user: config.user, passHash: config.passHash } : null;
+    const authorityReady = new Promise((ready, fail) => {
+      const timer = setTimeout(() => fail(new Error('可信初始化通道超时')), 15000);
+      proc.on('message', message => {
+        if (message?.type !== 'anjuan:bootstrap-ready') return;
+        clearTimeout(timer);
+        if (message.ok) ready(); else fail(new Error('可信初始化通道未建立'));
+      });
+      proc.once('exit', () => { clearTimeout(timer); fail(new Error('初始化期间后端退出')); });
+    });
+    authorityReady.catch(reject);
 
     proc.stdout.on('data', (chunk) => {
       const text = chunk.toString();
@@ -135,13 +190,26 @@ async function startBackend(config) {
     const waitReady = async () => {
       const deadline = Date.now() + 15000;
       while (Date.now() < deadline) {
-        if (await healthzOk(port)) return resolve(port);
+        if (proc.exitCode !== null) throw new Error('后端未能启动，原配置已保留');
+        if (await healthzOk(port)) {
+          proc.send({ type: 'anjuan:bootstrap-capability', key, legacy });
+          await authorityReady;
+          return resolve(port);
+        }
         await sleep(300);
       }
       reject(new Error('后端健康检查超时（15s）'));
     };
     waitReady().catch(reject);
   });
+}
+
+function stopPreview() {
+  previewSession.revoke();
+  previewNode.revoke();
+  backendBootstrap = null;
+  if (backendProc && (backendProc.exitCode !== null || backendProc.signalCode !== null)) backendProc = null;
+  if (!quitting) app.quit();
 }
 
 function healthzOk(port) {
@@ -159,20 +227,23 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ── 主窗口 ──────────────────────────────────────────────────────────
 function createMainWindow(port) {
+  if (preview) previewSession.trustPort(port);
   mainWindow = new BrowserWindow({
     width: 1440,
     height: 900,
     minWidth: 390,
-    title: '案齐',
+    title: '案卷',
     ...(process.platform === 'darwin' && {
       titleBarStyle: 'hiddenInset',
     }),
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
+      ...(preview && { sandbox: true, devTools: false, webviewTag: false }),
     },
   });
 
+  if (preview) previewSession.installContents(mainWindow.webContents);
   mainWindow.loadURL(`http://127.0.0.1:${port}/`);
 
   // ── 给 macOS 红绿灯让位（只住 Electron 侧，网页版一像素不动）────────────
@@ -194,11 +265,21 @@ function createMainWindow(port) {
   }
 
   // 外链在系统浏览器打开，不抢 App 内导航
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('http://127.0.0.1:')) return { action: 'allow' };
-    shell.openExternal(url);
-    return { action: 'deny' };
-  });
+  if (!preview) {
+    const backendOrigin = `http://127.0.0.1:${port}`;
+    mainWindow.webContents.on('will-navigate', (event, url) => {
+      try { if (new URL(url).origin !== backendOrigin) event.preventDefault(); }
+      catch { event.preventDefault(); }
+    });
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+      try {
+        const target = new URL(url);
+        if (target.origin === backendOrigin) return { action: 'allow' };
+        if (target.protocol === 'https:' || target.protocol === 'http:') shell.openExternal(url);
+      } catch { /* Invalid and non-web external destinations remain denied. */ }
+      return { action: 'deny' };
+    });
+  }
 
   mainWindow.on('closed', () => { mainWindow = null; });
   mainWindow.on('close', (event) => {
@@ -209,7 +290,10 @@ function createMainWindow(port) {
   });
 
   // 打包后启动自动更新检查（dev 跳过）
-  initAutoUpdater(mainWindow);
+  // The same explicit env + argv gate used for isolated userData also prevents
+  // W0 unpacked probes from contacting the production update service.
+  if (preview) return;
+  if (!isolatedTestRun) initAutoUpdater(mainWindow);
 }
 
 // ── 引导窗口 ────────────────────────────────────────────────────────
@@ -218,69 +302,133 @@ function createOnboardingWindow() {
     width: 560,
     height: 620,
     resizable: false,
-    title: '案齐 · 初始设置',
+    title: '案卷 · 初始设置',
     minimizable: false,
     maximizable: false,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
       preload: path.join(__dirname, 'preload.js'),
+      ...(preview && { sandbox: true, devTools: false, webviewTag: false }),
     },
   });
-  onboardingWin.loadFile(path.join(__dirname, 'onboarding.html'));
+  const trustedURL = pathToFileURL(path.join(__dirname, 'onboarding.html')).href;
+  if (preview) previewSession.installContents(onboardingWin.webContents);
+  else {
+    onboardingWin.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+    onboardingWin.webContents.on('will-navigate', (event, url) => { if (url !== trustedURL) event.preventDefault(); });
+  }
+  onboardingWin.loadURL(trustedURL);
   onboardingWin.on('closed', () => {
     onboardingWin = null;
     // 引导没完成就关窗 = 放弃启动
-    if (!readConfig()) app.quit();
+    if (!mainWindow) app.quit();
   });
   return onboardingWin;
 }
 
 // ── IPC：引导页调用 ────────────────────────────────────────────────
 // 选数据目录（原生文件夹选择器，renderer 无权直接调）
-const DATA_DIR_NAME = '案齐数据';
+const DATA_DIR_NAME = '案卷数据';
 
-ipcMain.handle('onboarding:chooseDir', async () => {
-  const result = await dialog.showOpenDialog({
+function assertOnboardingSender(event) {
+  const expected = pathToFileURL(path.join(__dirname, 'onboarding.html')).href;
+  if (!onboardingWin || event.sender !== onboardingWin.webContents
+    || event.senderFrame !== onboardingWin.webContents.mainFrame || event.senderFrame.url !== expected) {
+    throw new Error('引导请求来源不正确');
+  }
+}
+function onboardingContext() {
+  const config = readConfig();
+  if (!config) return { mode: 'fresh', dataDir: preview ? preview.dataDir : selectedDataDir };
+  if (config.bootstrapPending === true && config.dataDir) return { mode: 'fresh', dataDir: config.dataDir, pending: true };
+  if (config.user && parsePasswordHash(config.passHash)) return { mode: 'legacy', dataDir: config.dataDir, username: config.user };
+  return { mode: 'blocked', message: '配置来源或旧凭据无法验证，请保留资料并核查迁移方案' };
+}
+ipcMain.handle('onboarding:context', event => { assertOnboardingSender(event); return onboardingContext(); });
+ipcMain.handle('onboarding:chooseDir', async event => {
+  assertOnboardingSender(event);
+  if (readConfig()) throw new Error('已有配置的目录不能在初始化中改写');
+  if (preview) return preview.dataDir;
+  const result = await dialog.showOpenDialog(onboardingWin, {
     properties: ['openDirectory', 'createDirectory'],
-    defaultPath: path.join(app.getPath('home'), 'Documents', DATA_DIR_NAME),
+    defaultPath: isolatedTestRun ? app.getPath('userData') : path.join(app.getPath('home'), 'Documents', DATA_DIR_NAME),
   });
   if (result.canceled) return null;
   const picked = result.filePaths[0];
-  // 永远在用户选的位置下面**建一个子目录**再放数据——用户选「桌面」时，
-  // anjian.db 和「案件夹」不能平铺到桌面上。已经选中同名目录（含默认路径）则不再套娃。
-  return path.basename(picked) === DATA_DIR_NAME ? picked : path.join(picked, DATA_DIR_NAME);
+  selectedDataDir = path.basename(picked) === DATA_DIR_NAME ? picked : path.join(picked, DATA_DIR_NAME);
+  return selectedDataDir;
 });
-
-// 共享纯密码模块，不 import 后端——避免级联 import db.js 在引导阶段就连库。
-const { hashPassword } = require('../src/lib/password-hash.cjs');
-ipcMain.handle('onboarding:hash', (_evt, password) => {
-  return hashPassword(password);
-});
-
-// 保存配置并完成引导：写 config → 启动后端 → 开主窗口 → 关引导窗
 let onboardingWin = null;
-ipcMain.handle('onboarding:complete', async (_evt, config) => {
-  // 数据目录多半是上一步现拼出来的子目录，还不存在——先建出来，
-  // 否则后端连库就会在 ENOENT 上失败。（用户手输路径的情况也一并兜住。）
+ipcMain.handle('onboarding:complete', async (event, input) => {
+  assertOnboardingSender(event);
+  if (initializationRunning) throw new Error('初始化正在进行，请等待结果');
+  if (!input || typeof input !== 'object' || Array.isArray(input)
+    || Object.keys(input).some(key => !['username','password','old_password','confirm_legacy'].includes(key))) throw new Error('初始化字段不正确');
+  initializationRunning = true;
   try {
-    fs.mkdirSync(config.dataDir, { recursive: true });
-  } catch (e) {
-    dialog.showErrorBox('无法创建数据目录', `${config.dataDir}\n\n${e.message || e}`);
-    return false;
-  }
-  writeConfig(config);
-  try {
-    const port = await startBackend(config);
+    const context = onboardingContext();
+    if (context.mode === 'blocked') throw new Error(context.message);
+    let config = readConfig();
+    assertDataPaths({ dataDir: context.mode === 'legacy' ? config.dataDir : (context.pending || preview ? context.dataDir : selectedDataDir), userData: app.getPath('userData') });
+    if (context.mode === 'legacy') {
+      if (input.confirm_legacy !== true || typeof input.old_password !== 'string' || !verifyPassword(input.old_password, config.passHash)) {
+        throw new Error('请确认旧程序已退出，并验证原账号密码');
+      }
+      const journalPath = path.join(app.getPath('userData'), 'identity-migration.json');
+      let journal = null;
+      try { journal = JSON.parse(fs.readFileSync(journalPath, 'utf8')); } catch {}
+      const configDigest = crypto.createHash('sha256').update(fs.readFileSync(configPath())).digest('hex');
+      if (!journal || journal.dataDir !== config.dataDir || journal.configDigest !== configDigest) {
+        const backup = await createIdentityBackup({ dataDir: config.dataDir, configPath: configPath() });
+        journal = { dataDir: config.dataDir, configDigest, backup, status: 'backup-complete' };
+        atomicJson(journalPath, journal);
+      } else require('./identity-backup.cjs').verifyIdentityBackup(journal.backup);
+    } else {
+      const dataDir = context.pending || preview ? context.dataDir : selectedDataDir;
+      if (!dataDir) throw new Error('请先通过文件夹选择器选择数据目录');
+      if (!context.pending && fs.existsSync(path.join(dataDir, 'anjian.db'))) throw new Error('所选目录已有数据库，不能未经验证接管');
+      fs.mkdirSync(dataDir, { recursive: true });
+      if (fs.lstatSync(dataDir).isSymbolicLink()) throw new Error('数据根不能是重解析点');
+      config = { dataDir, bootstrapPending: true, identityVersion: 0 };
+      if (!context.pending) writeConfig(config);
+    }
+    const port = backendProc ? backendBootstrap.port : await startBackend(config);
+    const status = await backendRequest('/bootstrap/status');
+    if (!status.initialized) {
+      if (status.legacy_required && !status.legacy_available) throw new Error('旧数据缺少可验证身份，停止初始化');
+      await backendRequest('/bootstrap/initialize', context.mode === 'legacy'
+        ? { old_password: input.old_password, confirm_legacy: true }
+        : { username: input.username, password: input.password });
+    }
+    const cleaned = { ...config, identityVersion: 1 };
+    delete cleaned.user; delete cleaned.passHash; delete cleaned.bootstrapPending;
+    writeConfig(cleaned);
+    backendProc.send({ type: 'anjuan:bootstrap-revoke' });
+    backendBootstrap = null;
     createMainWindow(port);
     if (onboardingWin && !onboardingWin.isDestroyed()) onboardingWin.close();
-    return true;
-  } catch (e) {
-    dialog.showErrorBox('案齐启动失败', e.message || String(e));
-    app.quit();
-    return false;
-  }
+    return { ok: true };
+  } catch (error) {
+    if (preview) stopPreview();
+    throw error;
+  } finally { initializationRunning = false; }
 });
+async function openInitialWindow() {
+  const config = readConfig();
+  if (!config || config.identityVersion !== 1) return createOnboardingWindow();
+  try {
+    const port = await startBackend(config);
+    const status = await backendRequest('/bootstrap/status');
+    if (!status.initialized) throw new Error('身份库未完成初始化，不能自动重建管理员');
+    backendProc.send({ type: 'anjuan:bootstrap-revoke' });
+    backendBootstrap = null;
+    createMainWindow(port);
+  } catch (error) {
+    if (preview) stopPreview();
+    else { dialog.showErrorBox('案卷启动失败', error.message || String(error)); app.quit(); }
+  }
+}
 
 // ── App 生命周期 ────────────────────────────────────────────────────
 // 单实例锁：防止多开导致端口/数据竞争
@@ -295,20 +443,10 @@ if (!gotLock) {
     }
   });
 
-  app.whenReady().then(async () => {
-    const config = readConfig();
-    if (!config) {
-      createOnboardingWindow();
-    } else {
-      try {
-        const port = await startBackend(config);
-        createMainWindow(port);
-      } catch (e) {
-        dialog.showErrorBox('案齐启动失败', e.message || String(e));
-        app.quit();
-      }
-    }
-  });
+  app.whenReady().then(() => {
+    if (preview) previewSession.installSession(electron.session.defaultSession);
+    return openInitialWindow();
+  }).catch(() => preview ? stopPreview() : app.quit());
 
   // macOS 下关掉所有窗口不退出（dock 常驻）；其它平台退出
   app.on('window-all-closed', () => {
@@ -316,27 +454,22 @@ if (!gotLock) {
   });
 
   app.on('activate', () => {
-    if (mainWindow && process.platform === 'darwin') {
-      mainWindow.show();
-    } else if (BrowserWindow.getAllWindows().length === 0) {
-      const config = readConfig();
-      if (config) {
-        startBackend(config).then(createMainWindow).catch((e) => {
-          dialog.showErrorBox('案齐启动失败', e.message);
-          app.quit();
-        });
-      } else {
-        createOnboardingWindow();
-      }
-    }
+    if (mainWindow && process.platform === 'darwin') mainWindow.show();
+    else if (BrowserWindow.getAllWindows().length === 0 && !quitting) openInitialWindow();
   });
 
   // 退出时 kill 后端子进程（否则成为孤儿进程占着端口）
-  app.on('before-quit', () => {
-    quitting = true;
-    if (backendProc) {
-      backendProc.kill();
-      backendProc = null;
-    }
+  app.on('before-quit', event => {
+    if (preview) { previewSession.revoke(); previewNode.revoke(); }
+    if (quitting || !backendProc) { quitting = true; return; }
+    event.preventDefault(); quitting = true;
+    const owned = backendProc;
+    const timer = setTimeout(() => { if (owned.exitCode === null) owned.kill(); }, 10000);
+    owned.once('exit', code => {
+      clearTimeout(timer); backendProc = null;
+      console.log(`anjuan backend stopped (code=${code})`);
+      app.quit();
+    });
+    if (owned.connected) owned.send({ type: 'anjuan:shutdown' }); else owned.kill();
   });
 }

@@ -2,9 +2,13 @@ import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runLocalMigrations } from './lib/local-migrations.js';
+import dataPaths from './lib/windows-data-paths.cjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dbPath = process.env.DB_PATH || path.join(__dirname, '..', 'data', 'anjian.db');
+dataPaths.assertDatabasePath(dbPath);
+const legacyDatabase = fs.existsSync(dbPath) && fs.statSync(dbPath).size > 0;
 fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 
 export const db = new Database(dbPath);
@@ -33,6 +37,7 @@ export function runMigrations(targetDb, migrationDir = migDir) {
 }
 
 runMigrations(db);
+runLocalMigrations(db, { legacyDatabase });
 
 // 节假日表装载（幂等）：rules/holidays-<year>.json → holidays 表。
 // 数据源纪律：文件只能从国务院办公厅当年通知逐日核对后灌入（见各文件 _comment）。

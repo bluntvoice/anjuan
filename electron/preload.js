@@ -8,8 +8,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('anjianOnboarding', {
   // 选数据目录（调原生文件夹选择器）
   chooseDir: () => ipcRenderer.invoke('onboarding:chooseDir'),
-  // 哈希密码（主进程跑后端的 hashPassword）
-  hash: (password) => ipcRenderer.invoke('onboarding:hash', password),
+  context: () => ipcRenderer.invoke('onboarding:context'),
   // 保存配置，完成引导
   complete: (config) => ipcRenderer.invoke('onboarding:complete', config),
 });

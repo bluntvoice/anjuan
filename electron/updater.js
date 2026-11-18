@@ -37,7 +37,7 @@ function initAutoUpdater(mainWindow) {
     dialog.showMessageBox(mainWindow, {
       type: 'info',
       title: '发现新版本',
-      message: `案齐 ${info.version} 已发布`,
+      message: `案卷 ${info.version} 已发布`,
       detail: '将在浏览器中下载新版安装包（DMG）。\n下载完成后打开它，把新版拖进「应用程序」覆盖旧版即可；你的数据在自选的数据目录里，不受影响。',
       buttons: ['去下载', '稍后'],
       defaultId: 0,

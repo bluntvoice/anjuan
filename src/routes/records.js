@@ -542,7 +542,7 @@ r.delete('/worklog/:id', (req, res) => {
 });
 
 // ---------- 传票识别：只暂存并回填表单，不写业务表 ----------
-r.post('/quick/extract', express.raw({ type: '*/*', limit: MAX_STAGING_BYTES }), async (req, res) => {
+r.post('/quick/extract', express.raw({ type: '*/*', limit: MAX_STAGING_BYTES, inflate: false }), async (req, res) => {
   cleanupStaging();
   const buffer = Buffer.isBuffer(req.body) ? req.body : Buffer.alloc(0);
   if (buffer.length > MAX_STAGING_BYTES) return res.status(413).json({ error: '文件超过 20MB' });

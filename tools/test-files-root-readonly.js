@@ -1,3 +1,4 @@
+import { TestResources } from './phase1/test-resources.js';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
@@ -6,16 +7,19 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-files-root-readonly-'));
+const resources = new TestResources(import.meta.url);
+let primaryError;
+try {
+const scratch = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-files-root-readonly-')));
 const missingRoot = path.join(scratch, 'mount-not-present');
 const dbPath = path.join(scratch, 'readonly-root.db');
 const logPath = path.join(scratch, 'server.log');
 const port = 45000 + Math.floor(Math.random() * 1000);
 const base = `http://127.0.0.1:${port}`;
-const log = fs.openSync(logPath, 'w');
+const log = resources.file(fs.openSync(logPath, 'w'));
 
 assert.equal(fs.existsSync(missingRoot), false, 'fixture root must begin absent');
-const child = spawn(process.execPath, ['server.js'], {
+const child = resources.child(spawn(process.execPath, ['server.js'], {
   cwd: projectRoot,
   env: {
     ...process.env,
@@ -29,7 +33,7 @@ const child = spawn(process.execPath, ['server.js'], {
     LEGALRAG_INTERNAL_KEY: '',
   },
   stdio: ['ignore', log, log],
-});
+}));
 
 async function waitReady() {
   for (let attempt = 0; attempt < 80; attempt += 1) {
@@ -51,7 +55,16 @@ try {
   assert.equal(body.error, '文件根不存在');
   assert.equal(rootExists, false, 'GET must not create a shadow empty files root');
 } finally {
-  child.kill('SIGTERM');
-  fs.closeSync(log);
-  fs.rmSync(scratch, { recursive: true, force: true });
+
+
+
+  // Owned resources are closed in the outer finally before directory removal.
+}
+
+} catch (error) {
+  primaryError = error;
+  console.error(error);
+  process.exitCode = 1;
+} finally {
+  await resources.finish(primaryError);
 }

@@ -1,3 +1,5 @@
+import { TestResources } from './phase1/test-resources.js';
+import { assertF1Environment, verifyProductionContract, assertSQLite } from './phase1/r2-f1-contract.js';
 // 变更记录 HTTP（R7 · migration 024）：GET /api/changes 的读取面 + 写入路径是否真的都留痕。
 //
 // 这一层验的是迁移测试验不到的东西：应用层的 withChangeContext 到底包住了哪些写口。
@@ -13,13 +15,27 @@ import { fileURLToPath } from 'node:url';
 import Database from 'better-sqlite3';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-changes-http-'));
+const resources = new TestResources(import.meta.url);
+let primaryError;
+try {
+assertF1Environment();
+const { unsafeNoAuthAllowed, resolveStartupConfig } = await import('../src/lib/startup-config.js');
+const unsafeFixtureEnv = { NODE_ENV: 'test', HOST: '127.0.0.1', ANJIAN_UNSAFE_NO_AUTH: '1' };
+assert.equal(unsafeNoAuthAllowed(unsafeFixtureEnv), true);
+for (const overrides of [{ NODE_ENV: 'production' }, { NODE_ENV: 'Production' }, { HOST: '0.0.0.0' }, { ANJIAN_UNSAFE_NO_AUTH: '' }, { ANJIAN_UNSAFE_NO_AUTH: 'true' }]) {
+  assert.equal(unsafeNoAuthAllowed({ ...unsafeFixtureEnv, ...overrides }), false);
+}
+assert.throws(() => resolveStartupConfig({ ...unsafeFixtureEnv, NODE_ENV: 'production' }, { identityMode: true }), /production 禁止/);
+console.log('F1_UNSAFE_PREDICATE ' + JSON.stringify({ passed: true, positive: 1, negative: 5, productionStartupRejected: true,
+  limitation: 'product predicate allows any explicit non-production loopback unsafe instance; synthetic-root restriction is supplied by this test runner' }));
+await verifyProductionContract(78, resources);
+const scratch = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-changes-http-')));
 const dbPath = path.join(scratch, 'changes.db');
 const logPath = path.join(scratch, 'server.log');
 const port = 44000 + Math.floor(Math.random() * 1000);
 const base = `http://127.0.0.1:${port}`;
-const log = fs.openSync(logPath, 'w');
-const child = spawn(process.execPath, ['server.js'], {
+const log = resources.file(fs.openSync(logPath, 'w'));
+const child = resources.child(spawn(process.execPath, ['server.js'], {
   cwd: root,
   env: {
     ...process.env,
@@ -30,7 +46,7 @@ const child = spawn(process.execPath, ['server.js'], {
     ANJIAN_UNSAFE_NO_AUTH: '1',
   },
   stdio: ['ignore', log, log],
-});
+}));
 let db;
 
 async function waitReady() {
@@ -45,7 +61,7 @@ async function waitReady() {
 async function request(method, route, body, expected = 200) {
   const response = await fetch(base + route, {
     method,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'X-Anjian-Actor': 'forged-real-user' },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const raw = await response.text();
@@ -59,11 +75,14 @@ const changes = (query) => request('GET', `/api/changes?${query}`);
 
 try {
   await waitReady();
-  db = new Database(dbPath);
+  db = resources.database(new Database(dbPath));
   db.pragma('foreign_keys = ON');
 
   const caseId = db.prepare("INSERT INTO cases(name,stage) VALUES ('张三诉李四合同纠纷（变更记录）','审理中')").run().lastInsertRowid;
   const otherCaseId = db.prepare("INSERT INTO cases(name,stage) VALUES ('另案（变更记录）','审理中')").run().lastInsertRowid;
+  const sqlSeedRows = db.prepare('SELECT * FROM change_log ORDER BY id').all();
+  assert.equal(sqlSeedRows.length, 2);
+  assert.ok(sqlSeedRows.every(item => item.actor === 'system' && item.entity === 'case' && item.action === 'insert'), '直接 SQL 造数没有 HTTP 身份上下文，应为 system');
 
   // ---- 引擎派生：POST 一个送达事件，规则应派生期限，且这些期限的留痕要带 rule_id ----
   const ev = await request('POST', `/api/cases/${caseId}/events`, { type: 'served', occurred_on: '2026-09-01' });
@@ -77,7 +96,7 @@ try {
   assert.ok(derivedLog, '派生期限的插入必须留痕');
   assert.equal(derivedLog.case_id, caseId);
   assert.equal(derivedLog.rule_id, answer.rule_id, '留痕要能回溯「哪条规则算出来的」');
-  assert.equal(derivedLog.actor, 'web', '测试环境无鉴权时 actor 为 web');
+  assert.equal(derivedLog.actor, 'isolated-test', '显式回环非生产 unsafe 测试分支产生 actor，不能采信请求头');
   assert.equal(derivedLog.new_value, answer.name, 'insert 带人类可读标签');
   assert.equal(derivedLog.field, null);
 
@@ -90,7 +109,7 @@ try {
   const freshRows = page.items.slice(0, page.items.length - beforeUpdate);
   assert.deepEqual(freshRows.map((item) => item.field).sort(), ['done_at', 'status']);
   assert.ok(freshRows.every((item) => item.action === 'update' && item.entity_id === answer.id && item.case_id === caseId));
-  assert.ok(freshRows.every((item) => item.actor === 'web'), 'PATCH 走 HTTP，应是 req.actor 而不是 system');
+  assert.ok(freshRows.every((item) => item.actor === 'isolated-test'), 'PATCH 走 HTTP，应是隔离 apiAuth 的 req.actor 而不是 system');
   const statusRow = freshRows.find((item) => item.field === 'status');
   assert.equal(statusRow.old_value, 'pending');
   assert.equal(statusRow.new_value, 'done');
@@ -136,6 +155,9 @@ try {
   const theirs = (await changes(`case_id=${otherCaseId}&limit=200`)).items;
   assert.ok(theirs.length >= 1);
   assert.ok(theirs.every((item) => item.case_id === otherCaseId));
+  assert.ok(mine.filter(item => item.entity !== 'case' || item.action !== 'insert').every(item => item.actor === 'isolated-test'));
+  assert.ok(theirs.filter(item => item.entity !== 'case' || item.action !== 'insert').every(item => item.actor === 'isolated-test'), '另案 HTTP 操作保留同一隔离来源，不能串案');
+  assert.ok(!JSON.stringify([...mine, ...theirs]).includes('forged-real-user'), '请求方不能覆盖审计主体');
 
   // ---- 参数校验：审计面宁可报错，不静默纠正 ----
   await request('GET', '/api/changes?limit=201', undefined, 400);
@@ -151,6 +173,9 @@ try {
 
   // ---- 游标分页：翻完不重不漏，且末页 next_before 为 null ----
   const all = (await changes(`case_id=${caseId}&limit=200`)).items;
+  const httpRows = db.prepare('SELECT * FROM change_log WHERE id>? ORDER BY id').all(sqlSeedRows.at(-1).id);
+  assert.ok(httpRows.length > 5);
+  assert.ok(httpRows.every(item => item.actor === 'isolated-test'), '每条 HTTP 产生的留痕都要有准确来源');
   assert.ok(all.length > 5, `本案应有足够多的变更可用于翻页（实得 ${all.length}）`);
   const collected = [];
   let cursor = null;
@@ -177,10 +202,24 @@ try {
 
   assert.equal(db.pragma('integrity_check', { simple: true }), 'ok');
   assert.deepEqual(db.pragma('foreign_key_check'), []);
+  assertSQLite(db);
+  console.log('F1_ACTOR ' + JSON.stringify({ id: 'R2-78', status: 'passed', actor: 'isolated-test',
+    source: 'unchanged apiAuth unsafeNoAuthAllowed: explicit switch + non-production + loopback',
+    productionIdentity: 'separately verified DB user id and user audit fields; business remains closed',
+    crossCase: true, appendOnly: true, originalAuditMatrix: true, sqlite: 'ok' }));
   console.log('changes HTTP tests: change_log read API + engine-derived rule_id + case_id attribution (incl. after delete) + case isolation + cursor pagination + param validation + append-only passed');
 } finally {
-  child.kill('SIGTERM');
-  db?.close();
-  fs.closeSync(log);
-  fs.rmSync(scratch, { recursive: true, force: true });
+
+
+
+
+  // Owned resources are closed in the outer finally before directory removal.
+}
+
+} catch (error) {
+  primaryError = error;
+  console.error(error);
+  process.exitCode = 1;
+} finally {
+  await resources.finish(primaryError);
 }

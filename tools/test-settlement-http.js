@@ -1,3 +1,4 @@
+import { TestResources } from './phase1/test-resources.js';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
@@ -7,13 +8,16 @@ import { fileURLToPath } from 'node:url';
 import Database from 'better-sqlite3';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const scratchDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-settlement-http-'));
+const resources = new TestResources(import.meta.url);
+let primaryError;
+try {
+const scratchDir = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-settlement-http-')));
 const dbPath = path.join(scratchDir, 'settlement.db');
 const logPath = path.join(scratchDir, 'server.log');
 const port = 40000 + Math.floor(Math.random() * 1000);
 const baseUrl = `http://127.0.0.1:${port}`;
-const log = fs.openSync(logPath, 'w');
-const server = spawn(process.execPath, ['server.js'], {
+const log = resources.file(fs.openSync(logPath, 'w'));
+const server = resources.child(spawn(process.execPath, ['server.js'], {
   cwd: rootDir,
   env: {
     ...process.env,
@@ -24,7 +28,7 @@ const server = spawn(process.execPath, ['server.js'], {
     ANJIAN_UNSAFE_NO_AUTH: '1',
   },
   stdio: ['ignore', log, log],
-});
+}));
 let db;
 
 async function waitForServer() {
@@ -103,7 +107,7 @@ function confirmBody(preview) {
 
 try {
   await waitForServer();
-  db = new Database(dbPath);
+  db = resources.database(new Database(dbPath));
   db.pragma('foreign_keys = ON');
 
   const shapeCase = await request('POST', '/api/cases', {
@@ -1054,8 +1058,17 @@ try {
   if (serverLog) console.error(`\n--- settlement test server log ---\n${serverLog}`);
   throw error;
 } finally {
-  if (db?.open) db.close();
-  if (server.exitCode === null) server.kill('SIGTERM');
-  fs.closeSync(log);
-  fs.rmSync(scratchDir, { recursive: true, force: true });
+
+
+
+
+  // Owned resources are closed in the outer finally before directory removal.
+}
+
+} catch (error) {
+  primaryError = error;
+  console.error(error);
+  process.exitCode = 1;
+} finally {
+  await resources.finish(primaryError);
 }

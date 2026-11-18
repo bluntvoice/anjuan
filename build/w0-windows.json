@@ -1,0 +1,12 @@
+{
+  "extends": null,
+  "appId": "local.anjuan.w0",
+  "productName": "anjuan-w0",
+  "asar": false,
+  "npmRebuild": false,
+  "publish": null,
+  "win": {
+    "target": "dir",
+    "signAndEditExecutable": false
+  }
+}

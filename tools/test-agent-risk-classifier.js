@@ -1,13 +1,18 @@
+import { TestResources } from './phase1/test-resources.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anqi-agent-risk-classifier-'));
+const resources = new TestResources(import.meta.url);
+let primaryError;
+try {
+const scratch = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anqi-agent-risk-classifier-')));
 process.env.DB_PATH = path.join(scratch, 'risk-classifier.db');
 
 try {
   const { db } = await import('../src/db.js');
+resources.database(db);
   const { AgentSupervisor } = await import('../src/agent/supervisor.js');
   const { createRiskClassifier } = await import('../src/agent/risk-classifier.js');
 
@@ -94,5 +99,14 @@ try {
 
   console.log('agent Phase 3 risk classifier: default-off seam + allow/ask/block triage + timeout/error/invalid fail-closed + action audit passed');
 } finally {
-  fs.rmSync(scratch, { recursive: true, force: true });
+
+  // Owned resources are closed in the outer finally before directory removal.
+}
+
+} catch (error) {
+  primaryError = error;
+  console.error(error);
+  process.exitCode = 1;
+} finally {
+  await resources.finish(primaryError);
 }

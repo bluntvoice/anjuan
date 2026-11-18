@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { assertPrivateWindowsAcl } from './phase1/windows-acl-test-utils.js';
 
 const {
   resolveMasterKey,
@@ -67,7 +68,8 @@ const {
   const key1 = resolveMasterKey(env);
   assert.equal(fs.existsSync(keyPath), true, 'resolveMasterKey() 必须在缺失时自动生成 secret.key');
   const mode = fs.statSync(keyPath).mode & 0o777;
-  assert.equal(mode, 0o600, `secret.key 权限位必须是 0o600，实际 ${mode.toString(8)}`);
+  if (process.platform === 'win32') assertPrivateWindowsAcl(keyPath);
+  else assert.equal(mode, 0o600, `secret.key 权限位必须是 0o600，实际 ${mode.toString(8)}`);
 
   const key2 = resolveMasterKey(env);
   assert.ok(key1.equals(key2), '第二次 resolveMasterKey() 必须读到同一把已生成的 key，不是重新生成');
@@ -76,7 +78,7 @@ const {
   assert.equal(decryptSecret(ciphertext, key2), 'round-trip-via-file-key');
 
   fs.rmSync(scratch, { recursive: true, force: true });
-  console.log('  [5/7] secret.key 首次生成权限位 0o600 + 幂等复用：ok');
+  console.log('  [5/7] secret.key 原生私有权限（POSIX 0600 / Windows 独立 ACL）+ 幂等复用：ok');
 }
 
 // ---- 5.5) 【红线回归】secret.key 首次生成的 TOCTOU 竞态：多个进程并发触发

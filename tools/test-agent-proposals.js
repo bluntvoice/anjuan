@@ -1,3 +1,4 @@
+import { TestResources } from './phase1/test-resources.js';
 // enqueueAgentProposal() 单元冒烟：proposal_id 幂等 retry、同 title 异 proposal_id 并存、
 // decline 记忆只属于该 proposal_id（不因案件状态变化重开）、与既有 L2 case.next_action
 // 去重状态机互不覆盖——这四条正是设计稿 §2 与 spike REPORT §9 记录的 L2 去重误吞 agent
@@ -15,10 +16,14 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anqi-agent-proposals-'));
+const resources = new TestResources(import.meta.url);
+let primaryError;
+try {
+const scratch = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anqi-agent-proposals-')));
 process.env.DB_PATH = path.join(scratch, 'agent-proposals.db');
 
 const { db } = await import('../src/db.js');
+resources.database(db);
 const { enqueueAgentProposal, enqueueLlmSuggestion } = await import('../src/lib/recommendations.js');
 
 const caseId = db.prepare(
@@ -204,5 +209,13 @@ assert.throws(
   'source_ref 字段名必须是 session_id/call_id/root_call_id，旧字段名必须被拒绝'
 );
 
-fs.rmSync(scratch, { recursive: true, force: true });
+  // Owned resources are closed in the outer finally before directory removal.
 console.log('agent proposals tests: 幂等 retry(新鲜快照) + 同题异 ID 并存 + decline 记忆 + 与 L2 互不覆盖 + proposal_id/source_ref 强校验 + session_id 服务端覆盖 passed');
+
+} catch (error) {
+  primaryError = error;
+  console.error(error);
+  process.exitCode = 1;
+} finally {
+  await resources.finish(primaryError);
+}

@@ -1,3 +1,6 @@
+import { TestResources } from './phase1/test-resources.js';
+import { assertF1Environment, componentIdentity, COMPONENT_ACTOR, assertSQLite } from './phase1/r2-f1-contract.js';
+import { verifyF2ProductionContract, f2Request, recordApprovedRetirement } from './phase1/r2-f2-contract.js';
 // /internal/agent-case-view 与 /internal/agent-digest 路由层回归（R1）：这两条
 // 是 DSH agent worker 专用的 session 绑定只读面，取代插件此前直接打
 // /internal/cases/byname/:name（自由 name 参数）与 /internal/digest（全所口径）
@@ -13,13 +16,19 @@ import path from 'node:path';
 import http from 'node:http';
 import express from 'express';
 
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anqi-agent-session-read-http-'));
+const resources = new TestResources(import.meta.url);
+let primaryError;
+try {
+assertF1Environment();
+await verifyF2ProductionContract(resources);
+const scratch = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anqi-agent-session-read-http-')));
 process.env.DB_PATH = path.join(scratch, 'agent-session-read-http.db');
 process.env.ANJIAN_INTERNAL_KEY = 'agent-session-read-http-key';
 delete process.env.ANJIAN_UNSAFE_NO_AUTH;
 
 const { db } = await import('../src/db.js');
-const { internalAuth } = await import('../src/middleware/auth.js');
+resources.database(db);
+const { requestBoundary } = await import('../src/middleware/auth.js');
 const internalRouter = (await import('../src/routes/internal.js')).default;
 const { bindSession, unbindSession, _resetSessionRegistryForTest } = await import('../src/agent/session-registry.js');
 // 与 buildDigest() 用同一份日期口径（CN +8），不用 SQLite 的 date('now')（UTC）——
@@ -28,12 +37,14 @@ const { bindSession, unbindSession, _resetSessionRegistryForTest } = await impor
 const { todayCN, addDays } = await import('../src/lib/dates.js');
 
 _resetSessionRegistryForTest();
+resources.cleanup('F1 session registry reset', () => _resetSessionRegistryForTest(), 10);
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
-app.use('/internal', internalAuth, internalRouter);
+// Component-only composition; this is not a production credential boundary.
+app.use('/internal', requestBoundary, componentIdentity, internalRouter);
 
-const server = http.createServer(app);
+const server = resources.server(http.createServer(app));
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 const base = `http://127.0.0.1:${server.address().port}`;
 
@@ -44,10 +55,8 @@ async function get(pathname, { sessionId, useQuery = false } = {}) {
     if (useQuery) url += `${pathname.includes('?') ? '&' : '?'}session_id=${encodeURIComponent(sessionId)}`;
     else headers['X-Anjian-Session-Id'] = sessionId;
   }
-  const response = await fetch(url, { headers });
-  const raw = await response.text();
-  let data;
-  try { data = raw ? JSON.parse(raw) : null; } catch { data = raw; }
+  const response = await f2Request(base, url.slice(base.length), { headers });
+  const data = response.json;
   return { status: response.status, data };
 }
 
@@ -205,6 +214,45 @@ try {
     assert.ok(scoped.data.counts.open_tasks < full.data.counts.open_tasks, 'counts.open_tasks 必须是单案口径，不能是全所数字');
   }
 
+  // F2: forged selectors must not replace the authoritative session binding.
+  const forgedQuery = await get(`/internal/agent-case-view?case_id=${otherCaseId}&session_id=forged-query-session`, { sessionId });
+  assert.equal(forgedQuery.status, 200);
+  assert.equal(forgedQuery.data.case.id, ownCaseId);
+  assert.ok(!JSON.stringify(forgedQuery.data).includes('他案'));
+  const forgedHeader = await get(`/internal/agent-case-view?session_id=${sessionId}`, { sessionId: 'forged-header-session' });
+  assert.equal(forgedHeader.status, 403);
+  assert.equal(forgedHeader.data.code, 'session_not_bound', 'unbound header cannot fall back to a valid query session');
+  const tables = ['cases', 'events', 'deadlines', 'tasks', 'worklog', 'inbox', 'audit_log', 'change_log'];
+  const snapshot = () => Object.fromEntries(tables.map(table => [table, db.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all()]));
+  const beforeRejectedWrites = snapshot();
+  async function postProposal(body, expected) {
+    const response = await f2Request(base, '/internal/agent-proposals', { method: 'POST', body,
+      headers: { 'X-Anjian-Key': process.env.ANJIAN_INTERNAL_KEY, 'X-Anjian-Actor': 'forged-f2-user' } });
+    assert.equal(response.status, expected);
+    return response;
+  }
+  const proposal = { session_id: sessionId, proposal_id: 'f2-audit-proposal', case_id: otherCaseId,
+    payload: { title: 'F2 合成提案' }, source_ref: { session_id: 'forged-source-session', call_id: 'f2-call' }, actor: 'forged-f2-user' };
+  await postProposal({ ...proposal, source: 'llm-suggest' }, 400);
+  const forgedSession = await postProposal({ ...proposal, session_id: 'forged-unbound-session' }, 403);
+  assert.equal(forgedSession.json.code, 'session_not_bound');
+  await postProposal({ ...proposal, payload: { title: 'F2', actor: 'forged-f2-user' } }, 400);
+  await postProposal({ ...proposal, source_ref: { ...proposal.source_ref, actor: 'forged-f2-user' } }, 400);
+  assert.deepEqual(snapshot(), beforeRejectedWrites, 'rejected forged fields must not alter business or audit rows');
+  const accepted = await postProposal(proposal, 201);
+  assert.equal(accepted.json.item.case_id, ownCaseId, 'body.case_id cannot redirect a session-bound proposal');
+  assert.equal(accepted.json.item.source, 'agent-propose');
+  assert.equal(JSON.parse(accepted.json.item.source_ref).session_id, sessionId, 'source_ref session must use the authoritative binding');
+  const audits = db.prepare('SELECT * FROM audit_log ORDER BY id').all();
+  assert.equal(audits.length, 1);
+  assert.equal(audits[0].actor, COMPONENT_ACTOR, 'body/header actor cannot override the component identity');
+  assert.equal(audits[0].entity, 'inbox');
+  assert.equal(audits[0].entity_id, accepted.json.item.id);
+  assert.equal(db.prepare('SELECT case_id FROM inbox WHERE id=?').get(audits[0].entity_id).case_id, ownCaseId);
+  assert.equal(db.prepare('SELECT count(*) AS n FROM inbox WHERE case_id=?').get(otherCaseId).n, 0);
+  assert.ok(!JSON.stringify(audits).includes('forged-f2-user'));
+  assert.ok(!JSON.stringify(audits).includes(process.env.ANJIAN_INTERNAL_KEY));
+
   // ---- worker 收尾（unbindSession）后，同一个 session_id 不能再读 ----
   unbindSession(sessionId);
   {
@@ -217,22 +265,23 @@ try {
     assert.equal(status, 403);
   }
 
-  // ---- 旧的、面向外部自动化的 /internal/cases/byname/:name 与 /internal/digest
-  //      不受影响：这两条不是 agent worker 的读面，继续保留给 DESIGN.md 描述
-  //      的外部自动化使用 ----
+  // Component route-shape checks only. These routes remain closed in production.
   {
-    const response = await fetch(`${base}/internal/cases/byname/${encodeURIComponent('自己案·张三诉李四')}`, {
+    const response = await f2Request(base, `/internal/cases/byname/${encodeURIComponent('自己案·张三诉李四')}`, {
       headers: { 'X-Anjian-Key': process.env.ANJIAN_INTERNAL_KEY },
     });
     assert.equal(response.status, 200);
   }
   {
-    const response = await fetch(`${base}/internal/digest`, {
+    const response = await f2Request(base, '/internal/digest', {
       headers: { 'X-Anjian-Key': process.env.ANJIAN_INTERNAL_KEY },
     });
     assert.equal(response.status, 200);
   }
 
+  // Preserve the exact historical auth assertions without pretending the test
+  // identity callback implements removed production credential/scope semantics.
+  async function retainedLegacyCredentialScopeAssertions() {
   // ---- ANJIAN_INTERNAL_KEY_SOURCE=electron-auto 的收窄规则必须在真实挂载栈上
   //      成立，不只是在直接调用 internalAuth() 的单测里成立 ----
   // tools/test-auth-security.js 里那组断言是直接调用 internalAuth()、自己捏一个
@@ -266,8 +315,23 @@ try {
     assert.equal(status, 200, '去掉 electron-auto 来源标记后，显式配置语义的 key 必须恢复放行整个 /internal');
   }
 
-  console.log('agent session-bound read HTTP tests: agent-case-view/agent-digest 绑定信任边界 + 逐分桶零泄漏且不丢本案行 + electron-auto key 真实挂载栈收窄 + 旧全所端点不受影响 passed');
+  }
+  assertSQLite(db);
+  recordApprovedRetirement(retainedLegacyCredentialScopeAssertions);
+  console.log('F2_COMPONENT ' + JSON.stringify({ id: 'R2-38', status: 'passed',
+    sessionOwnership: true, allDigestBuckets: true, noCrossCaseLeakOrOwnRowLoss: true, sqlite: 'ok',
+    forgedSelectorsAndSource: true, authoritativeCaseAndAuditActor: true, auditActor: COMPONENT_ACTOR,
+    limitation: 'standalone route logic only; no legacy authentication emulation' }));
 } finally {
-  server.close();
-  fs.rmSync(scratch, { recursive: true, force: true });
+
+
+  // Owned resources are closed in the outer finally before directory removal.
+}
+
+} catch (error) {
+  primaryError = error;
+  console.error(error);
+  process.exitCode = 1;
+} finally {
+  await resources.finish(primaryError);
 }

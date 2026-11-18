@@ -1,3 +1,5 @@
+import Database from 'better-sqlite3';
+import { W04RResources } from './phase1/w04r-resources.js';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
@@ -6,7 +8,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-files-http-'));
+const resources = new W04RResources(import.meta.url);
+let primaryError;
+try {
+const scratch = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-files-http-')));
 const filesRoot = path.join(scratch, 'files');
 const outside = path.join(scratch, 'outside');
 const dbPath = path.join(scratch, 'files.db');
@@ -15,8 +20,8 @@ const port = 42000 + Math.floor(Math.random() * 1000);
 const base = `http://127.0.0.1:${port}`;
 fs.mkdirSync(filesRoot);
 fs.mkdirSync(outside);
-const log = fs.openSync(logPath, 'w');
-const child = spawn(process.execPath, ['server.js'], {
+const log = resources.file(fs.openSync(logPath, 'w'));
+const child = resources.child(spawn(process.execPath, ['server.js'], {
   cwd: projectRoot,
   env: {
     ...process.env,
@@ -29,8 +34,8 @@ const child = spawn(process.execPath, ['server.js'], {
     LEGALRAG_URL: '',
     LEGALRAG_INTERNAL_KEY: '',
   },
-  stdio: ['ignore', log, log],
-});
+  stdio: ['ignore', log, log], windowsHide: true,
+}));
 
 async function waitReady() {
   for (let attempt = 0; attempt < 80; attempt += 1) {
@@ -56,6 +61,12 @@ async function request(method, route, body, expected = 200, contentType = 'appli
 
 try {
   await waitReady();
+  const verificationDb = resources.database(new Database(dbPath));
+  resources.cleanup('SQLite integrity before close', () => {
+    assert.equal(verificationDb.pragma('integrity_check', { simple: true }), 'ok');
+    assert.deepEqual(verificationDb.pragma('foreign_key_check'), []);
+    return { integrity: 'ok', foreignKeys: true };
+  }, 15);
 
   for (const name of ['../逃逸案', '甲/乙', '甲\\乙', '.隐藏案', '.', '..', '坏\n名']) {
     await request('POST', '/api/cases', { name, procedure: '一审' }, 400);
@@ -113,8 +124,13 @@ try {
   assert.equal(result.data.size, Buffer.byteLength('第一份内容'));
 
   fs.writeFileSync(path.join(outside, '秘密.txt'), '外部秘密');
-  fs.symlinkSync(path.join(outside, '秘密.txt'), path.join(caseRoot, '法院文书', '外链文件.txt'));
-  fs.symlinkSync(outside, path.join(caseRoot, '外链目录'));
+  resources.cleanup('external synthetic sentinel unchanged', () => {
+    assert.equal(fs.readFileSync(path.join(outside, '秘密.txt'), 'utf8'), '外部秘密');
+    assert.equal(fs.existsSync(path.join(outside, '不得外写.txt')), false);
+    return { unchanged: true };
+  }, 35);
+  resources.symlink(path.join(outside, '秘密.txt'), path.join(caseRoot, '法院文书', '外链文件.txt'));
+  resources.symlink(outside, path.join(caseRoot, '外链目录'));
   await request('GET', `/api/cases/${caseId}/file?path=${encodeURIComponent('法院文书/外链文件.txt')}`, undefined, 404, '');
   await request('GET', `/api/cases/${caseId}/file?path=${encodeURIComponent('外链目录/秘密.txt')}`, undefined, 404, '');
   await request('POST', `/api/cases/${caseId}/attachments`, {
@@ -125,7 +141,7 @@ try {
   result = await request('GET', `/api/cases/${caseId}/files`);
   assert.equal(result.data.dirs.includes('外链目录'), false);
 
-  fs.symlinkSync(outside, path.join(caseRoot, '客户沟通'));
+  resources.symlink(outside, path.join(caseRoot, '客户沟通'));
   await request(
     'PUT',
     `/api/cases/${caseId}/files?dir=${encodeURIComponent('客户沟通')}&name=${encodeURIComponent('不得外写.txt')}`,
@@ -157,7 +173,7 @@ try {
 
   const linkedCase = (await request('POST', '/api/cases', { name: '链接案件', procedure: '一审' })).data;
   fs.rmdirSync(path.join(filesRoot, linkedCase.folder_path));
-  fs.symlinkSync(outside, path.join(filesRoot, linkedCase.name));
+  resources.symlink(outside, path.join(filesRoot, linkedCase.name));
   await request('GET', `/api/cases/${linkedCase.id}/files`, undefined, 404, '');
 
   const missingCase = (await request('POST', '/api/cases', { name: '尚未建夹案件', procedure: '一审' })).data;
@@ -192,7 +208,8 @@ try {
 
   console.log('files HTTP tests: auto/create/select workspaces + symlink boundaries + exclusive uploads + voucher paths passed');
 } finally {
-  child.kill('SIGTERM');
-  fs.closeSync(log);
-  fs.rmSync(scratch, { recursive: true, force: true });
+  // Outer ledger closes child, SQLite, log and registered links in order.
 }
+
+} catch (error) { primaryError = error; console.error(error); process.exitCode = 1; }
+finally { await resources.finish(primaryError); }

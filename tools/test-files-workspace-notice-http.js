@@ -1,3 +1,4 @@
+import { TestResources } from './phase1/test-resources.js';
 // T2-Visible-Fallback-Notice · 透传回归（HTTP 真实 server）：
 //   a) folder_path 失效 + 同名目录存在 → GET /cases/:id/files 响应含 workspace_notice，
 //      值等于 secure-files 的 fallbackNotice 原文，且文件仍从同名目录读出；
@@ -12,15 +13,18 @@ import { fileURLToPath } from 'node:url';
 import Database from 'better-sqlite3';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-workspace-notice-http-'));
+const resources = new TestResources(import.meta.url);
+let primaryError;
+try {
+const scratch = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-workspace-notice-http-')));
 const filesRoot = path.join(scratch, 'files');
 const dbPath = path.join(scratch, 'notice-http.db');
 const logPath = path.join(scratch, 'server.log');
 const port = 45000 + Math.floor(Math.random() * 1000);
 const base = `http://127.0.0.1:${port}`;
 fs.mkdirSync(filesRoot);
-const log = fs.openSync(logPath, 'w');
-const child = spawn(process.execPath, ['server.js'], {
+const log = resources.file(fs.openSync(logPath, 'w'));
+const child = resources.child(spawn(process.execPath, ['server.js'], {
   cwd: projectRoot,
   env: {
     ...process.env,
@@ -34,7 +38,7 @@ const child = spawn(process.execPath, ['server.js'], {
     LEGALRAG_INTERNAL_KEY: '',
   },
   stdio: ['ignore', log, log],
-});
+}));
 
 async function waitReady() {
   for (let attempt = 0; attempt < 80; attempt += 1) {
@@ -108,7 +112,16 @@ try {
 
   console.log('files workspace notice HTTP: fallback passthrough + normal omission + both-missing silence passed');
 } finally {
-  child.kill('SIGTERM');
-  fs.closeSync(log);
-  fs.rmSync(scratch, { recursive: true, force: true });
+
+
+
+  // Owned resources are closed in the outer finally before directory removal.
+}
+
+} catch (error) {
+  primaryError = error;
+  console.error(error);
+  process.exitCode = 1;
+} finally {
+  await resources.finish(primaryError);
 }

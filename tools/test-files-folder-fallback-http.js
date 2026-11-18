@@ -1,3 +1,4 @@
+import { W04RResources } from './phase1/w04r-resources.js';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
@@ -7,15 +8,18 @@ import { fileURLToPath } from 'node:url';
 import Database from 'better-sqlite3';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-folder-fallback-http-'));
+const resources = new W04RResources(import.meta.url);
+let primaryError;
+try {
+const scratch = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-folder-fallback-http-')));
 const filesRoot = path.join(scratch, 'files');
 const dbPath = path.join(scratch, 'fallback-http.db');
 const logPath = path.join(scratch, 'server.log');
 const port = 44000 + Math.floor(Math.random() * 1000);
 const base = `http://127.0.0.1:${port}`;
 fs.mkdirSync(filesRoot);
-const log = fs.openSync(logPath, 'w');
-const child = spawn(process.execPath, ['server.js'], {
+const log = resources.file(fs.openSync(logPath, 'w'));
+const child = resources.child(spawn(process.execPath, ['server.js'], {
   cwd: projectRoot,
   env: {
     ...process.env,
@@ -28,8 +32,8 @@ const child = spawn(process.execPath, ['server.js'], {
     LEGALRAG_URL: '',
     LEGALRAG_INTERNAL_KEY: '',
   },
-  stdio: ['ignore', log, log],
-});
+  stdio: ['ignore', log, log], windowsHide: true,
+}));
 
 async function waitReady() {
   for (let attempt = 0; attempt < 80; attempt += 1) {
@@ -42,6 +46,12 @@ async function waitReady() {
 
 try {
   await waitReady();
+  const verificationDb = resources.database(new Database(dbPath));
+  resources.cleanup('SQLite integrity before close', () => {
+    assert.equal(verificationDb.pragma('integrity_check', { simple: true }), 'ok');
+    assert.deepEqual(verificationDb.pragma('foreign_key_check'), []);
+    return { integrity: 'ok', foreignKeys: true };
+  }, 15);
   const createResponse = await fetch(base + '/api/cases', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -67,9 +77,15 @@ try {
   assert.equal(body.exists, true);
   assert.equal(body.files.some((file) => file.name === 'HTTP回落证据.txt'), true);
   assert.equal(fs.existsSync(path.join(filesRoot, wrongFolder)), false, 'GET/fallback 不得顺手创建失效 folder_path');
+  const downloaded = await fetch(`${base}/api/cases/${created.id}/file?path=${encodeURIComponent('HTTP回落证据.txt')}`);
+  assert.equal(downloaded.status, 200);
+  assert.equal(await downloaded.text(), 'http fallback fixture', 'HTTP 下载必须实际读取同名回落目录中的原文件内容');
+  assert.equal(verificationDb.prepare('SELECT folder_path FROM cases WHERE id=?').get(created.id).folder_path, wrongFolder, '回落读取不得改写持久化目录指针');
+  assert.equal(fs.existsSync(path.join(filesRoot, wrongFolder)), false);
   console.log(`T2_HTTP_FALLBACK status=${response.status} file=HTTP回落证据.txt wrong_folder_created=false`);
 } finally {
-  child.kill('SIGTERM');
-  fs.closeSync(log);
-  fs.rmSync(scratch, { recursive: true, force: true });
+  // Outer ledger closes child, SQLite, log and registered links in order.
 }
+
+} catch (error) { primaryError = error; console.error(error); process.exitCode = 1; }
+finally { await resources.finish(primaryError); }

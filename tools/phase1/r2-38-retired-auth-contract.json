@@ -1,0 +1,115 @@
+{
+  "id": "R2-38-F2-retirement",
+  "approval": "用户2026-11-18《R2-W00–W03-F2 旧鉴权契约退役与替代验证授权》第二节",
+  "status": "retired-approved",
+  "source": {
+    "path": "tools/test-agent-session-read-http.js",
+    "sha256": "64c63b4b60befca41cd6cc7e4af881eb7b893baa9ce10199407e4854f3bd001c",
+    "firstLine": 246,
+    "functionSha256LF": "9e51103cc8907ddc2ec33c97733dccf3f8c419fd0ea1bce2e8de36dc1eff20e3",
+    "functionTextLF": "async function retainedLegacyCredentialScopeAssertions() {\n  // ---- ANJIAN_INTERNAL_KEY_SOURCE=electron-auto 的收窄规则必须在真实挂载栈上\n  //      成立，不只是在直接调用 internalAuth() 的单测里成立 ----\n  // tools/test-auth-security.js 里那组断言是直接调用 internalAuth()、自己捏一个\n  // req.path 传进去的，证明不了\"Express 把路由挂在 /internal 之下时 req.path 到底\n  // 是什么\"。而这条收窄规则整个建立在 req.path 是去掉挂载前缀之后的 '/agent-*' 上：\n  // 若哪天挂载方式改了（换成 app.use('/internal/xxx', ...)、或在 router 内部再套一\n  // 层前缀），白名单会一条都匹配不上，桌面版的 AI 助理会对**所有** /internal 调用\n  // 拿到 403——功能整体失效，且失效方向是 fail-closed，不会有任何安全告警提醒。\n  // 这里用与生产同一条 app.use('/internal', internalAuth, internalRouter) 链路跑一遍。\n  process.env.ANJIAN_INTERNAL_KEY_SOURCE = 'electron-auto';\n  try {\n    // agent 端点：仍走各自的业务判断（未绑定 session → 400/403），而不是被这条\n    // 收窄规则一律拦成 electron_auto_key_scoped。\n    for (const agentPath of ['/internal/agent-case-view', '/internal/agent-digest']) {\n      const { status, data } = await get(agentPath);\n      assert.equal(status, 400, `${agentPath} 在 electron-auto key 下应放行到业务层（缺 session_id → 400）`);\n      assert.equal(data.code, 'session_id_invalid', `${agentPath} 不应被 electron-auto 收窄规则拦下`);\n    }\n    // 面向外部自动化的读面：同一份 key 一律 403。\n    for (const blockedPath of ['/internal/digest', '/internal/cases']) {\n      const { status, data } = await get(blockedPath);\n      assert.equal(status, 403, `${blockedPath} 在 electron-auto key 下必须 403`);\n      assert.equal(data.code, 'electron_auto_key_scoped');\n    }\n  } finally {\n    delete process.env.ANJIAN_INTERNAL_KEY_SOURCE;\n  }\n  // 去掉来源标记之后，同一份 key 立刻恢复整个 /internal 面（用户显式配置的语义）。\n  {\n    const { status } = await get('/internal/digest');\n    assert.equal(status, 200, '去掉 electron-auto 来源标记后，显式配置语义的 key 必须恢复放行整个 /internal');\n  }\n\n  }"
+  },
+  "historicalHttpRequests": [
+    {
+      "id": "H1",
+      "source": "electron-auto",
+      "path": "/internal/agent-case-view"
+    },
+    {
+      "id": "H2",
+      "source": "electron-auto",
+      "path": "/internal/agent-digest"
+    },
+    {
+      "id": "H3",
+      "source": "electron-auto",
+      "path": "/internal/digest"
+    },
+    {
+      "id": "H4",
+      "source": "electron-auto",
+      "path": "/internal/cases"
+    },
+    {
+      "id": "H5",
+      "source": "absent",
+      "path": "/internal/digest"
+    }
+  ],
+  "assertions": [
+    {
+      "id": "L1",
+      "text": "assert.equal(status, 400, `${agentPath} 在 electron-auto key 下应放行到业务层（缺 session_id → 400）`);",
+      "line": 262,
+      "evaluations": 2,
+      "requestIds": [
+        "H1",
+        "H2"
+      ],
+      "historicalPurpose": "自动桌面key允许两个agent读面到达session校验；拒绝错误的整体拦截",
+      "disposition": "retired-approved",
+      "currentState": "生产统一feature_disabled/403；不提供旧key正向访问",
+      "replacement": "A两来源均关闭；B原session缺失/未绑定/解绑/分桶断言实际执行",
+      "recovery": "未来如设计重新引入内部自动化，须独立批准身份/授权/scope设计、新的安全验收和生产开放；本退役不授权恢复旧key。历史语义验证另需锁定原实现及隔离runner。"
+    },
+    {
+      "id": "L2",
+      "text": "assert.equal(data.code, 'session_id_invalid', `${agentPath} 不应被 electron-auto 收窄规则拦下`);",
+      "line": 263,
+      "evaluations": 2,
+      "requestIds": [
+        "H1",
+        "H2"
+      ],
+      "historicalPurpose": "确认agent业务校验错误来源，不与key scope错误混淆",
+      "disposition": "retired-approved",
+      "currentState": "生产统一feature_disabled/403；不提供旧key正向访问",
+      "replacement": "A两来源均关闭；B原session缺失/未绑定/解绑/分桶断言实际执行",
+      "recovery": "未来如设计重新引入内部自动化，须独立批准身份/授权/scope设计、新的安全验收和生产开放；本退役不授权恢复旧key。历史语义验证另需锁定原实现及隔离runner。"
+    },
+    {
+      "id": "L3",
+      "text": "assert.equal(status, 403, `${blockedPath} 在 electron-auto key 下必须 403`);",
+      "line": 268,
+      "evaluations": 2,
+      "requestIds": [
+        "H3",
+        "H4"
+      ],
+      "historicalPurpose": "自动桌面key不得读全所digest/cases",
+      "disposition": "retired-approved",
+      "currentState": "生产统一feature_disabled/403；不提供旧key正向访问",
+      "replacement": "A两来源的相同路由均403/feature_disabled，合法DB管理员也不能开放；凭据/数据/审计检查独立执行",
+      "recovery": "未来如设计重新引入内部自动化，须独立批准身份/授权/scope设计、新的安全验收和生产开放；本退役不授权恢复旧key。历史语义验证另需锁定原实现及隔离runner。"
+    },
+    {
+      "id": "L4",
+      "text": "assert.equal(data.code, 'electron_auto_key_scoped');",
+      "line": 269,
+      "evaluations": 2,
+      "requestIds": [
+        "H3",
+        "H4"
+      ],
+      "historicalPurpose": "确认全所读取由key scope规则拒绝",
+      "disposition": "retired-approved",
+      "currentState": "生产统一feature_disabled/403；不提供旧key正向访问",
+      "replacement": "A两来源的相同路由均403/feature_disabled，合法DB管理员也不能开放；凭据/数据/审计检查独立执行",
+      "recovery": "未来如设计重新引入内部自动化，须独立批准身份/授权/scope设计、新的安全验收和生产开放；本退役不授权恢复旧key。历史语义验证另需锁定原实现及隔离runner。"
+    },
+    {
+      "id": "L5",
+      "text": "assert.equal(status, 200, '去掉 electron-auto 来源标记后，显式配置语义的 key 必须恢复放行整个 /internal');",
+      "line": 277,
+      "evaluations": 1,
+      "requestIds": [
+        "H5"
+      ],
+      "historicalPurpose": "用户显式旧key可读取全所digest",
+      "disposition": "retired-approved",
+      "currentState": "生产统一feature_disabled/403；不提供旧key正向访问",
+      "replacement": "A两来源的相同路由均403/feature_disabled，合法DB管理员也不能开放；凭据/数据/审计检查独立执行",
+      "recovery": "未来如设计重新引入内部自动化，须独立批准身份/授权/scope设计、新的安全验收和生产开放；本退役不授权恢复旧key。历史语义验证另需锁定原实现及隔离runner。"
+    }
+  ]
+}

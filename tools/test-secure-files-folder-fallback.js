@@ -1,10 +1,14 @@
+import { W04RResources } from './phase1/w04r-resources.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { resolveCaseDirectoryForCase } from '../src/lib/secure-files.js';
 
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-folder-fallback-'));
+const resources = new W04RResources(import.meta.url);
+let primaryError;
+try {
+const scratch = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-folder-fallback-')));
 const filesRoot = path.join(scratch, 'files');
 fs.mkdirSync(filesRoot);
 
@@ -38,7 +42,7 @@ try {
 
   const outside = path.join(scratch, 'outside');
   fs.mkdirSync(outside);
-  fs.symlinkSync(outside, path.join(filesRoot, '危险旧指针'));
+  resources.symlink(outside, path.join(filesRoot, '危险旧指针'));
   assert.throws(
     () => resolveCaseDirectoryForCase(filesRoot, { name, folder_path: '危险旧指针' }),
     (error) => error?.code === 'symlink',
@@ -47,5 +51,8 @@ try {
 
   console.log('secure files T2 folder fallback: missing folder_path -> existing same-name directory + notice; primary/symlink authority preserved passed');
 } finally {
-  fs.rmSync(scratch, { recursive: true, force: true });
+  // Outer ledger unlinks registered entries before removing this fresh root.
 }
+
+} catch (error) { primaryError = error; console.error(error); process.exitCode = 1; }
+finally { await resources.finish(primaryError); }

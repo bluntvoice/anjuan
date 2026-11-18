@@ -1,3 +1,6 @@
+import { TestResources } from './phase1/test-resources.js';
+import { windowsOcrFixture } from './phase1/ocr-test-fixture.js';
+import { fileURLToPath } from 'node:url';
 // 传票识别回归：文字层 / 辅助 OCR / 视觉模型 / 手填降级 / 暂存与附件事务。
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -8,14 +11,18 @@ import { spawn } from 'node:child_process';
 import { chmod } from 'node:fs/promises';
 import { deflateSync } from 'node:zlib';
 
-const root = path.dirname(path.dirname(new URL(import.meta.url).pathname));
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-doc-intake-'));
+const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const resources = new TestResources(import.meta.url);
+let primaryError;
+try {
+const scratch = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-doc-intake-')));
 const filesRoot = path.join(scratch, 'files'); fs.mkdirSync(filesRoot);
-const helper = path.join(scratch, 'fake-ocr.cjs');
+let helper = path.join(scratch, 'fake-ocr.cjs');
 const helperState = path.join(scratch, 'ocr-count');
 fs.writeFileSync(helperState, '0');
 fs.writeFileSync(helper, `#!/usr/bin/env node\nconst fs=require('fs'); const p=${JSON.stringify(helperState)}; const n=Number(fs.readFileSync(p,'utf8')||0)+1; fs.writeFileSync(p,String(n)); if(n>1) process.exit(1); console.log(JSON.stringify({ok:true,text:'张三 李四 2099年11月3日 09:30 第五法庭 这是一段足够长的测试文字内容',pages:1,engine:'vision'}));`);
 await chmod(helper, 0o755);
+if (process.platform === 'win32') helper = windowsOcrFixture(scratch, helperState);
 
 function compressedPdf(text) {
   const stream = deflateSync(Buffer.from(`BT /F1 12 Tf 20 250 Td (${text}) Tj ET`, 'ascii'));
@@ -46,7 +53,7 @@ function compressedPdf(text) {
   return Buffer.concat(chunks);
 }
 let modelCalls = 0; let imageCalls = 0; let returnChineseFields = false;
-const upstream = http.createServer((req, res) => {
+const upstream = resources.server(http.createServer((req, res) => {
   let body = ''; req.on('data', (chunk) => { body += chunk; }); req.on('end', () => {
     modelCalls++;
     const parsed = JSON.parse(body); const user = parsed.messages?.at(-1)?.content;
@@ -57,11 +64,11 @@ const upstream = http.createServer((req, res) => {
       : { doc_kind: 'summons', date: '2099-11-03', time: '09:30', location: '第五法庭', court: '示例法院', case_no: '(2099)测0000民初1号', parties: ['张三', '李四'], summary: '张三案开庭' };
     res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify({ choices: [{ message: { content: JSON.stringify(fields) } }] }));
   });
-});
+}));
 await new Promise((resolve) => upstream.listen(0, '127.0.0.1', resolve));
 const envBase = `http://127.0.0.1:${upstream.address().port}`;
 const port = 39893;
-const child = spawn(process.execPath, ['server.js'], { cwd: root, env: { ...process.env, DB_PATH: path.join(scratch, 'db.sqlite'), ANJIAN_FILES_ROOT: filesRoot, ANJIAN_OCR_HELPER: helper, DEEPSEEK_API_KEY: 'test', DEEPSEEK_BASE_URL: envBase, ANJIAN_VISION_MODEL: 'deepseek-flash', PORT: String(port), HOST: '127.0.0.1', NODE_ENV: 'test', ANJIAN_UNSAFE_NO_AUTH: '1' }, stdio: ['ignore', 'ignore', 'pipe'] });
+const child = resources.child(spawn(process.execPath, ['server.js'], { cwd: root, env: { ...process.env, DB_PATH: path.join(scratch, 'db.sqlite'), ANJIAN_FILES_ROOT: filesRoot, ANJIAN_OCR_HELPER: helper, DEEPSEEK_API_KEY: 'test', DEEPSEEK_BASE_URL: envBase, ANJIAN_VISION_MODEL: 'deepseek-flash', PORT: String(port), HOST: '127.0.0.1', NODE_ENV: 'test', ANJIAN_UNSAFE_NO_AUTH: '1' }, stdio: ['ignore', 'ignore', 'pipe'] }));
 const request = async (url, options = {}) => { const response = await fetch(`http://127.0.0.1:${port}${url}`, options); const text = await response.text(); let json; try { json = JSON.parse(text); } catch { json = { raw: text }; } return { response, json }; };
 for (let i = 0; i < 60; i++) { try { if ((await fetch(`http://127.0.0.1:${port}/healthz`)).ok) break; } catch {} await new Promise((r) => setTimeout(r, 100)); }
 const postExtract = (body, name = '传票.png') => request('/api/quick/extract?name=' + encodeURIComponent(name), { method: 'POST', headers: { 'content-type': 'application/octet-stream' }, body });
@@ -100,5 +107,13 @@ try {
   assert.equal(noFolderQuick.response.status, 409);
   console.log(`doc intake ok (${modelCalls} model calls)`);
 } finally {
-  child.kill('SIGTERM'); await new Promise((resolve) => child.once('exit', resolve)); await new Promise((resolve) => upstream.close(resolve));
+  // Outer finally waits for owned child/server before removing the fixture.
+}
+
+} catch (error) {
+  primaryError = error;
+  console.error(error);
+  process.exitCode = 1;
+} finally {
+  await resources.finish(primaryError);
 }

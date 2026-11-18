@@ -1,3 +1,4 @@
+import { TestResources } from './phase1/test-resources.js';
 // /api/agent* 路由层回归（设计稿 §4）。不 spawn 真实 DSH 子进程、不需要模型
 // key：createAgentRouter(supervisor) 是一个接受任意满足接口形状的对象的工厂，
 // 这里注入一个纯内存的 FakeSupervisor 记录调用参数、按场景返回预设结果，只
@@ -17,11 +18,15 @@ import path from 'node:path';
 import http from 'node:http';
 import express from 'express';
 
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anqi-agent-http-'));
+const resources = new TestResources(import.meta.url);
+let primaryError;
+try {
+const scratch = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anqi-agent-http-')));
 process.env.DB_PATH = path.join(scratch, 'agent-http.db');
 delete process.env.ANJIAN_UNSAFE_NO_AUTH;
 
 const { db } = await import('../src/db.js');
+resources.database(db);
 const { createAgentRouter } = await import('../src/routes/agent.js');
 const { AGENT_SETTINGS_KEYS } = await import('../src/agent/config.js');
 
@@ -117,7 +122,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use((req, res, next) => { req.actor = 'http-test'; next(); }); // 路由本身不做鉴权，鉴权是 server.js 挂载时的事
 app.use('/api', createAgentRouter(supervisor));
 
-const server = http.createServer(app);
+const server = resources.server(http.createServer(app));
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 const base = `http://127.0.0.1:${server.address().port}`;
 
@@ -365,11 +370,12 @@ try {
   supervisor.statusResult = { status: 'ready', caseId, sessionId: 'anqi-sess-should-not-leak' };
   {
     const controller = new AbortController();
+    resources.cleanup('SSE request abort', () => controller.abort(), 5);
     const response = await fetch(base + `/api/cases/${caseId}/agent/events`, { signal: controller.signal });
     assert.equal(response.status, 200);
     assert.ok((response.headers.get('content-type') || '').includes('text/event-stream'));
 
-    const reader = response.body.getReader();
+    const reader = resources.stream(response.body.getReader(), controller);
     const decoder = new TextDecoder();
     let buffer = '';
     async function readUntil(needle, tries = 50) {
@@ -426,12 +432,13 @@ try {
     supervisor.statusResult = { status: 'ready', caseId, sessionId: 'anqi-sess-should-not-leak' };
 
     const controller = new AbortController();
+    resources.cleanup('disabled SSE request abort', () => controller.abort(), 5);
     const response = await fetch(base + `/api/cases/${caseId}/agent/events`, { signal: controller.signal });
     // 连接仍然建立：前端不需要区分"没配置"和"网络失败"两种连不上。
     assert.equal(response.status, 200, 'enabled=false 时 SSE 连接仍应建立，只是首帧告知 disabled');
     assert.ok((response.headers.get('content-type') || '').includes('text/event-stream'));
 
-    const reader = response.body.getReader();
+    const reader = resources.stream(response.body.getReader(), controller);
     const decoder = new TextDecoder();
     let buffer = '';
     for (let i = 0; i < 50 && !buffer.includes('event: status'); i += 1) {
@@ -506,6 +513,15 @@ try {
 
   console.log('agent HTTP 路由测试全部通过：状态映射 + 输入校验 + interactions 信任边界 + SSE 建立/转发/反订阅/enabled=false 短路 + start/prompt/cancel/answer 四端点 disabled fail-closed');
 } finally {
-  server.close();
-  fs.rmSync(scratch, { recursive: true, force: true });
+
+
+  // Owned resources are closed in the outer finally before directory removal.
+}
+
+} catch (error) {
+  primaryError = error;
+  console.error(error);
+  process.exitCode = 1;
+} finally {
+  await resources.finish(primaryError);
 }

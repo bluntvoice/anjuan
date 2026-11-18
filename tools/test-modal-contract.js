@@ -22,11 +22,13 @@ for (const file of ['public/index.html', 'public/cases.html', 'public/calendar.h
 // 日历任务弹层的鼠标入口：pointerdown 抓指针会把 click 派给 grid，chip / 长条 / 托盘的 onclick 收不到。
 // 只允许越过拖拽阈值后再抓（实测见 PR：main 上桌面鼠标单击三处入口都打不开弹层）。
 {
-  const calendar = await readFile(new URL('public/js/calendar.js', root), 'utf8');
+  const calendar = (await readFile(new URL('public/js/calendar.js', root), 'utf8')).replace(/\r\n/g, '\n');
   const fnBody = (name) => {
     const start = calendar.indexOf(`function ${name}(`);
     assert.ok(start >= 0, `calendar.js must define ${name}()`);
-    return calendar.slice(start, calendar.indexOf('\n}\n', start));
+    const end = calendar.indexOf('\n}\n', start);
+    assert.ok(end >= 0, `calendar.js must terminate ${name}()`);
+    return calendar.slice(start, end);
   };
   assert.doesNotMatch(fnBody('beginDrag'), /setPointerCapture/, 'calendar beginDrag must not capture the pointer on pointerdown');
   assert.match(fnBody('onPointerMove'), /DRAG_THRESHOLD[\s\S]*drag\.moved = true[\s\S]*setPointerCapture/,

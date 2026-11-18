@@ -1,3 +1,4 @@
+import { TestResources } from './phase1/test-resources.js';
 // L2 推荐 HTTP：意图去重、裁决记忆、状态变化重提、原子 accept 与 deadline 写口关闭。
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
@@ -8,14 +9,17 @@ import { fileURLToPath } from 'node:url';
 import Database from 'better-sqlite3';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-inbox-http-'));
+const resources = new TestResources(import.meta.url);
+let primaryError;
+try {
+const scratch = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-inbox-http-')));
 const dbPath = path.join(scratch, 'inbox.db');
 const logPath = path.join(scratch, 'server.log');
 const port = 41000 + Math.floor(Math.random() * 1000);
 const base = `http://127.0.0.1:${port}`;
 const internalKey = 'inbox-http-key';
-const log = fs.openSync(logPath, 'w');
-const child = spawn(process.execPath, ['server.js'], {
+const log = resources.file(fs.openSync(logPath, 'w'));
+const child = resources.child(spawn(process.execPath, ['server.js'], {
   cwd: root,
   env: {
     ...process.env,
@@ -27,7 +31,7 @@ const child = spawn(process.execPath, ['server.js'], {
     ANJIAN_INTERNAL_KEY: internalKey,
   },
   stdio: ['ignore', log, log],
-});
+}));
 let db;
 
 async function waitReady() {
@@ -62,7 +66,7 @@ const suggestion = (caseName, title, intent, subjectId) => ({
 
 try {
   await waitReady();
-  db = new Database(dbPath);
+  db = resources.database(new Database(dbPath));
   db.pragma('foreign_keys=ON');
   const caseName = '张三诉李四合同纠纷（推荐测试）';
   const caseId = db.prepare(
@@ -179,8 +183,17 @@ try {
   assert.deepEqual(db.pragma('foreign_key_check'), []);
   console.log('inbox HTTP tests: intent dedup + feedback memory + state-change reproposal + atomic decisions passed');
 } finally {
-  child.kill('SIGTERM');
-  db?.close();
-  fs.closeSync(log);
-  fs.rmSync(scratch, { recursive: true, force: true });
+
+
+
+
+  // Owned resources are closed in the outer finally before directory removal.
+}
+
+} catch (error) {
+  primaryError = error;
+  console.error(error);
+  process.exitCode = 1;
+} finally {
+  await resources.finish(primaryError);
 }

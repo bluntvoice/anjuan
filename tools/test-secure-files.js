@@ -1,3 +1,4 @@
+import { W04RResources } from './phase1/w04r-resources.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -13,7 +14,10 @@ import {
   writeUniqueSecureFile,
 } from '../src/lib/secure-files.js';
 
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-secure-files-'));
+const resources = new W04RResources(import.meta.url);
+let primaryError;
+try {
+const scratch = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-secure-files-')));
 const root = path.join(scratch, 'files');
 const outside = path.join(scratch, 'outside');
 fs.mkdirSync(root);
@@ -36,12 +40,12 @@ try {
   assert.deepEqual(walkSecureFiles(context, (name) => name.endsWith('.txt')), ['法院文书/正常材料.txt']);
 
   fs.writeFileSync(path.join(outside, '秘密.txt'), '不应读取');
-  fs.symlinkSync(outside, path.join(casePath, '外链目录'));
+  resources.symlink(outside, path.join(casePath, '外链目录'));
   assert.throws(
     () => inspectSecureFile(context, '外链目录/秘密.txt'),
     (error) => error?.code === 'symlink'
   );
-  fs.symlinkSync(path.join(outside, '秘密.txt'), path.join(casePath, '法院文书', '外链文件.txt'));
+  resources.symlink(path.join(outside, '秘密.txt'), path.join(casePath, '法院文书', '外链文件.txt'));
   assert.throws(
     () => openSecureFile(context, '法院文书/外链文件.txt'),
     (error) => error?.code === 'symlink'
@@ -56,7 +60,7 @@ try {
   assert.equal(fs.readFileSync(first.absolute, 'utf8'), '第一份');
   assert.equal(fs.readFileSync(second.absolute, 'utf8'), '第二份');
 
-  fs.symlinkSync(path.join(outside, '秘密.txt'), path.join(casePath, '法院文书', '链接名.pdf'));
+  resources.symlink(path.join(outside, '秘密.txt'), path.join(casePath, '法院文书', '链接名.pdf'));
   const linkCollision = writeUniqueSecureFile(context, '法院文书', '链接名.pdf', Buffer.from('安全副本'));
   assert.equal(linkCollision.filename, '链接名(2).pdf', '符号链接重名只能触发新名称，不能被跟随或覆盖');
   assert.equal(fs.readFileSync(path.join(outside, '秘密.txt'), 'utf8'), '不应读取');
@@ -83,7 +87,7 @@ try {
   );
 
   const linkedCase = path.join(root, '链接案件');
-  fs.symlinkSync(outside, linkedCase);
+  resources.symlink(outside, linkedCase);
   assert.throws(
     () => resolveCaseDirectory(root, '链接案件'),
     (error) => error?.code === 'symlink'
@@ -93,10 +97,13 @@ try {
   assert.equal(missing.exists, false, '合法但尚未建立的案件夹应保留既有空状态语义');
 
   const rootAlias = path.join(scratch, 'files-alias');
-  fs.symlinkSync(root, rootAlias);
+  resources.symlink(root, rootAlias);
   assert.equal(resolveCaseDirectory(rootAlias, '尚未建夹案件').filesRoot, fs.realpathSync.native(root));
 } finally {
-  fs.rmSync(scratch, { recursive: true, force: true });
+  // Outer ledger unlinks registered entries before removing this fresh root.
 }
 
 console.log('secure files tests: containment + symlink rejection + exclusive writes + inode-bound reads passed');
+
+} catch (error) { primaryError = error; console.error(error); process.exitCode = 1; }
+finally { await resources.finish(primaryError); }

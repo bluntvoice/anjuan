@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import crypto from 'node:crypto';
+import { EventEmitter } from 'node:events';
 
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anjian-auth-security-'));
 process.env.DB_PATH = path.join(scratch, 'auth.db');
@@ -17,6 +19,10 @@ const auth = await import('../src/middleware/auth.js');
 
 const loginHash = auth.hashPassword('correct horse', { ...process.env, ANJIAN_SCRYPT_N: '' });
 process.env.ANJIAN_PASS_HASH = loginHash;
+const { identity } = await import('../src/lib/identity.js');
+identity.bootstrap({username:'security-test-user',password:'correct horse'});
+const digest=token=>crypto.createHash('sha256').update(token).digest('hex');
+const responses=[];
 assert.equal(auth.secretMatches('same-secret', 'same-secret'), true);
 assert.equal(auth.secretMatches('short', 'a-much-longer-secret'), false);
 assert.equal(auth.secretMatches(undefined, undefined), false, '缺失的凭据不能因摘要相同而放行');
@@ -32,27 +38,31 @@ assert.equal(
 assert.equal(auth.verifyLoginCredentials('security-test-user', 'wrong password').ok, false);
 
 function responseDouble() {
-  return {
+  const result = Object.assign(new EventEmitter(), {
     statusCode: 200,
     headers: {},
     body: null,
     setHeader(name, value) { this.headers[name.toLowerCase()] = value; },
     status(code) { this.statusCode = code; return this; },
     json(value) { this.body = value; return this; },
-  };
+    destroy() { this.emit('close'); },
+  });
+  responses.push(result);
+  return result;
 }
 
 const secureResponse = responseDouble();
 const secureRequest = { secure: true, headers: {} };
-const token = auth.createSession(secureResponse, secureRequest);
+const token=identity.login('security-test-user','correct horse').token;
+auth.setSessionCookie(secureResponse,secureRequest,token);
 assert.match(secureResponse.headers['set-cookie'], /; Secure$/);
 assert.match(secureResponse.headers['set-cookie'], /SameSite=Lax/);
-let session = db.prepare('SELECT * FROM sessions WHERE token = ?').get(token);
+let session = db.prepare('SELECT * FROM user_sessions WHERE token_hash = ?').get(digest(token));
 assert.equal(session.created_at, session.last_seen);
-assert.equal(Math.abs(Date.parse(session.created_at.replace(' ', 'T') + 'Z') - Date.now()) < 5000, true);
+assert.equal(Math.abs(session.created_at - Date.now()) < 5000, true);
 
 const plainResponse = responseDouble();
-auth.createSession(plainResponse, { secure: false, headers: {} });
+auth.setSessionCookie(plainResponse, { secure: false, headers: {} }, identity.login('security-test-user','correct horse').token);
 assert.doesNotMatch(plainResponse.headers['set-cookie'], /; Secure/);
 
 process.env.ANJIAN_STATIC_TOKEN = 'static-token-with-fixed-digest-comparison';
@@ -62,7 +72,7 @@ auth.apiAuth({
   headers: { cookie: 'anjian_token=static-token-with-fixed-digest-comparison' },
   get() { return undefined; },
 }, responseDouble(), () => { staticTokenAllowed = true; });
-assert.equal(staticTokenAllowed, true, '正确 static token 应放行');
+assert.equal(staticTokenAllowed, false, 'Phase 1 生产认证不能由正确 static token 绕过');
 const wrongStaticResponse = responseDouble();
 auth.apiAuth({
   secure: false,
@@ -72,8 +82,8 @@ auth.apiAuth({
 assert.equal(wrongStaticResponse.statusCode, 401);
 delete process.env.ANJIAN_STATIC_TOKEN;
 
-db.prepare("UPDATE sessions SET last_seen=datetime('now','-2 days'), expires_at=datetime('now','+2 days') WHERE token=?")
-  .run(token);
+db.prepare('UPDATE user_sessions SET last_seen=?, expires_at=? WHERE token_hash=?')
+  .run(Date.now() - 2 * 86400000, Date.now() + 2 * 86400000, digest(token));
 const rollingResponse = responseDouble();
 let passed = false;
 auth.apiAuth({
@@ -84,8 +94,8 @@ auth.apiAuth({
 assert.equal(passed, true);
 assert.match(rollingResponse.headers['set-cookie'], new RegExp(`^anjian_sess=${token};`));
 assert.match(rollingResponse.headers['set-cookie'], /Max-Age=2592000; Secure$/);
-session = db.prepare('SELECT * FROM sessions WHERE token = ?').get(token);
-assert.equal(Date.parse(session.expires_at.replace(' ', 'T') + 'Z') - Date.now() > 29 * 86400000, true);
+session = db.prepare('SELECT * FROM user_sessions WHERE token_hash = ?').get(digest(token));
+assert.equal(session.expires_at - Date.now() > 29 * 86400000, true);
 
 const limiterIp = '203.0.113.10';
 for (let attempt = 0; attempt < 5; attempt += 1) {
@@ -115,22 +125,21 @@ assert.equal(otherAllowed, true, '不同账号应使用独立限速桶');
 const internalRequest = { get() { return undefined; } };
 const noInternalKeyResponse = responseDouble();
 auth.internalAuth(internalRequest, noInternalKeyResponse, () => assert.fail('正常模式缺 internal key 不得放行'));
-assert.equal(noInternalKeyResponse.statusCode, 503);
+assert.equal(noInternalKeyResponse.statusCode, 403);
 
 process.env.ANJIAN_INTERNAL_KEY = 'separate-test-key';
 const wrongInternalKeyResponse = responseDouble();
 auth.internalAuth(internalRequest, wrongInternalKeyResponse, () => assert.fail('错误 internal key 不得放行'));
-assert.equal(wrongInternalKeyResponse.statusCode, 401);
+assert.equal(wrongInternalKeyResponse.statusCode, 403);
 
 let internalAllowed = false;
 auth.internalAuth({ get(name) {
   return name === 'X-Anjian-Key' ? 'separate-test-key' : undefined;
 } }, responseDouble(), () => { internalAllowed = true; });
-assert.equal(internalAllowed, true, '正确 internal key 应放行');
+assert.equal(internalAllowed, false, '正确 internal key 也不能绕过关闭策略');
 
-// ---- R3：ANJIAN_INTERNAL_KEY_SOURCE=electron-auto 时，同一份 key 只能打开
-//      agent 系列端点，其余 /internal/* 一律 403（electron/main.js 每次启动
-//      自动生成的 key 不是用户显式选择开放整套 /internal 自动化面）----
+// R3 now covers the stronger Phase 1 rule: both auto and explicit internal
+// credentials are denied on every former read/write entry point.
 process.env.ANJIAN_INTERNAL_KEY_SOURCE = 'electron-auto';
 const electronAutoRequest = (reqPath) => ({
   path: reqPath,
@@ -140,21 +149,21 @@ const electronAutoRequest = (reqPath) => ({
 for (const allowedPath of ['/agent-proposals', '/agent-case-view', '/agent-digest']) {
   let allowed = false;
   auth.internalAuth(electronAutoRequest(allowedPath), responseDouble(), () => { allowed = true; });
-  assert.equal(allowed, true, `electron-auto key 应放行 agent 端点 ${allowedPath}`);
+  assert.equal(allowed, false, `Phase 1 的 electron-auto key 也不得放行 ${allowedPath}`);
 }
 
 for (const blockedPath of ['/digest', '/cases', '/cases/byname/张三诉李四', '/inbox']) {
   const blockedResponse = responseDouble();
   auth.internalAuth(electronAutoRequest(blockedPath), blockedResponse, () => assert.fail(`electron-auto key 不应放行 ${blockedPath}`));
   assert.equal(blockedResponse.statusCode, 403);
-  assert.equal(blockedResponse.body.code, 'electron_auto_key_scoped');
+  assert.equal(blockedResponse.body.code, 'feature_disabled');
 }
 
 delete process.env.ANJIAN_INTERNAL_KEY_SOURCE;
-// 显式配置的 key（无来源标记）行为不受影响：非 agent 端点应恢复放行。
+// 显式配置的 key 不能恢复任何生产内部接口。
 let plainKeyStillAllowed = false;
 auth.internalAuth(electronAutoRequest('/digest'), responseDouble(), () => { plainKeyStillAllowed = true; });
-assert.equal(plainKeyStillAllowed, true, '未标记来源的显式 internal key 不应被这条 electron-auto 收窄规则误伤');
+assert.equal(plainKeyStillAllowed, false, '显式 internal key 仍须遵守全部角色关闭规则');
 
 delete process.env.ANJIAN_INTERNAL_KEY;
 process.env.ANJIAN_UNSAFE_NO_AUTH = '1';
@@ -162,6 +171,7 @@ let unsafeInternalAllowed = false;
 auth.internalAuth(internalRequest, responseDouble(), () => { unsafeInternalAllowed = true; });
 assert.equal(unsafeInternalAllowed, true, '显式回环测试模式应覆盖隔离测试所需的 internal 面');
 
+for(const response of responses)response.emit('finish');
 db.close();
 fs.rmSync(scratch, { recursive: true, force: true });
-console.log('auth security tests: secure rolling cookie + bounded login key + internal key policy passed');
+console.log('auth security tests: user-bound hashed session + secure rolling cookie + bounded login key + closed static/internal bypass passed');

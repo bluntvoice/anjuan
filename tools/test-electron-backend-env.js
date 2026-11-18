@@ -13,6 +13,7 @@
 // 冒烟——见 docs/CHANGES.md 打包完整性坑记录里的真实 .app 实测）。
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildBackendEnv, shouldRedirectTestUserData, TEST_USERDATA_ACK_SWITCH } from '../electron/backend-env.js';
@@ -22,14 +23,19 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 
 // ---- buildBackendEnv：三条 dataDir 路径必须真的落在 config.dataDir 下 ----
 {
+  const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'anjuan-backend-env-'));
+  try {
   const config = {
-    dataDir: '/Users/test-user/Library/Application Support/anqi',
+    dataDir: fs.realpathSync.native(fixtureRoot),
     user: 'lawyer',
     passHash: 'not-a-real-hash',
   };
   const env = buildBackendEnv({ baseEnv: { PATH: '/usr/bin' }, config, port: 4321, internalKey: 'not-a-real-key' });
 
   for (const key of ['DB_PATH', 'ANJIAN_FILES_ROOT', 'ANJIAN_AGENT_SESSION_ROOT']) {
+    const relative = path.relative(config.dataDir, env[key]);
+    assert.equal(path.isAbsolute(relative) || relative === '..' || relative.startsWith(`..${path.sep}`), false,
+      `${key} 不得越出测试 dataDir`);
     assert.equal(
       env[key]?.startsWith(config.dataDir + path.sep) || env[key] === config.dataDir,
       true,
@@ -50,19 +56,29 @@ const REPO_ROOT = path.resolve(__dirname, '..');
   assert.equal(env.PORT, '4321');
   assert.equal(env.NODE_ENV, 'production');
   assert.equal(env.HOST, '127.0.0.1');
-  assert.equal(env.ANJIAN_USER, config.user);
-  assert.equal(env.ANJIAN_PASS_HASH, config.passHash);
-  assert.equal(env.ANJIAN_INTERNAL_KEY, 'not-a-real-key');
-  assert.equal(env.ANJIAN_INTERNAL_KEY_SOURCE, 'electron-auto', '桌面版自动生成的 internal key 必须带这个来源标记，internalAuth() 靠它收窄 /internal 面');
+  for (const key of ['ANJIAN_USER', 'ANJIAN_PASS_HASH', 'ANJIAN_INTERNAL_KEY', 'ANJIAN_INTERNAL_KEY_SOURCE']) {
+    assert.equal(key in env, false, '旧认证字段不得成为后端正常登录权威');
+  }
   assert.equal(env.PATH, '/usr/bin', 'baseEnv 必须被展开进结果（宿主 PATH 等继承变量不能丢）');
   assert.equal('DEEPSEEK_API_KEY' in env, false, '未配置 deepseekKey 时不应该凭空出现这个键');
 
   const envWithKey = buildBackendEnv({
     baseEnv: {}, config: { ...config, deepseekKey: 'sk-not-a-real-key' }, port: 1, internalKey: 'x',
   });
-  assert.equal(envWithKey.DEEPSEEK_API_KEY, 'sk-not-a-real-key', '配置了 deepseekKey 时必须透传给子进程');
+  assert.equal('DEEPSEEK_API_KEY' in envWithKey, false, 'Phase 1 不启用遗留 AI 配置');
+  const poisoned = buildBackendEnv({ baseEnv: {
+    ANJIAN_USER: 'old', ANJIAN_PASS_HASH: 'old', ANJIAN_STATIC_TOKEN: 'old', ANJIAN_UNSAFE_NO_AUTH: '1',
+    ANJIAN_INTERNAL_KEY: 'old', LEGALRAG_URL: 'https://untrusted.example', DEEPSEEK_API_KEY: 'old', NODE_OPTIONS: '--inspect',
+  }, config, port: 1 });
+  for (const key of ['ANJIAN_USER','ANJIAN_PASS_HASH','ANJIAN_STATIC_TOKEN','ANJIAN_UNSAFE_NO_AUTH','ANJIAN_INTERNAL_KEY','LEGALRAG_URL','DEEPSEEK_API_KEY','NODE_OPTIONS']) {
+    assert.equal(key in poisoned, false, `继承环境不得打开 ${key}`);
+  }
 
   console.log('  [1/3] buildBackendEnv()：ok（DB_PATH/ANJIAN_FILES_ROOT/ANJIAN_AGENT_SESSION_ROOT 均在 dataDir 下且互不相同）');
+  } finally {
+    // Only this mkdtemp-created empty fixture is removed; never a configured data directory.
+    fs.rmdirSync(fixtureRoot);
+  }
 }
 
 // ---- shouldRedirectTestUserData：必须 env + argv 开关同时出现才生效 ----
@@ -92,6 +108,12 @@ const REPO_ROOT = path.resolve(__dirname, '..');
   let queriedName = null;
   shouldRedirectTestUserData({ ANJIAN_TEST_USERDATA: '/tmp/x' }, (name) => { queriedName = name; return true; });
   assert.equal(queriedName, TEST_USERDATA_ACK_SWITCH, `必须查询固定的开关名 "${TEST_USERDATA_ACK_SWITCH}"，实际查询了 "${queriedName}"`);
+
+  const mainSource = fs.readFileSync(path.join(REPO_ROOT, 'electron/main.js'), 'utf8');
+  assert.match(mainSource, /const isolatedTestRun = shouldRedirectTestUserData\(process\.env,/,
+    '真实主进程须使用已测试的双条件隔离策略');
+  assert.match(mainSource, /if \(!isolatedTestRun\) initAutoUpdater\(mainWindow\)/,
+    '仅明确隔离测试模式阻止更新检查，生产更新器保持原接线');
 
   console.log('  [2/3] shouldRedirectTestUserData()：ok（env 与 argv 开关必须同时出现，单独 env 不生效）');
 }

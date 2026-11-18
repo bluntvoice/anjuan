@@ -1,3 +1,5 @@
+import { TestResources } from './phase1/test-resources.js';
+import { assertF1Environment, verifyProductionContract, componentIdentity, COMPONENT_ACTOR, assertSQLite } from './phase1/r2-f1-contract.js';
 // /internal/agent-proposals 路由层回归：软建议 kind 不再限 task、source 伪造→400、
 // session_id 缺失/未绑定→400/403、payload/source_ref 白名单、case_id 绝不信任请求体
 // （即使 body 带 case_id 也必须被忽略，caseId 只能来自 session-registry 反查）、
@@ -18,30 +20,38 @@ import path from 'node:path';
 import http from 'node:http';
 import express from 'express';
 
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'anqi-agent-proposals-http-'));
+const resources = new TestResources(import.meta.url);
+let primaryError;
+try {
+assertF1Environment();
+await verifyProductionContract(37, resources);
+const scratch = resources.directory(fs.mkdtempSync(path.join(os.tmpdir(), 'anqi-agent-proposals-http-')));
 process.env.DB_PATH = path.join(scratch, 'agent-proposals-http.db');
 process.env.ANJIAN_INTERNAL_KEY = 'agent-proposals-http-key';
 delete process.env.ANJIAN_UNSAFE_NO_AUTH;
 
 const { db } = await import('../src/db.js');
-const { internalAuth } = await import('../src/middleware/auth.js');
+resources.database(db);
+const { requestBoundary } = await import('../src/middleware/auth.js');
 const internalRouter = (await import('../src/routes/internal.js')).default;
 const { bindSession, unbindSession, _resetSessionRegistryForTest } = await import('../src/agent/session-registry.js');
 
 _resetSessionRegistryForTest();
+resources.cleanup('F1 session registry reset', () => _resetSessionRegistryForTest(), 10);
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
-app.use('/internal', internalAuth, internalRouter);
+// Component-only composition; production internalAuth was tested separately above.
+app.use('/internal', requestBoundary, componentIdentity, internalRouter);
 
-const server = http.createServer(app);
+const server = resources.server(http.createServer(app));
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 const base = `http://127.0.0.1:${server.address().port}`;
 
 async function post(body, expected) {
   const response = await fetch(base + '/internal/agent-proposals', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Anjian-Key': process.env.ANJIAN_INTERNAL_KEY },
+    headers: { 'Content-Type': 'application/json', 'X-Anjian-Key': process.env.ANJIAN_INTERNAL_KEY, 'X-Anjian-Actor': 'forged-real-user' },
     body: JSON.stringify(body),
   });
   const raw = await response.text();
@@ -54,6 +64,10 @@ async function post(body, expected) {
 const caseId = db.prepare(
   "INSERT INTO cases (name, procedure, stage) VALUES ('张三诉李四合同纠纷（agent 提案 http 测试）','一审','审理中')"
 ).run().lastInsertRowid;
+const otherCaseId = db.prepare("INSERT INTO cases(name,stage) VALUES ('F1 合成他案','审理中')").run().lastInsertRowid;
+const crossCaseTables = ['events', 'deadlines', 'tasks', 'worklog', 'inbox'];
+const otherCaseRows = () => Object.fromEntries(crossCaseTables.map(table => [table, db.prepare(`SELECT * FROM ${table} WHERE case_id=? ORDER BY id`).all(otherCaseId)]));
+const otherBefore = otherCaseRows();
 
 const sessionId = 'anqi-http-test-session-1';
 bindSession(sessionId, caseId);
@@ -104,7 +118,7 @@ try {
 
   // ---- case_id 绝不信任请求体：即使 body 带了别的 case_id 也必须被忽略，
   //      落库的 case_id 只能是 session-registry 反查出来的那个 ----
-  const spoofedCaseId = caseId + 999;
+  const spoofedCaseId = otherCaseId;
   const created = await post(
     {
       session_id: sessionId, case_id: spoofedCaseId, proposal_id: 'p-6',
@@ -174,8 +188,29 @@ try {
   assert.equal(notFound.code, 'case_not_found');
   unbindSession(staleSession);
 
-  console.log('agent-proposals HTTP tests: soft kind normalization + source/session trust boundary + payload/source_ref whitelist + idempotent statuses passed');
+  const audits = db.prepare('SELECT * FROM audit_log ORDER BY id').all();
+  assert(audits.length > 0);
+  assert(audits.every(row => row.actor === COMPONENT_ACTOR), 'component audit actor comes only from test composition');
+  assert(!JSON.stringify(audits).includes(process.env.ANJIAN_INTERNAL_KEY), 'legacy key must not enter audit');
+  assert(!JSON.stringify(audits).includes('forged-real-user'));
+  const inboxAudits = audits.filter(row => row.entity === 'inbox');
+  assert(inboxAudits.length > 0);
+  for (const row of inboxAudits) assert.equal(db.prepare('SELECT case_id FROM inbox WHERE id=?').get(row.entity_id).case_id, caseId);
+  assert.equal(db.prepare('SELECT case_id FROM events WHERE id=?').get(directEvent.item.id).case_id, caseId);
+  assert.deepEqual(otherCaseRows(), otherBefore, '真实存在的合成他案不能被伪造 case_id 写入');
+  assertSQLite(db);
+  console.log('F1_COMPONENT ' + JSON.stringify({ id: 'R2-37', status: 'passed', legacyAuthentication: 'not exercised or emulated',
+    sessionOwnership: true, sourceWhitelist: true, authoritativeCaseAndSourceRef: true, auditActor: COMPONENT_ACTOR, sqlite: 'ok' }));
 } finally {
-  server.close();
-  fs.rmSync(scratch, { recursive: true, force: true });
+
+
+  // Owned resources are closed in the outer finally before directory removal.
+}
+
+} catch (error) {
+  primaryError = error;
+  console.error(error);
+  process.exitCode = 1;
+} finally {
+  await resources.finish(primaryError);
 }

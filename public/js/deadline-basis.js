@@ -2,7 +2,7 @@
 // 背景：期限规则自带的 basis（依据摘要）文本很长，直铺在跑道行/时间线里会打断排版。
 // 改为问号按钮，点开弹层展示：法规名 + 条号 + 条文原文 + 本案算法。
 //
-// 条文原文离线取自 /api/meta 的 law_texts（源文件 rules/law_texts.json + rules/law_texts_criminal.json），
+// 条文原文离线取自 /api/case-options 的 law_texts（源文件 rules/law_texts.json + rules/law_texts_criminal.json），
 // 不消耗任何检索额度；匹配方式为「规则的 basis 文本是否包含条目 match 数组内任一元素」。
 //
 // 起算口径（裁定「丙」）：月数/年数类一律按法定算法（次日起算）。实务文书常按含当日起算书写，
@@ -27,7 +27,7 @@ export function setLawTexts(list) {
 function ensureLawTexts() {
   if (lawTexts.length) return Promise.resolve(lawTexts);
   if (!lazy) {
-    lazy = api('/meta')
+    lazy = api('/case-options')
       .then((m) => { lawTexts = m.law_texts || []; return lawTexts; })
       .catch(() => { lawTexts = []; return lawTexts; });
   }

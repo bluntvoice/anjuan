@@ -6,21 +6,38 @@ import { openModal } from './modal.js';
 
 let modalSeq = 0;
 
-export function datePrompt({ title, fields, hint = '' }) {
+export function datePrompt({ title, fields, hint = '', save = null }) {
   return new Promise((resolve) => {
     const inputs = {};
+    const error = save && el('p', { class: 'dmodal-hint', role: 'alert', hidden: '' });
+    let pending = false;
     const titleId = `dmodal-title-${++modalSeq}`;
     const form = el('form', {
       class: 'dmodal-form',
-      onsubmit: (e) => {
+      onsubmit: async (e) => {
         e.preventDefault();
+        if (pending) return;
         const out = {};
         for (const f of fields) {
           const v = inputs[f.key].value;
           if (f.required && !String(v).trim()) { inputs[f.key].focus(); return; }
           out[f.key] = v;
         }
-        modal.close(out);
+        if (!save) { modal.close(out); return; }
+        pending = true;
+        error.hidden = true;
+        const submit = form.querySelector('button[type="submit"]');
+        submit.disabled = true;
+        try {
+          await save(out);
+          modal.close(out);
+        } catch (failure) {
+          error.textContent = failure.message;
+          error.hidden = false;
+        } finally {
+          pending = false;
+          submit.disabled = false;
+        }
       },
     },
       el('h3', { class: 'dmodal-title', id: titleId }, title),
@@ -53,6 +70,7 @@ export function datePrompt({ title, fields, hint = '' }) {
         }
         return el('label', { class: 'f' }, f.label, inputs[f.key]);
       }),
+      error || null,
       el('div', { class: 'dmodal-actions' },
         el('button', { class: 'btn', type: 'button', onclick: () => modal.close(null) }, '取消'),
         el('button', { class: 'btn primary', type: 'submit' }, '确认')

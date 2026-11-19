@@ -25,11 +25,8 @@
   </div>
   <div class="case-context-tools">
     <div class="case-head-deadline" id="case-head-deadline" aria-live="polite"></div>
-    <span id="legalrag-slot"></span>
-    <!-- AI 助理入口：js/agent-drawer.js 运行时按 /api/counts.agent 特性探测决定
-         是否渲染，未启用/未配置时这里始终留空（沿用 nav.js 对 c.llm 的既有模式）。 -->
-    <span id="agent-entry-slot"></span>
-    <label class="context-status">状态
+    <span id="case-status" class="pill"></span>
+    <label class="context-status" data-case-write hidden>状态
       <select id="c-status" aria-label="案件状态">
         <option value="active">在办</option>
         <option value="shelved">搁置</option>
@@ -43,8 +40,8 @@
     <a href="#case-money" data-target="case-money">资金 <span class="section-badge" id="case-money-badge"></span></a>
     <a href="#file-drop" data-target="file-drop">文件</a>
     <a href="#case-trace" data-target="case-trace">留痕</a>
-    <a href="#case-changes" data-target="case-changes">变更</a>
-    <a href="#case-archive" data-target="case-archive">归档</a>
+    <a href="#case-changes" data-target="case-changes" data-case-audit hidden>变更</a>
+    <a href="#case-archive" data-target="case-archive" hidden>归档</a>
   </nav>
 </header>
 <main class="page case-page">
@@ -61,7 +58,7 @@
       </div>
       <div class="panel-body">
         <div id="stepper-box"></div>
-        <details class="adder case-info-adjunct">
+        <details class="adder case-info-adjunct" data-case-write hidden>
           <summary>编辑案件信息</summary>
           <form id="edit-form">
             <div class="formgrid">
@@ -73,22 +70,13 @@
               <label class="f">我方地位<input name="client_role" placeholder="原告 / 被告 / 申请人"></label>
               <label class="f">对方<input name="opponent" placeholder="李四"></label>
               <label class="f">收案日<input type="date" name="accepted_at"></label>
+              <label class="f">诉讼时效起算日<input type="date" name="sol_starts_on"></label>
               <label class="f">案件类型<select name="case_type"><option>未分类</option><option>民事</option><option>刑事</option><option>行政</option><option>非诉</option><option>其他</option></select></label><label class="f">程序<select name="procedure"></select></label>
               <label class="f">阶段<select name="stage"></select></label>
               <label class="f" id="reconsideration-precondition-field" hidden>复议前置<select name="reconsideration_precondition"><option value="yes">是</option><option value="no">否</option><option value="unknown">未确定</option></select></label>
             </div>
-            <div class="formrow workspace-picker" id="case-workspace-picker">
-              <label class="f grow">Agent 项目 / 案件工作区<select id="case-workspace-select"></select></label>
-              <button class="btn" type="button" id="case-workspace-bind">绑定所选文件夹</button>
-            </div>
-            <div class="formrow">
-              <label class="f grow">新建工作区<input id="case-workspace-new" placeholder="默认使用案件名"></label>
-              <button class="btn" type="button" id="case-workspace-create">新建并绑定</button>
-            </div>
-            <p class="page-sub" id="case-workspace-note">案件夹就是本案 AI 助理的项目目录；换绑不移动、不复制、也不删除原文件。</p>
             <div id="edit-criminal-fields"></div>
             <div class="formrow">
-              <label class="f grow">LegalRAG 案件库链接<input name="legalrag_url" placeholder="https://legalrag.example.com/…"></label>
               <label class="f grow">备注<textarea name="note" rows="5"></textarea></label>
               <button class="btn primary" type="submit">保存</button>
             </div>
@@ -97,7 +85,7 @@
       </div>
       <div class="p-foot">
         <span id="c-stagedays"></span>
-        <span class="tail">点步进节点可切换阶段</span>
+        <span class="tail" data-case-write hidden>点步进节点可切换阶段</span>
       </div>
     </section>
 
@@ -121,12 +109,6 @@
       </div>
     </section>
 
-    <section class="panel case-main" id="case-reminders" data-case-order="1">
-      <div class="p-head"><h2 class="p-title">提醒</h2><span class="p-meta">自动档位与人工提醒</span></div>
-      <div class="panel-body"><div id="case-reminder-list" class="reminder-list"></div>
-        <details class="adder"><summary>添加提醒</summary><form id="case-reminder-form"><div class="formrow"><label class="f grow">标题<input name="title" required></label><label class="f">日期<input name="date" type="date" required></label><label class="f">时刻<input name="time" type="time" required></label><button class="btn primary" type="submit">添加</button></div></form></details>
-      </div>
-    </section>
 
     <!-- ═══════ 未结待办 ═══════ -->
     <section class="panel case-main" data-case-order="2">
@@ -134,109 +116,18 @@
         <h2 class="p-title">未结待办</h2>
         <div class="p-head-actions">
           <span class="p-meta"><span class="m" id="tasks-count"></span></span>
-          <button class="btn small panel-quick-action" id="task-add-shortcut" type="button" aria-controls="task-form">+ 记待办</button>
         </div>
       </div>
       <div id="open-tasks"></div>
     </section>
 
     <!-- ═══════ 录入（事件 · 死线 · 待办 · 日志）═══════ -->
-    <section class="panel case-side aux-panel" id="case-inputs" data-case-order="3" aria-label="录入">
-      <div class="factstrip" id="case-inputs-strip">
-        <div class="factstrip-row">
-          <span class="factstrip-label">录入</span>
-          <span class="factstrip-fact">记期限 · 记待办 · 记款项 · 记日志</span>
-          <button class="factstrip-edit" type="button" id="case-inputs-toggle" aria-expanded="false">展开</button>
-        </div>
-        <div class="factstrip-more panel-body" id="case-inputs-more" hidden>
-
-        <details class="adder">
-          <summary>记程序事件（期限触发器）</summary>
-          <form id="event-form">
-            <div class="formrow">
-              <label class="f">事件<select name="type" id="ev-type"></select></label>
-              <label class="f">日期<input type="date" name="occurred_on" required></label>
-              <label class="f ev-hearing-field" hidden>时刻<input type="time" name="occurred_time"></label>
-              <label class="f grow ev-hearing-field" hidden>地点<input name="location" maxlength="120" placeholder="法院/法庭"></label>
-              <label class="f">送达方式<select name="service_method">
-                <option value="">（不适用）</option>
-                <option>直接送达</option><option>邮寄送达</option><option>电子送达</option>
-                <option>留置送达</option><option>公告送达</option>
-              </select></label>
-            </div>
-            <div class="formrow">
-              <label class="f grow">文书依据<input name="instrument" placeholder="（2026）粤0105民初888号"></label>
-              <label class="f grow">备注<input name="note"></label>
-            </div>
-            <p class="page-sub">录入触发事件（送达 / 收到判决等）自动派生法定期限并写明算法；法院指定类（举证 / 缴费）会铺「录入截止日」任务；附件直接存进本案案件夹的「法院文书」（随案件夹同步）。</p>
-            <div class="formrow">
-              <label class="f grow">附文书（与下方「案件文件」同一案件夹，可多选）<input type="file" id="ev-files" multiple></label>
-              <button class="btn primary" type="submit">记录</button>
-            </div>
-          </form>
-        </details>
-
-        <details class="adder">
-          <summary>记法定死线（与「计划哪天做」严格分开）</summary>
-          <form id="deadline-form">
-            <div class="formrow">
-              <label class="f grow">名称<input name="name" required placeholder="上诉期（判决）"></label>
-            </div>
-            <div class="formgrid">
-              <label class="f">截止日<input type="date" name="due_on" required></label>
-              <label class="f">级别<select name="severity">
-                <option value="critical">致命</option>
-                <option value="high">重要</option>
-                <option value="normal" selected>一般</option>
-              </select></label>
-              <label class="f">法律依据<input name="basis" placeholder="民诉法 §171"></label>
-            </div>
-            <p class="page-sub">「致命」= 错过即权利消灭（上诉期 / 举证期）。这里只记法定或法院指定的硬期限；「计划哪天做」记到待办。</p>
-            <div class="formrow">
-              <label class="f grow">计算说明<input name="calc_note" placeholder="送达次日起算 15 日…"></label>
-              <button class="btn primary" type="submit">记录</button>
-            </div>
-          </form>
-        </details>
-
-        <details class="adder">
-          <summary>记待办</summary>
-          <form id="task-form">
-            <div class="formrow">
-              <label class="f grow">事项<input name="title" required placeholder="整理补充证据清单并提交"></label>
-            </div>
-            <div class="formgrid">
-              <label class="f">计划开工<input type="date" name="plan_date"></label>
-              <label class="f">硬到期<input type="date" name="due_on"></label>
-              <label class="f">优先级<select name="priority">
-                <option value="high">高</option><option value="normal" selected>普通</option><option value="low">低</option>
-              </select></label>
-            </div>
-            <div class="formrow">
-              <button class="btn primary" type="submit">记录</button>
-            </div>
-          </form>
-        </details>
-
-        <details class="adder">
-          <summary>记工作日志</summary>
-          <form id="log-form">
-            <div class="formrow">
-              <label class="f grow">做了什么<input name="content" required placeholder="与承办法官电话沟通调解意向"></label>
-            </div>
-            <div class="formgrid">
-              <label class="f">日期<input type="date" name="worked_on"></label>
-              <label class="f">耗时（分钟）<input type="number" name="minutes" min="1"></label>
-              <label class="f">产物<input name="artifacts" placeholder="路径 / 链接"></label>
-            </div>
-            <div class="formrow">
-              <button class="btn primary" type="submit">记录</button>
-            </div>
-          </form>
-        </details>
-
-        </div>
+    <section class="panel case-side aux-panel" id="case-inputs" data-case-order="3" aria-label="事实记录">
+      <div class="p-head">
+        <h2 class="p-title">事实记录</h2>
+        <button type="button" class="btn small" id="fact-add" data-case-write hidden>添加事实</button>
       </div>
+      <div id="fact-list" class="panel-body"></div>
     </section>
 
     <!-- ═══════ 联系人 ═══════ -->
@@ -250,27 +141,12 @@
         <div class="factstrip-row case-participant-summary-row">
           <span class="factstrip-label">合作参与人</span>
           <span class="factstrip-fact" id="case-participant-summary">未登记</span>
-          <a class="factstrip-edit" href="/contacts.html">通讯录</a>
         </div>
         <div class="factstrip-more" id="case-contacts-more" hidden>
-          <section class="case-participant-box" aria-label="案件参与人">
-            <div class="case-participant-head">
-              <div><b>本案可选参与人</b><span class="meta">加入后可在应收、应付分成中直接选择</span></div>
-              <a class="btn small" href="/contacts.html">管理通讯录</a>
-            </div>
-            <div id="case-participant-list"></div>
-            <form id="case-participant-form" class="participant-form">
-              <div class="formgrid">
-                <label class="f">从通讯录选择<select name="person_id" id="case-participant-person" required><option value="">请选择</option></select></label>
-                <label class="f">参与角色<select name="role"><option>合作律师</option><option>对方律师</option><option>其他</option></select></label>
-                <label class="f grow">本案备注<input name="note" placeholder="可空"></label>
-              </div>
-              <div class="formrow"><button class="btn primary" type="submit">加入本案</button></div>
-            </form>
-          </section>
+          <div class="panel-body" id="case-participant-list"></div>
           <div id="contact-list"></div>
           <div class="panel-body">
-        <details class="adder">
+        <details class="adder" data-case-write hidden>
           <summary>记联系人</summary>
           <form id="contact-form">
             <div class="formgrid">
@@ -294,93 +170,21 @@
       </div>
     </section>
 
-    <!-- ═══════ 律师费与分成：一处读清案件资金 ═══════ -->
+    <!-- ═══════ 律师费 ═══════ -->
     <section class="panel case-main" id="case-money" data-case-order="5">
       <div class="p-head">
-        <h2 class="p-title">律师费与分成</h2>
-        <span class="p-meta">收费多少 · 怎么分 · 何时结算</span>
+        <h2 class="p-title">律师费</h2>
+        <button type="button" class="btn small" id="fee-add" data-case-write hidden>记律师费</button>
       </div>
-      <h3 class="group-title money-section-title">律师费款项</h3>
-      <div class="panel-body" id="fee-viz" hidden></div>
+      <div class="panel-body" id="fee-viz"></div>
       <div id="fee-list"></div>
-      <div class="panel-body money-entry">
-        <details class="adder money-primary-adder" open>
-          <summary>记款项</summary>
-          <form id="fee-form">
-            <div class="formgrid">
-              <label class="f">期名<input name="label" required placeholder="签约款 / 立案款 / 结案款"></label>
-              <label class="f">金额（元）<input name="amount" type="number" min="0" step="100" placeholder="空 = 待定"></label>
-              <label class="f">到期日<input type="date" name="due_on"></label>
-            </div>
-            <div class="formrow">
-              <label class="f grow">程序节点<input name="node" placeholder="合同原文：立案之日…"></label>
-              <label class="f grow">备注<input name="note"></label>
-              <button class="btn primary" type="submit">记录</button>
-            </div>
-          </form>
-        </details>
-      </div>
-      <div class="factstrip case-money-factstrip" id="case-share-agreements">
-        <div class="factstrip-row">
-          <span class="factstrip-label">约定</span>
-          <span class="factstrip-fact" id="case-share-summary">未设置分成</span>
-          <button class="factstrip-edit" type="button" id="case-share-agreements-toggle" aria-expanded="false">展开</button>
-        </div>
-        <div class="factstrip-more" id="case-share-agreements-more" hidden>
-          <div id="share-agreements"></div>
-          <div class="panel-body money-entry">
-        <details class="adder">
-          <summary>新增分成约定</summary>
-          <p class="meta">先记谁给谁、比例和结算时间。扣税、律所费用还没定，也可以先标成暂定，后面再完善。</p>
-          <div class="formrow">
-            <button class="btn primary" id="share-receivable-add" type="button">别人应给我</button>
-            <button class="btn" id="share-payable-add" type="button">我应给别人</button>
-          </div>
-        </details>
-          </div>
-        </div>
-      </div>
-      <div class="case-share-list-flat" id="case-share-list">
-        <h3 class="group-title money-section-title">已经形成的应收 / 应付 <span class="p-meta" id="case-share-list-summary">应付未结 ¥0 · 应收未结 ¥0</span></h3>
-        <div id="share-list"></div>
-        <div class="panel-body money-entry money-entry-last">
-        <details class="adder money-advanced">
-          <summary>记录分成结果</summary>
-          <p class="meta">知道对方收款和比例就填基数；只知道我实际收到 / 分出的金额，也可以直接记结果。</p>
-          <form id="share-form">
-            <div class="formgrid">
-              <label class="f">方向<select name="direction">
-                <option value="receivable">我应收（对方分给我）</option>
-                <option value="payable">我应付（我分给对方）</option>
-              </select></label>
-              <label class="f">案件参与人<select name="person_id" id="share-person"><option value="">不从本案选择</option></select></label>
-              <label class="f">临时填写对象<input name="counterpart" placeholder="不知道参与人时可直接填写"></label>
-              <label class="f">我收到 / 分出的分成（元）<input name="amount" type="number" step="0.01" placeholder="已知结果就填"></label>
-              <label class="f">应分月份<input name="due_month" type="month"></label>
-            </div>
-            <details class="money-advanced share-base-details">
-              <summary>知道他方收款时，再填收款基数和比例（可不填）</summary>
-              <p class="meta">基数 + 比例与上面的分成结果二选一；不知道他方收款就只填结果。</p>
-              <div class="formgrid">
-                <label class="f">他方收款基数（元）<input name="base_amount" type="number" step="0.01" placeholder="可空"></label>
-                <label class="f">分成比例（%）<input name="rate" type="number" min="0.01" max="100" step="0.01" placeholder="可空"></label>
-              </div>
-            </details>
-            <div class="formrow">
-              <label class="f grow">备注<input name="note"></label>
-              <button class="btn primary" type="submit">记录</button>
-            </div>
-          </form>
-        </details>
-        </div>
-      </div>
     </section>
 
     <section class="panel case-main" id="case-source-info" data-case-order="3" hidden>
       <details class="panel-body"><summary>案件备注与来源信息</summary><div id="case-source-text" style="white-space:pre-wrap;overflow-wrap:anywhere;margin-top:1rem"></div></details>
     </section>
     <!-- ═══════ 案件文件（案件夹双向同步）═══════ -->
-    <section class="panel case-main" id="file-drop" data-case-order="3" aria-describedby="file-drop-copy">
+    <section class="panel case-main" id="file-drop" data-case-order="3">
       <div class="p-head">
         <h2 class="p-title">案件文件</h2>
         <span class="p-meta" id="file-crumbs"></span>
@@ -388,37 +192,17 @@
         <button class="btn small ghost" id="file-refresh" type="button" title="重新读取案件夹">刷新</button>
       </div>
       <div id="file-list"></div>
-      <div class="file-review" id="file-review" hidden>
-        <div class="file-review-head">
-          <div>
-            <span class="eyebrow">LEGALRAG → 案卷</span>
-            <h3>待确认的提取结果</h3>
-          </div>
-          <span class="meta" id="file-review-meta"></span>
-        </div>
-        <div id="file-candidates"></div>
-      </div>
-      <details class="file-review fold" id="file-ignored" data-fold-id="case-file-ignored" hidden>
-        <summary class="file-review-head">
-          <div>
-            <span class="eyebrow">可撤销的人工裁决</span>
-            <h3>已忽略的提取事实</h3>
-          </div>
-          <span class="meta fold-summary" id="file-ignored-meta"></span>
-        </summary>
-        <div id="file-ignored-candidates"></div>
-      </details>
-      <div class="p-foot file-upload-zone">
+      <details class="panel-body"><summary>附件引用</summary><div id="attachment-list"></div></details>
+      <div class="p-foot file-upload-zone" data-case-write hidden>
         <div class="file-drop-copy" id="file-drop-copy">
           <b>拖文件到这里</b>
-          <span>或选择文件上传；程序事件里的「附文书」也会在这里回显</span>
+          <span>或选择文件上传</span>
         </div>
         <div class="file-upload-controls">
           <select id="up-dir" aria-label="上传目录"></select>
           <input type="file" id="up-files" multiple aria-label="选择上传文件">
           <button class="btn small" id="up-btn" type="button">上传</button>
         </div>
-        <span class="tail">案件夹是唯一真相源 · 夹内变动自动回显</span>
       </div>
     </section>
 
@@ -428,7 +212,6 @@
         <h2 class="p-title">时间线</h2>
         <div class="p-head-actions">
           <span class="p-meta" id="timeline-meta">事件 · 期限 · 日志</span>
-          <button class="btn small panel-quick-action" id="log-add-shortcut" type="button" aria-controls="log-form">+ 记日志</button>
         </div>
       </div>
       <div class="timeline-filters" role="group" aria-label="筛选时间线">
@@ -446,25 +229,23 @@
       </div>
     </section>
 
-    <!-- ═══════ 变更记录（谁在何时把哪个字段从什么改成什么）═══════
-         默认收起：它是底账不是工作台，平时不该占版面。数据来自 change_log
-         （迁移 024），只读——底账不可改，只能再记一条。 -->
-    <section class="panel case-main case-changes-section" id="case-changes" data-case-order="5">
+    <!-- ═══════ 本案操作审计 ═══════ -->
+    <section class="panel case-main case-changes-section" id="case-changes" data-case-order="5" data-case-audit hidden>
       <details class="fold case-changes-fold" id="case-changes-fold" data-fold-id="case-changes">
         <summary>
           <span class="fold-title">变更记录</span>
-          <span class="fold-summary" id="case-changes-meta">字段级改动底账 · 只读</span>
+          <span class="fold-summary" id="case-changes-meta">管理员可读</span>
         </summary>
         <div class="fold-body case-changes-body" id="case-changes-body"></div>
       </details>
     </section>
 
-    <!-- ═══════ 已结清与历史记录（本页唯一归档门）═══════ -->
-    <section class="panel case-main case-archive-section" id="case-archive" data-case-order="6">
+    <!-- ═══════ 历史律师费（本页唯一归档门）═══════ -->
+    <section class="panel case-main case-archive-section" id="case-archive" data-case-order="6" hidden>
       <details class="archive-door case-archive-door" id="case-archive-door" data-fold-id="case-archive">
         <summary class="archive-door-summary">
           <span class="archive-door-caret">▸</span>
-          <span class="archive-door-text">已结清与历史记录</span>
+          <span class="archive-door-text">历史律师费</span>
           <span class="archive-door-count" id="case-archive-count"></span>
         </summary>
         <div class="archive-door-body" id="case-archive-body"></div>

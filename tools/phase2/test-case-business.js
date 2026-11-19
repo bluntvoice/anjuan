@@ -131,13 +131,17 @@ try {
     const html = await expect('workspace HTML', '/phase2.html', { cookie: viewer.cookie }, 200);
     assert.match(html.bytes.toString(), /<button id="new-case"[^>]* hidden/);
     assert.equal(html.headers['cache-control'], 'no-store');
-    for (const page of ['/cases.html', '/profile.html', '/users.html']) {
+    for (const page of ['/cases.html', '/case.html?id=1', '/profile.html', '/users.html']) {
       const anonymous = await expect('anonymous ' + page, page, {}, 302);
       assert.equal(anonymous.headers.location, '/login.html');
       for (const [role, account] of Object.entries({ admin, editor, viewer })) {
         const response = await expect(role + ' opens ' + page, page, { cookie: account.cookie }, 200);
         assert.equal(response.headers['cache-control'], 'no-store');
         if (page === '/cases.html') assert.match(response.bytes.toString(), /<details[^>]+id="new-case" hidden>/);
+        if (page.startsWith('/case.html')) {
+          assert.match(response.bytes.toString(), /id="case-layout"/);
+          assert.match(response.bytes.toString(), /id="case-changes"[^>]+hidden>/);
+        }
       }
     }
     for (const page of ['/fees.html', '/contacts.html', '/stats.html', '/share-repairs.html']) {

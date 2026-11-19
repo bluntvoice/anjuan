@@ -15,7 +15,7 @@ import {
   removeCreatedCaseDirectory,
   resolveCaseDirectory,
 } from '../lib/secure-files.js';
-import { procedures, stagesOf, stageLabels, tasksForStage } from '../lib/vocab.js';
+import { procedures, stagesOf, stageLabels, eventTypes, lawTexts, tasksForStage } from '../lib/vocab.js';
 import { criminalFields, criminalFieldKeys, validateCriminalFields } from '../lib/case-fields.js';
 import { CONTACT_ROLES } from '../lib/contact-fields.js';
 import { missingConditions, conditionChangePreview, reconcileConditions, RULES, recomputeForDeadline, enrichDeadlineRow } from '../lib/engine.js';
@@ -121,7 +121,8 @@ export function createCasesRouter(supervisor, { phase2 = false } = {}) {
 if (phase2) {
   r.get('/case-options', ...read, (_req, res) => {
     res.json({ case_types: CASE_TYPES, procedures: Object.fromEntries(procedures.map(proc => [proc, stagesOf(proc)])),
-      criminal_fields: criminalFields, stage_labels: stageLabels, contact_roles: CONTACT_ROLES });
+      criminal_fields: criminalFields, stage_labels: stageLabels, contact_roles: CONTACT_ROLES,
+      event_types: eventTypes.map(({ id, label }) => ({ id, label })), law_texts: lawTexts });
   });
 }
 

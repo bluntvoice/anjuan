@@ -8,7 +8,7 @@ import { once } from 'node:events';
 import http from 'node:http';
 import { pathToFileURL } from 'node:url';
 
-export async function startIdentityServer({ legacy = null, database = null, r2LegacyCredentials = null, r2InternalKeySource = null } = {}) {
+export async function startIdentityServer({ legacy = null, database = null, r2LegacyCredentials = null, r2InternalKeySource = null, filesRoot = null } = {}) {
   assert(r2InternalKeySource === null || r2InternalKeySource === 'electron-auto', 'explicit test source must be null or electron-auto');
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'anjuan-identity-http-'));
   const env = { ...process.env };
@@ -16,12 +16,12 @@ export async function startIdentityServer({ legacy = null, database = null, r2Le
   const staticToken = crypto.randomBytes(32).toString('hex');
   const internalKey = crypto.randomBytes(32).toString('hex');
   Object.assign(env, { NODE_ENV: 'production', HOST: '127.0.0.1', PORT: '0', DB_PATH: database || path.join(root, 'anjian.db'),
-    ANJIAN_FILES_ROOT: path.join(root, 'files'), ANJIAN_AGENT_SESSION_ROOT: path.join(root, 'agent-sessions'),
+    ANJIAN_FILES_ROOT: filesRoot || path.join(root, 'files'), ANJIAN_AGENT_SESSION_ROOT: path.join(root, 'agent-sessions'),
     ANJIAN_STATIC_TOKEN: staticToken, ANJIAN_INTERNAL_KEY: internalKey });
   if (process.env.R2_NETWORK_RESULTS) env.NODE_OPTIONS = `--import=${pathToFileURL(path.resolve(import.meta.dirname, 'r2-loopback-only.js')).href}`;
   if (r2LegacyCredentials) Object.assign(env, { ANJIAN_USER: r2LegacyCredentials.username, ANJIAN_PASS_HASH: r2LegacyCredentials.hash });
   if (r2InternalKeySource !== null) env.ANJIAN_INTERNAL_KEY_SOURCE = r2InternalKeySource;
-  fs.mkdirSync(env.ANJIAN_FILES_ROOT); fs.mkdirSync(env.ANJIAN_AGENT_SESSION_ROOT);
+  fs.mkdirSync(env.ANJIAN_FILES_ROOT, { recursive: true }); fs.mkdirSync(env.ANJIAN_AGENT_SESSION_ROOT);
   const child = fork(path.resolve(import.meta.dirname, '../../server.js'), [], { env, execArgv: [],
     windowsHide: true, stdio: ['ignore', 'pipe', 'pipe', 'ipc'] });
   const exited = once(child, 'exit');

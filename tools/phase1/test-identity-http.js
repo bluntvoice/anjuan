@@ -8,6 +8,17 @@ const server = await startIdentityServer();
 const password = crypto.randomBytes(24).toString('base64');
 const db = new Database(server.database);
 let matrixRequests = 0;
+// The default retains the Phase 1 matrix. This mode exercises the remaining
+// closed paths on Phase 2, whose opened routes have a dedicated business test.
+const phase2 = process.argv.includes('--phase2');
+const openInPhase2 = new Set([
+  'GET /api/cases', 'POST /api/cases', 'GET /api/cases/:id', 'PATCH /api/cases/:id',
+  'GET /api/cases/:id/files', 'GET /api/cases/:id/file', 'PUT /api/cases/:id/files',
+  'POST /api/cases/:id/attachments',
+  'GET /api/cases/:id/contacts', 'POST /api/cases/:id/contacts',
+  'GET /api/cases/:id/facts', 'POST /api/cases/:id/facts',
+  'GET /api/cases/:id/fees', 'POST /api/cases/:id/fees',
+]);
 try {
   assert.equal((await server.request('/api/auth/me')).status, 401);
   assert.equal((await server.request('/api/bootstrap/status')).status, 403);
@@ -39,6 +50,7 @@ try {
   const inventory = JSON.parse(fs.readFileSync(new URL('../../docs/phase0/evidence/endpoint-permissions.json', import.meta.url)));
   for (const session of [admin, editor, viewer]) {
     for (const route of inventory.filter(r => r.file !== 'src/routes/auth.js')) {
+      if (phase2 && openInPhase2.has(route.method + ' ' + route.path)) continue;
       const url = route.path.replace(/:[a-zA-Z_][a-zA-Z0-9_]*/g, 'synthetic-missing-id');
       const response = await server.request(url, { method: route.method, cookie: session.cookie,
         body: ['POST', 'PUT', 'PATCH', 'DELETE'].includes(route.method) ? {} : undefined });
@@ -92,5 +104,5 @@ try {
     'Only the deliberately injected obsolete row remains; new logins never write legacy sessions');
   assert.equal(db.prepare('SELECT token FROM sessions').get().token, obsoleteToken);
   console.log(JSON.stringify({ test: 'identity HTTP', initializationRace: true, businessMatrixRequests: matrixRequests,
-    adminAlsoDenied: true, csrfAndHost: true, userIdAudit: true, revocation: true, lastAdminRace: true, logout: true }));
+    phase2, adminAlsoDenied: true, csrfAndHost: true, userIdAudit: true, revocation: true, lastAdminRace: true, logout: true }));
 } finally { db.close(); await server.stop(); }

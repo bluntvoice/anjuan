@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { assertCaseWriteActor, requireVersion } from '../lib/phase2-access.js';
 import { db, audit, withImmediateTransaction, withChangeContext } from '../db.js';
 import { isDate } from '../lib/dates.js';
 import { deriveForEvent } from '../lib/engine.js';
@@ -98,7 +99,8 @@ function factPayload(payload) {
   };
 }
 
-export function createFactRecord({ caseId, payload, actor = 'web', createdBy = 'manual' }) {
+export function createFactRecord({ caseId, payload, actor = 'web', createdBy = 'manual', phase2 = false }) {
+  assertCaseWriteActor(actor, phase2);
   const c = db.prepare('SELECT id,name FROM cases WHERE id=?').get(caseId);
   if (!c) throw factError('案件不存在', 404, 'case_not_found');
   const clean = factPayload(payload);
@@ -132,27 +134,40 @@ r.post('/cases/:id/facts', (req, res) => {
   }
 });
 
-r.patch('/facts/:id', (req, res) => {
-  const row = db.prepare('SELECT * FROM facts WHERE id=?').get(req.params.id);
-  if (!row) return res.status(404).json({ error: '事实不存在' });
-  const b = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
+export function updateFactRecord({ caseId, factId, payload, actor, phase2 = false }) {
+  assertCaseWriteActor(actor, phase2);
+  const row = db.prepare('SELECT * FROM facts WHERE id=? AND case_id=?').get(factId, caseId);
+  if (!row) throw factError('事实不存在', 404, 'fact_not_found');
+  const b = payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : {};
+  if (phase2) requireVersion(b.version, row);
   const sets = [];
   const args = [];
   for (const field of ['content', 'occurred_on', 'source', 'note']) {
     if (!(field in b)) continue;
     const value = String(b[field] ?? '').trim();
-    if (field === 'content' && !value) return res.status(400).json({ error: 'content 必填' });
+    if (field === 'content' && !value) throw factError('content 必填');
     if (field === 'occurred_on' && value && !isDate(value)) {
-      return res.status(400).json({ error: 'occurred_on 须为 YYYY-MM-DD' });
+      throw factError('occurred_on 须为 YYYY-MM-DD');
     }
     sets.push(`${field}=?`);
     args.push(value);
   }
-  if (!sets.length) return res.status(400).json({ error: '无可更新字段' });
+  if (!sets.length) throw factError('无可更新字段');
   sets.push("updated_at=datetime('now','+8 hours')");
-  db.prepare(`UPDATE facts SET ${sets.join(',')} WHERE id=?`).run(...args, row.id);
-  audit(req.actor, 'update', 'fact', row.id, Object.keys(b).join(','));
-  res.json(db.prepare('SELECT * FROM facts WHERE id=?').get(row.id));
+  if (phase2) sets.push('version=version+1');
+  db.prepare(`UPDATE facts SET ${sets.join(',')} WHERE id=? AND case_id=?`).run(...args, row.id, caseId);
+  audit(actor, 'update', 'fact', row.id, Object.keys(b).join(','));
+  return db.prepare('SELECT * FROM facts WHERE id=?').get(row.id);
+}
+
+r.patch('/facts/:id', (req, res) => {
+  const row = db.prepare('SELECT id,case_id FROM facts WHERE id=?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: '事实不存在' });
+  try {
+    res.json(updateFactRecord({ caseId: row.case_id, factId: row.id, payload: req.body, actor: req.actor }));
+  } catch (error) {
+    respondFactError(res, error);
+  }
 });
 
 r.delete('/facts/:id', (req, res) => {

@@ -1,4 +1,4 @@
-// Phase 1 identity authentication. Unreviewed business APIs are gated separately.
+// Database identity authentication. Unavailable business APIs are gated separately.
 import crypto from 'node:crypto';
 import { audit } from '../db.js';
 import passwordHash from '../lib/password-hash.cjs';
@@ -105,8 +105,11 @@ export function pageAuth(req,res,next) {
   if(open) return next();
   const session=identity.session(parseCookies(req).anjian_sess);
   if(!session) return res.redirect('/login.html');
-  if(req.path==='/' || req.path==='/index.html') return res.redirect('/users.html');
-  if(req.path==='/users.html') return next();
+  if(req.path==='/' || req.path==='/index.html') return res.redirect('/phase2.html');
+  if(req.path==='/users.html' || req.path==='/phase2.html') {
+    res.set('Cache-Control', 'no-store');
+    return next();
+  }
   return res.status(403).send('此业务功能尚未开放');
 }
 export function internalAuth(req,res,next) {

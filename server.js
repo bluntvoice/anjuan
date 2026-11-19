@@ -12,7 +12,9 @@ import recordsRouter from './src/routes/records.js';
 import viewsRouter from './src/routes/views.js';
 import feesRouter from './src/routes/fees.js';
 import sharesRouter from './src/routes/shares.js';
-import filesRouter from './src/routes/files.js';
+import filesRouter, { createFilesRouter } from './src/routes/files.js';
+import phase2Router from './src/routes/phase2.js';
+import { installCaseWriteGuards } from './src/lib/phase2-access.js';
 import contactsRouter from './src/routes/contacts.js';
 import peopleRouter from './src/routes/people.js';
 import changesRouter from './src/routes/changes.js';
@@ -95,7 +97,6 @@ const agentRouter = createAgentRouter(agentSupervisor);
 // 唯一同时持有 agentSupervisor 构造权和两个路由挂载权的地方，接线方式与
 // agentRouter 完全一致。
 const settingsRouter = createSettingsRouter(agentSupervisor);
-const casesRouter = createCasesRouter(agentSupervisor);
 const reminderWorker = createReminderWorker({
   pollSeconds: startupConfig.reminders.pollSeconds,
   catchupMinutes: startupConfig.reminders.catchupMinutes,
@@ -107,11 +108,17 @@ const remindersRouter = createRemindersRouter(reminderWorker);
 
 app.use(['/api', '/internal'], requestBoundary);
 app.use('/api', authRouter, usersRouter);
-app.use(
-  '/api', apiAuth, phase1BusinessGate,
-  casesRouter, recordsRouter, viewsRouter, feesRouter, sharesRouter,
-  filesRouter, contactsRouter, peopleRouter, legalragRouter, settingsRouter, agentRouter, changesRouter, remindersRouter, imRouter
-);
+if (startupConfig.unsafeNoAuth) {
+  app.use('/api', apiAuth,
+    createCasesRouter(agentSupervisor), recordsRouter, viewsRouter, feesRouter, sharesRouter,
+    filesRouter, contactsRouter, peopleRouter, legalragRouter, settingsRouter, agentRouter, changesRouter, remindersRouter, imRouter);
+} else {
+  installCaseWriteGuards();
+  app.use('/api', apiAuth, (_req, res, next) => {
+    res.set('Cache-Control', 'no-store');
+    next();
+  }, createCasesRouter(null, { phase2: true }), createFilesRouter({ phase2: true }), phase2Router, phase1BusinessGate);
+}
 app.use('/internal', internalAuth, internalRouter);
 app.use(pageAuth, express.static(path.join(__dirname, 'public')));
 

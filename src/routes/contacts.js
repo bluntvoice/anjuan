@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { db, audit } from '../db.js';
+import { assertCaseWriteActor, requireVersion } from '../lib/phase2-access.js';
 
 // 联系人：人工 API 与 agent session 绑定写入口复用本文件同一套校验/落库函数。
 // audit 不落号码明文，只记 role+姓名。
@@ -18,7 +19,8 @@ function respondContactError(res, error) {
   return res.status(error.status || 400).json({ error: error.message, code: error.code || 'contact_invalid' });
 }
 
-export function upsertContactRecord({ caseId, payload, actor = 'web', createdBy = 'manual' }) {
+export function upsertContactRecord({ caseId, payload, actor = 'web', createdBy = 'manual', phase2 = false }) {
+  assertCaseWriteActor(actor, phase2);
   const c = db.prepare('SELECT id, name FROM cases WHERE id = ?').get(caseId);
   if (!c) throw contactError('案件不存在', 404, 'case_not_found');
   const b = payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : {};
@@ -43,6 +45,7 @@ export function upsertContactRecord({ caseId, payload, actor = 'web', createdBy 
 
   const row = db.prepare('SELECT * FROM contacts WHERE id = ? AND case_id = ?').get(rawId, c.id);
   if (!row) throw contactError('联系人不存在', 404, 'contact_not_found');
+  if (phase2) requireVersion(b.version, row);
   const sets = [];
   const args = [];
   for (const field of ['role', 'name', 'phone', 'id_no', 'org', 'note']) {
@@ -53,7 +56,8 @@ export function upsertContactRecord({ caseId, payload, actor = 'web', createdBy 
     args.push(String(b[field] ?? '').trim());
   }
   if (!sets.length) throw contactError('无可更新字段');
-  db.prepare(`UPDATE contacts SET ${sets.join(', ')} WHERE id = ?`).run(...args, row.id);
+  if (phase2) sets.push('version = version + 1');
+  db.prepare(`UPDATE contacts SET ${sets.join(', ')} WHERE id = ? AND case_id = ?`).run(...args, row.id, c.id);
   audit(actor, 'update', 'contact', row.id, `${row.role}·${row.name}`);
   return { created: false, row: db.prepare('SELECT * FROM contacts WHERE id = ?').get(row.id) };
 }

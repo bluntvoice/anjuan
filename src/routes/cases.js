@@ -1,4 +1,10 @@
 import { Router } from 'express';
+import path from 'node:path';
+import { caseFields, caseRead, caseWrite, caseWritePermission } from '../middleware/phase2-http.js';
+import { handled } from './auth.js';
+import { requireVersion } from '../lib/phase2-access.js';
+import { identityError } from '../lib/identity-service.js';
+import { caseDirectoryKey, validCasePathSegment } from '../lib/phase2-file-names.js';
 import { db, audit, setChangeRuleId, withChangeContext } from '../db.js';
 import { todayCN, isDate } from '../lib/dates.js';
 import {
@@ -10,7 +16,8 @@ import {
   resolveCaseDirectory,
 } from '../lib/secure-files.js';
 import { procedures, stagesOf, tasksForStage } from '../lib/vocab.js';
-import { criminalFieldKeys, validateCriminalFields } from '../lib/case-fields.js';
+import { criminalFields, criminalFieldKeys, validateCriminalFields } from '../lib/case-fields.js';
+import { CONTACT_ROLES } from '../lib/contact-fields.js';
 import { missingConditions, conditionChangePreview, reconcileConditions, RULES, recomputeForDeadline, enrichDeadlineRow } from '../lib/engine.js';
 import { computeElapsed } from '../lib/elapsed.js';
 
@@ -38,9 +45,10 @@ const LIST_SQL = `
     CAST(julianday(date('now','+8 hours')) - julianday(c.stage_entered_at) AS INTEGER) AS stage_days
   FROM cases c`;
 
-function workspaceOwner(directoryName, exceptCaseId = null) {
+function workspaceOwner(directoryName, exceptCaseId = null, phase2 = false) {
   const rows = db.prepare('SELECT id,name,folder_path FROM cases').all();
-  return rows.find((row) => row.id !== exceptCaseId && caseDirectoryName(row) === directoryName) || null;
+  const key = phase2 ? caseDirectoryKey : value => value;
+  return rows.find(row => row.id !== exceptCaseId && key(caseDirectoryName(row)) === key(directoryName)) || null;
 }
 
 const DIRECT_LITIGATION_REASON = '复议前置：须先复议，直接起诉期限不适用';
@@ -100,11 +108,28 @@ function workspacePayload() {
   };
 }
 
-export function createCasesRouter(supervisor) {
+export function createCasesRouter(supervisor, { phase2 = false } = {}) {
   const r = Router();
+  const read = phase2 ? [caseRead] : [];
+  const write = work => phase2 ? [caseWritePermission, handled(work)] : [work];
+  const commit = (req, work) => phase2 ? caseWrite(req, work) : withChangeContext({ actor: req.actor }, work);
+  const visibleCase = row => {
+    if (phase2) delete row.legalrag_url;
+    return row;
+  };
 
-r.get('/cases', (req, res) => {
+if (phase2) {
+  r.get('/case-options', ...read, (_req, res) => {
+    res.json({ case_types: CASE_TYPES, procedures: Object.fromEntries(procedures.map(proc => [proc, stagesOf(proc)])),
+      criminal_fields: criminalFields, contact_roles: CONTACT_ROLES });
+  });
+}
+
+r.get('/cases', ...read, (req, res) => {
   const { q, status } = req.query;
+  if (phase2 && [q, status].some(value => value !== undefined && typeof value !== 'string')) {
+    return res.status(400).json({ error: '筛选条件不正确' });
+  }
   const cond = [];
   const args = [];
   if (status) { cond.push('c.status = ?'); args.push(status); }
@@ -115,12 +140,12 @@ r.get('/cases', (req, res) => {
   }
   const sql = LIST_SQL + (cond.length ? ' WHERE ' + cond.join(' AND ') : '') +
     " ORDER BY (c.status = 'active') DESC, COALESCE(NULLIF(next_due,''),'9999') ASC, c.updated_at DESC";
-  res.json(db.prepare(sql).all(...args));
+  res.json(db.prepare(sql).all(...args).map(visibleCase));
 });
 
 // 案件工作区选择器的数据源：只暴露配置根下的单层真实目录，不接受/返回任意
 // 宿主绝对路径。未配置文件根时返回空能力而不是让整个案件模块不可用。
-r.get('/case-folders', (req, res) => {
+if (!phase2) r.get('/case-folders', (req, res) => {
   try {
     res.json(workspacePayload());
   } catch (error) {
@@ -131,8 +156,8 @@ r.get('/case-folders', (req, res) => {
   }
 });
 
-r.post('/cases', (req, res) => {
-  const b = req.body || {};
+r.post('/cases', ...write((req, res) => {
+  const b = phase2 ? caseFields(req.body, [...EDITABLE.filter(field => !['legalrag_url', 'status'].includes(field)), 'folder_path']) : (req.body || {});
   const fieldError = validateCriminalFields(b);
   if (fieldError) return res.status(400).json({ error: fieldError });
   const caseName = normalizeCaseTitle(b.name);
@@ -145,34 +170,43 @@ r.post('/cases', (req, res) => {
   if (!procedures.includes(procedure)) return res.status(400).json({ error: `procedure 须为：${procedures.join('/')}` });
   const stages = stagesOf(procedure);
   const stage = b.stage && stages.includes(b.stage) ? b.stage : stages[0];
+  if (phase2 && b.sol_starts_on && !isDate(b.sol_starts_on)) return res.status(400).json({ error: 'sol_starts_on 须为 YYYY-MM-DD' });
+  if (phase2 && b.stage && stage !== b.stage) return res.status(400).json({ error: '阶段不属于该程序' });
   if (b.accepted_at && !isDate(b.accepted_at)) return res.status(400).json({ error: 'accepted_at 须为 YYYY-MM-DD' });
   const reconsiderationPrecondition = Object.hasOwn(b, 'reconsideration_precondition')
     ? b.reconsideration_precondition : 'unknown';
   if (!validatePrecondition(reconsiderationPrecondition)) return res.status(400).json({ error: 'reconsideration_precondition 须为 yes/no/unknown' });
   const folderPath = normalizeCaseDirectoryName(b.folder_path || caseName);
-  if (!folderPath) return res.status(400).json({ error: 'folder_path 须为文件根下的单层、非隐藏目录名' });
-  const owner = workspaceOwner(folderPath);
+  if (!folderPath || (phase2 && !validCasePathSegment(folderPath))) return res.status(400).json({ error: 'folder_path 须为文件根下的单层、非隐藏目录名' });
+  const owner = workspaceOwner(folderPath, null, phase2);
   if (owner) return res.status(409).json({ error: `案件夹「${folderPath}」已绑定到「${owner.name}」` });
 
   let createdDirectory = null;
   try {
-    if (FILES_ROOT) {
-      const ensured = ensureCaseDirectory(FILES_ROOT, folderPath);
-      if (ensured.created) createdDirectory = ensured.context;
-    }
-    const info = withChangeContext({ actor: req.actor }, () => {
+    const info = commit(req, () => {
+      if (phase2 && workspaceOwner(folderPath, null, true)) {
+        throw identityError(409, 'workspace_conflict', '案件夹已绑定');
+      }
+      if (FILES_ROOT) {
+        const ensured = ensureCaseDirectory(FILES_ROOT, folderPath);
+        if (ensured.created) createdDirectory = ensured.context;
+        if (phase2 && caseDirectoryKey(path.basename(ensured.context.caseRoot)) !== caseDirectoryKey(folderPath)) {
+          throw identityError(400, 'workspace_name_invalid', '案件夹名称与真实目录不一致');
+        }
+      }
       const inserted = db.prepare(
-        `INSERT INTO cases (case_type, name, case_no, cause, court, client, client_role, opponent, procedure, stage, accepted_at, folder_path, note, reconsideration_precondition, ${criminalFieldKeys.join(',')})
-         VALUES (${Array(14 + criminalFieldKeys.length).fill('?').join(',')})`
+        `INSERT INTO cases (case_type, name, case_no, cause, court, client, client_role, opponent, procedure, stage, accepted_at, folder_path, note, reconsideration_precondition, sol_starts_on, ${criminalFieldKeys.join(',')})
+         VALUES (${Array(15 + criminalFieldKeys.length).fill('?').join(',')})`
       ).run(
         caseType, caseName, b.case_no || '', b.cause || '', b.court || '', b.client || '', b.client_role || '',
         b.opponent || '', procedure, stage, b.accepted_at || '', folderPath, b.note || '', reconsiderationPrecondition,
+        phase2 ? b.sol_starts_on || '' : '',
         ...criminalFieldKeys.map(f => b[f] || '')
       );
       audit(req.actor, 'create', 'case', inserted.lastInsertRowid, `${caseName} workspace=${folderPath}`);
       return inserted;
     });
-    res.json(db.prepare('SELECT * FROM cases WHERE id = ?').get(info.lastInsertRowid));
+    res.status(phase2 ? 201 : 200).json(visibleCase(db.prepare('SELECT * FROM cases WHERE id = ?').get(info.lastInsertRowid)));
   } catch (e) {
     if (createdDirectory) removeCreatedCaseDirectory(createdDirectory);
     if (String(e.message).includes('UNIQUE')) return res.status(409).json({ error: '同名案件已存在' });
@@ -181,9 +215,9 @@ r.post('/cases', (req, res) => {
     }
     throw e;
   }
-});
+}));
 
-r.put('/cases/:id/workspace', async (req, res) => {
+if (!phase2) r.put('/cases/:id/workspace', async (req, res) => {
   const c = db.prepare('SELECT * FROM cases WHERE id = ?').get(req.params.id);
   if (!c) return res.status(404).json({ error: '案件不存在' });
   if (!FILES_ROOT) return res.status(503).json({ error: '未配置文件根（ANJIAN_FILES_ROOT）' });
@@ -241,7 +275,7 @@ r.put('/cases/:id/workspace', async (req, res) => {
 });
 
 
-r.post('/cases/batch-type', (req, res) => {
+if (!phase2) r.post('/cases/batch-type', (req, res) => {
   const b = req.body || {};
   const caseType = b.case_type;
   if (!CASE_TYPES.includes(caseType)) return res.status(400).json({ error: '案件类型非法' });
@@ -273,12 +307,12 @@ r.post('/cases/batch-type', (req, res) => {
   res.json({ updated, unchanged, case_type: caseType });
 });
 
-r.get('/cases/:id', (req, res) => {
+r.get('/cases/:id', ...read, (req, res) => {
   const c = db.prepare(LIST_SQL + ' WHERE c.id = ?').get(req.params.id);
   if (!c) return res.status(404).json({ error: '案件不存在' });
   const events = db.prepare('SELECT * FROM events WHERE case_id = ? ORDER BY occurred_on DESC, id DESC').all(c.id);
   res.json({
-    case: c,
+    case: visibleCase(c),
     condition_warnings: missingConditions(c, events),
     stages: stagesOf(c.procedure),
     events,
@@ -286,7 +320,8 @@ r.get('/cases/:id', (req, res) => {
     deadlines: db.prepare('SELECT * FROM deadlines WHERE case_id = ? ORDER BY due_on ASC').all(c.id).map(enrichDeadlineRow),
     tasks: db.prepare("SELECT * FROM tasks WHERE case_id = ? ORDER BY status = 'open' DESC, COALESCE(NULLIF(due_on,''), NULLIF(plan_date,''), '9999')").all(c.id),
     worklog: db.prepare('SELECT * FROM worklog WHERE case_id = ? ORDER BY worked_on DESC, id DESC').all(c.id),
-    attachments: db.prepare('SELECT * FROM attachments WHERE case_id = ? ORDER BY id DESC').all(c.id),
+    attachments: db.prepare('SELECT * FROM attachments WHERE case_id = ? ORDER BY id DESC').all(c.id)
+      .filter(row => !phase2 || row.rel_path.split('/')[0] !== '财务凭证'),
     contacts: db.prepare('SELECT * FROM contacts WHERE case_id = ? ORDER BY id').all(c.id),
     participants: db.prepare(
       `SELECT cp.id, cp.case_id, cp.person_id, cp.role, cp.note, cp.created_at,
@@ -297,10 +332,21 @@ r.get('/cases/:id', (req, res) => {
   });
 });
 
-r.patch('/cases/:id', (req, res) => {
+r.patch('/cases/:id', ...write((req, res) => {
   const c = db.prepare('SELECT * FROM cases WHERE id = ?').get(req.params.id);
   if (!c) return res.status(404).json({ error: '案件不存在' });
-  const b = req.body || {};
+  const b = phase2 ? caseFields(req.body, [...EDITABLE.filter(field => field !== 'legalrag_url'), 'version', 'confirm_rederive'],
+    ['version'], ['confirm_rederive']) : (req.body || {});
+  if (phase2) {
+    requireVersion(b.version, c);
+    if ('procedure' in b && !procedures.includes(b.procedure)) return res.status(400).json({ error: 'procedure 非法' });
+    if ('stage' in b && !stagesOf(b.procedure ?? c.procedure).includes(b.stage)) {
+      return res.status(400).json({ error: '阶段不属于该程序' });
+    }
+    if ('procedure' in b && !('stage' in b) && !stagesOf(b.procedure).includes(c.stage)) {
+      return res.status(400).json({ error: '变更程序时请选择对应阶段' });
+    }
+  }
   const fieldError = validateCriminalFields(b);
   if (fieldError) return res.status(400).json({ error: fieldError });
   for (const f of ['accepted_at', 'sol_starts_on']) {
@@ -339,6 +385,7 @@ r.patch('/cases/:id', (req, res) => {
     args.push(todayCN());
   }
   sets.push("updated_at = datetime('now','+8 hours')");
+  if (phase2) sets.push('version = version + 1');
   // When/Then（D7）：进入新阶段 → 铺模板待办（幂等：同名 open 任务不重复）
   const templated = [];
   let stageChangeLog = null;
@@ -346,7 +393,8 @@ r.patch('/cases/:id', (req, res) => {
   // 同一次操作，包在同一个事务里既是变更记录的需要，也让它们要么全成要么全不成。
   let nameConflict = false;
   let reconciled = null;
-  withChangeContext({ actor: req.actor }, () => {
+  commit(req, () => {
+    if (phase2) requireVersion(b.version, db.prepare('SELECT version FROM cases WHERE id=?').get(c.id));
     try {
       db.prepare(`UPDATE cases SET ${sets.join(', ')} WHERE id = ?`).run(...args, c.id);
     } catch (e) {
@@ -366,6 +414,7 @@ r.patch('/cases/:id', (req, res) => {
           "INSERT INTO tasks (case_id, title, stage, origin) VALUES (?, ?, ?, 'template')"
         ).run(c.id, title, b.stage);
         templated.push({ id: info.lastInsertRowid, title });
+        if (phase2) audit(req.actor, 'create', 'task', info.lastInsertRowid, `阶段模板：${b.stage}`);
       }
       if (templated.length) audit(req.actor, 'stage-template-tasks', 'case', c.id, `${b.stage} +${templated.length}`);
 
@@ -380,8 +429,8 @@ r.patch('/cases/:id', (req, res) => {
   });
   if (nameConflict) return res.status(409).json({ error: '同名案件已存在' });
 
-  res.json({ ...db.prepare('SELECT * FROM cases WHERE id = ?').get(c.id), templated, stage_change_log: stageChangeLog, reconciled });
-});
+  res.json({ ...visibleCase(db.prepare('SELECT * FROM cases WHERE id = ?').get(c.id)), templated, stage_change_log: stageChangeLog, reconciled });
+}));
 
   return r;
 }

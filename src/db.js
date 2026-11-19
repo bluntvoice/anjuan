@@ -70,6 +70,7 @@ export function holidayYearInfo(year) {
 }
 
 let nestedTransactionSequence = 0;
+let auditIdentity = null;
 
 export function withImmediateTransaction(work) {
   if (db.inTransaction) {
@@ -116,9 +117,14 @@ export function setChangeRuleId(ruleId) {
 export function withChangeContext(options, work) {
   return withImmediateTransaction(() => {
     const previous = db.prepare('SELECT actor, origin, rule_id FROM change_context WHERE id=1').get();
+    const previousIdentity = auditIdentity;
     setChangeContext(options);
+    if (options.authenticatedUser) {
+      auditIdentity = { user: options.authenticatedUser, requestId: options.requestId };
+    }
     try { return work(); }
     finally {
+      auditIdentity = previousIdentity;
       if (previous) setChangeContext(previous);
       else clearChangeContext();
     }
@@ -126,7 +132,12 @@ export function withChangeContext(options, work) {
 }
 
 export function audit(actor, action, entity, entityId, detail = '') {
-  db.prepare(
-    'INSERT INTO audit_log (actor, action, entity, entity_id, detail) VALUES (?, ?, ?, ?, ?)'
-  ).run(actor, action, entity, entityId ?? null, String(detail).slice(0, 500));
+  const fields = [actor, action, entity, entityId ?? null, String(detail).slice(0, 500)];
+  if (auditIdentity?.user.id === actor) {
+    db.prepare(`INSERT INTO audit_log (actor,action,entity,entity_id,detail,
+      actor_user_id,actor_display_name,actor_kind,request_id) VALUES (?,?,?,?,?,?,?,'user',?)`)
+      .run(...fields, actor, auditIdentity.user.display_name, auditIdentity.requestId ?? null);
+    return;
+  }
+  db.prepare('INSERT INTO audit_log (actor,action,entity,entity_id,detail) VALUES (?,?,?,?,?)').run(...fields);
 }

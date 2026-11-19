@@ -1,22 +1,20 @@
-// 顶栏（8 导航 + 皮肤三键 + counts + 退出 + 移动端汉堡）+ 底部快录条
-// DOM 契约见 css/style.css 层 A 的 .topnav / .quickbar 段——改这里必须对着那里改。
-import { api, el, toast } from './api.js';
+// 复用原顶栏结构，链接仅指向当前已开放的页面。
+import { api, el } from './api.js';
 import { iconEl } from './icons.js';
 import { initSkinSwitcher } from './skin.js';
-import { mountNotifications } from './notify.js';
-import { mountGlobalAgentDrawer } from './agent-drawer.js';
 
-// 顺序按 DESIGN-TOKENS §10 A-2：今日 / 案件 / 日历 / 费用 / 通讯录 / 修复 / 统计 / 用户中心
 const LINKS = [
-  ['/', '今日', 'today'],
   ['/cases.html', '案件', 'cases'],
-  ['/calendar.html', '日历', 'calendar'],
-  ['/fees.html', '费用', 'wallet'],
-  ['/contacts.html', '通讯录', 'user'],
-  ['/share-repairs.html', '修复', 'check'],
-  ['/stats.html', '统计', 'stats'],
   ['/profile.html', '用户中心', 'user'],
 ];
+
+export const ROLE_LABEL = { admin: '管理员', editor: '编辑人员', viewer: '只读人员' };
+export const mayWriteCases = user => user.role_key === 'admin' || user.role_key === 'editor';
+
+export async function logout() {
+  await api('/logout', { method: 'POST' });
+  location.replace('/login.html');
+}
 
 // 皮肤三键：专业(亮·默认) · 纸感(亮) · 翡翠(暗)。
 // auto 不占键位——它由「未设置 data-skin」表达，切到 auto 走 profile 页的皮肤卡。
@@ -36,22 +34,20 @@ function navLink(href, label, path, ic) {
 }
 
 export async function mountNav() {
+  const { user } = await api('/auth/me');
   let path = location.pathname === '/index.html' ? '/' : location.pathname;
-  if (path === '/case.html') path = '/cases.html';   // 案件详情归组高亮「案件」
+  if (path === '/case.html') path = '/cases.html';
+  if (path === '/users.html') path = '/profile.html';
 
   const hamburger = el('button', { class: 'hamburger', 'aria-label': '菜单', 'aria-expanded': 'false' }, iconEl('menu'));
   const dropdown = el('div', { class: 'nav-dropdown' },
     LINKS.map(([href, label, ic]) => navLink(href, label, path, ic))
   );
-  const versionBadge = el('span', { class: 'ver' });
-  const globalAgentSlot = el('span', { id: 'agent-global-entry-slot', class: 'agent-global-entry-slot', hidden: '' });
-
   const nav = el('nav', { class: 'topnav' },
     hamburger,
     el('a', { class: 'brand', href: '/' },
       el('span', { class: 'seal', 'aria-hidden': 'true' }, '卷'),
-      el('b', {}, '案卷'),
-      versionBadge
+      el('b', {}, '案卷')
     ),
     el('div', { class: 'links' },
       LINKS.map(([href, label]) => navLink(href, label, path))
@@ -66,51 +62,22 @@ export async function mountNav() {
         title,
       }, label))
     ),
-    el('span', { class: 'navbadge counts', id: 'nav-counts' }),
-    globalAgentSlot,
+    el('span', { class: 'navbadge', id: 'nav-identity' }, `${user.display_name} · ${ROLE_LABEL[user.role_key]}`),
     el('button', {
       class: 'iconbtn', 'aria-label': '退出登录', title: '退出登录',
-      onclick: async () => {
-        await fetch('/api/logout', { method: 'POST' });
-        location.href = '/login.html';
+      onclick: async event => {
+        const button = event.currentTarget;
+        button.disabled = true;
+        try { await logout(); } catch { button.disabled = false; }
       },
     }, iconEl('logout')),
     dropdown
   );
 
   document.body.prepend(nav);
-  mountNotifications(nav);
   initHamburger(hamburger, dropdown);
-  initSkinSwitcher(nav);   // 皮肤切换器不依赖网络：先把 UI 立起来，再去拉数据
-  mountQuickbar();
-
-  // counts 只是徽标——用 .then 不用 await，别让顶栏和整页渲染陪着网络一起等
-  api('/counts').then((c) => {
-    if (c.version) versionBadge.textContent = `v${c.version}`;
-    document.dispatchEvent(new CustomEvent('anjian:agent-capability', { detail: { enabled: c.agent === true } }));
-    if (c.agent) {
-      globalAgentSlot.hidden = false;
-      mountGlobalAgentDrawer();
-    } else {
-      globalAgentSlot.hidden = true;
-    }
-    // 快录条的「整理」按钮：服务端配了 DEEPSEEK_API_KEY 才亮出来（搭 counts 顺风车，零额外请求）
-    // 用专属 class 定位：2.9 起回形针按钮也是 .btn.ghost 且排在前面，旧选择器一直点亮的是它、「整理」从未出现。
-    const tidy = document.querySelector('.quickbar .quick-tidy');
-    if (tidy && c.llm) tidy.hidden = false;
-    const badge = document.getElementById('nav-counts');
-    if (!badge) return;
-    badge.append(`在办 ${c.active_cases} · `);
-    // 收件箱可点：跳今日页收件箱卡片（今日页 load 完成后见 today.js 的锚点补滚）
-    badge.append(el('a', {
-      class: 'inbox-link',
-      href: '/#sec-inbox-card',
-      title: '查看收件箱（今日页）',
-    }, '收件箱 ', c.inbox_pending > 0
-      ? el('span', { class: 'badge-dot' }, String(c.inbox_pending))
-      : '0'
-    ));
-  }).catch(() => { /* counts 失败不阻塞页面 */ });
+  initSkinSwitcher(nav);
+  return user;
 }
 
 // 移动端汉堡菜单：展开/收起 + 外点关闭 + Escape 关闭 + 点链接自收
@@ -138,243 +105,4 @@ function initHamburger(hamburger, dropdown) {
       hamburger.setAttribute('aria-expanded', 'false');
     });
   });
-}
-
-function mountQuickbar() {
-  const kind = el('select', { 'aria-label': '快录类型' },
-    el('option', { value: 'task' }, '记待办'),
-    el('option', { value: 'log' }, '记日志'),
-    el('option', { value: 'hearing' }, '记开庭')
-  );
-  const caseSel = el('select', { 'aria-label': '挂到案件' }, el('option', { value: '' }, '（不挂案件）'));
-  const text = el('input', { type: 'text', placeholder: '一句话快录……', required: '', 'aria-label': '快录内容' });
-  const date = el('input', { type: 'date', 'aria-label': '日期（可选）' });
-  const time = el('input', { type: 'time', 'aria-label': '开庭时刻', hidden: '' });
-  const location = el('input', { type: 'text', 'aria-label': '开庭地点', placeholder: '地点', hidden: '' });
-  const hearingFields = [time, location];
-  const fileInput = el('input', {
-    type: 'file', accept: '.pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp', hidden: '',
-    'aria-label': '上传传票或文书',
-  });
-  const attachBtn = el('button', {
-    class: 'btn ghost small quick-attach', type: 'button', title: '上传传票或文书（PDF/JPG/PNG/WebP）',
-    'aria-label': '上传传票或文书',
-  }, '📎');
-  const attachmentName = el('span', { class: 'quick-attachment-name' });
-  const attachmentClear = el('button', {
-    class: 'quick-attachment-clear', type: 'button', title: '去掉附件', 'aria-label': '去掉附件',
-  }, '✕');
-  const attachment = el('span', { class: 'quick-attachment', hidden: '' }, attachmentName, attachmentClear);
-  let stagedToken = '';
-  const SOURCE_LABEL = { 'pdf-text': '文字层', 'system-ocr': '系统 OCR', 'vision-llm': 'AI 看图', manual: '需要手填' };
-  const syncKindFields = () => {
-    const hearing = kind.value === 'hearing';
-    for (const field of hearingFields) field.hidden = !hearing;
-    caseSel.required = hearing;
-    date.required = hearing;
-  };
-  const tidyBtn = el('button', {
-    class: 'btn ghost small quick-tidy', type: 'button', title: '让 LLM 把这句话整理成类型/案件/日期（只填表，不入库）',
-  }, '整理');
-  const aiToggle = el('button', {
-    class: 'quick-ai-toggle', type: 'button', 'aria-pressed': 'false', hidden: '',
-    title: '把这句话交给当前选中的 AI 项目（总入口或某个案件）自动拆条、认案并分别记录',
-  }, '交给 AI');
-  // 当前交给哪个 AI 项目；点它打开抽屉，在抽屉标题栏的「项目」下拉里换
-  const aiTarget = el('span', {
-    class: 'quick-ai-target', role: 'button', tabindex: '0', hidden: '',
-    title: '点此打开 AI 抽屉，切换项目',
-  }, '→ 总入口');
-  const openAgentDrawer = () => document.dispatchEvent(new CustomEvent('anjian:agent-open'));
-  aiTarget.addEventListener('click', openAgentDrawer);
-  aiTarget.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAgentDrawer(); }
-  });
-  const HINT_DEFAULT = '捕捉零摩擦：先记下，晚点再整理';
-  const hint = el('span', { class: 'hint' }, HINT_DEFAULT);
-  const clearAttachment = () => {
-    stagedToken = '';
-    fileInput.value = '';
-    attachmentName.textContent = '';
-    attachment.hidden = true;
-  };
-  attachmentClear.addEventListener('click', clearAttachment);
-  attachBtn.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', async () => {
-    const file = fileInput.files?.[0];
-    if (!file) return;
-    stagedToken = '';
-    attachmentName.textContent = file.name;
-    attachment.hidden = false;
-    hint.textContent = '识别中…';
-    hint.classList.add('hint-ai');
-    try {
-      const response = await fetch(`/api/quick/extract?name=${encodeURIComponent(file.name)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': file.type || 'application/octet-stream' },
-        body: file,
-      });
-      let data = null;
-      try { data = await response.json(); } catch { /* 统一走下方错误提示 */ }
-      if (!response.ok) throw new Error(data?.error || `HTTP ${response.status}`);
-      stagedToken = data?.staged?.token || '';
-      attachmentName.textContent = data?.staged?.filename || file.name;
-      if (!data?.needs_manual) {
-        if (['task', 'log', 'hearing'].includes(data?.kind)) kind.value = data.kind;
-        if (data?.title) text.value = data.title;
-        if (data?.case_id) caseSel.value = String(data.case_id);
-        if ('date' in (data || {})) date.value = data.date || '';
-        if ('time' in (data || {})) time.value = data.time || '';
-        if ('location' in (data || {})) location.value = data.location || '';
-        syncKindFields();
-      }
-      const source = SOURCE_LABEL[data?.source] || '需要手填';
-      const caseText = data?.case_name ? ` · ${data.case_name}` : data?.case_hint ? ` · 请选案件（${data.case_hint}）` : '';
-      const manualText = data?.needs_manual ? ` · ${data.reason || '请手填'}` : '';
-      hint.textContent = `已识别（${source}）${caseText}${manualText} —— 核对后按「记」`;
-    } catch (error) {
-      // 服务端在字段抽取失败时仍返回 staged token；网络/格式错误才会走这里。
-      stagedToken = '';
-      hint.textContent = `识别失败：${error.message}；请手填后重试`;
-      hint.classList.remove('hint-ai');
-    }
-  });
-  const bar = el('div', { class: 'quickbar' },
-    el('form', {
-      class: 'qbin',   // CSS 同时匹配 .quickbar > form 与 .quickbar .qbin
-      onsubmit: async (e) => {
-        e.preventDefault();
-        if (!text.value.trim()) return;
-        if (aiToggle.getAttribute('aria-pressed') === 'true' && agentAvailable) {
-          document.dispatchEvent(new CustomEvent('anjian:agent-prompt', { detail: { text: text.value.trim() } }));
-          text.value = '';
-          return;
-        }
-        const body = { kind: kind.value, text: text.value.trim() };
-        if (caseSel.value) body.case_id = Number(caseSel.value);
-        if (date.value) body.date = date.value;
-        if (kind.value === 'hearing') {
-          if (time.value) body.time = time.value;
-          if (location.value.trim()) body.location = location.value.trim();
-        }
-        if (stagedToken) body.staged_token = stagedToken;
-        const r = await api('/quick', { body });
-        toast(r.kind === 'task' ? '已记待办 ✓' : r.kind === 'hearing' ? '已记开庭 ✓' : '已记日志 ✓');
-        text.value = '';
-        time.value = ''; location.value = '';
-        clearAttachment();
-        // 记完了：AI 那条「已整理」提示随之作废——别把旧结论留在空白输入框旁边
-        hint.textContent = HINT_DEFAULT;
-        hint.classList.remove('hint-ai');
-        document.dispatchEvent(new CustomEvent('anjian:changed'));
-      },
-    }, kind, caseSel, text, date, time, location, attachBtn, attachment, tidyBtn, aiToggle, aiTarget, fileInput,
-      el('button', { class: 'btn primary', type: 'submit' }, '记'),
-      hint
-    )
-  );
-  document.body.appendChild(bar);
-  let agentAvailable = false;
-  let rememberedQuickAi = false;
-  let quickAi = false;
-  try { rememberedQuickAi = localStorage.getItem('anjian-quick-ai') === '1'; } catch {}
-  const syncQuickAi = () => {
-    const active = agentAvailable && quickAi;
-    aiToggle.setAttribute('aria-pressed', String(active));
-    aiToggle.hidden = !agentAvailable;
-    aiTarget.hidden = !active;
-    // AI 模式只靠整条快录栏上的 class 隐藏常规控件（见 style.css .quick-ai-active），不改各控件自己的 hidden：
-    // 开庭时刻/地点、附件标签、「整理」各有显隐逻辑，退出 AI 模式时不能被一律放出来。
-    bar.classList.toggle('quick-ai-active', active);
-    // 隐藏的「记开庭」必填项不能挡住交给 AI 的提交。
-    bar.querySelector('form').noValidate = active;
-    text.placeholder = active ? '一句话交给 AI：自动拆条、认案、分别记录' : '一句话快录……';
-    bar.querySelector('form > button[type="submit"]').textContent = active ? '交给 AI' : '记';
-  };
-  aiToggle.addEventListener('click', () => {
-    if (!agentAvailable) return;
-    quickAi = !quickAi;
-    try { localStorage.setItem('anjian-quick-ai', quickAi ? '1' : '0'); } catch {}
-    syncQuickAi();
-  });
-  document.addEventListener('anjian:agent-capability', (event) => {
-    agentAvailable = event.detail?.enabled === true;
-    quickAi = agentAvailable ? rememberedQuickAi : false;
-    syncQuickAi();
-  });
-  document.addEventListener('anjian:agent-project-changed', (event) => {
-    const label = String(event.detail?.label || '').trim();
-    if (label) aiTarget.textContent = `→ ${label}`;
-  });
-  syncQuickAi();
-  kind.addEventListener('change', syncKindFields);
-  syncKindFields();
-  document.addEventListener('anjian:quick-prefill', (event) => {
-    const value = event.detail || {};
-    if (['task', 'log', 'hearing'].includes(value.kind)) kind.value = value.kind;
-    if (value.date) date.value = value.date;
-    syncKindFields();
-    bar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    text.focus();
-  });
-
-  // ── LLM 整理（1.1.0）：把一句话填进上面这几个框，**不写库**——人按「记」才入表 ──
-  // 未配 key 时不渲染按钮（下面 /counts 的 llm 标志决定），所以这里默认先藏着。
-  tidyBtn.hidden = true;
-  tidyBtn.addEventListener('click', async () => {
-    const raw = text.value.trim();
-    if (!raw) { text.focus(); return; }
-    tidyBtn.disabled = true;
-    const old = tidyBtn.textContent;
-    tidyBtn.textContent = '整理中…';
-    try {
-      const s = await api('/quick/parse', { body: { text: raw } });
-      kind.value = s.kind;
-      text.value = s.title;
-      if (s.date) date.value = s.date;
-      time.value = s.time || '';
-      location.value = s.location || '';
-      if (s.case_id) caseSel.value = String(s.case_id);
-      // 说清楚它做了什么、没做到什么——人要在按「记」之前一眼看出该不该改
-      const bits = [s.kind === 'hearing' ? '开庭' : s.kind === 'log' ? '日志' : '待办'];
-      if (s.case_name) bits.push(s.case_name);
-      else if (s.case_hint) bits.push(`案件没认出「${s.case_hint}」，请自己选`);
-      if (s.date) bits.push(s.date);
-      else bits.push('未提日期');
-      if (s.time) bits.push(s.time);
-      if (s.location) bits.push(s.location);
-      if (s.downgraded) bits.push(s.downgraded);
-      syncKindFields();
-      hint.textContent = `已整理：${bits.join(' · ')} —— 核对无误按「记」`;
-      hint.classList.add('hint-ai');
-    } catch (e) {
-      // 上游挂了/没配 key：不挡录入，原文原样留在框里，照样能手动「记」
-      hint.textContent = /503/.test(e.message) ? '未配置 LLM，手动录入不受影响' : `整理失败：${e.message}`;
-      hint.classList.remove('hint-ai');
-      if (/503/.test(e.message)) tidyBtn.remove();
-    } finally {
-      tidyBtn.disabled = false;
-      tidyBtn.textContent = old;
-    }
-  });
-  // 人一改内容，AI 那句提示就作废——别让旧结论挂在新输入旁边
-  for (const f of [text, kind, caseSel, date, time, location]) {
-    f.addEventListener('input', () => {
-      if (!hint.classList.contains('hint-ai')) return;
-      hint.textContent = HINT_DEFAULT;
-      hint.classList.remove('hint-ai');
-    });
-  }
-  // 窄屏快录条折行增高时自适应底部净空，避免遮挡末尾卡片（基准 128px 不变）
-  new ResizeObserver(() => {
-    document.body.style.paddingBottom = Math.max(128, bar.offsetHeight + 28) + 'px';
-  }).observe(bar);
-  api('/cases?status=active').then((cases) => {
-    for (const c of cases) caseSel.append(el('option', { value: c.id }, c.name));
-    // 案件详情页：快录默认挂当前案件——人在本案页记的东西几乎一定是本案的（DESIGN.md §8.6）
-    if (location.pathname === '/case.html') {
-      const cid = new URLSearchParams(location.search).get('id');
-      if (cid) caseSel.value = cid;
-    }
-  }).catch(() => {});
 }

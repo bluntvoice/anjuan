@@ -3,54 +3,46 @@
 //   静态 id —— #f-status #f-q #new-case(<details>) #new-case-form #nc-procedure #nc-stage
 //              #subtitle(.page-sub) #case-list
 //   建案表单靠 name 属性经 FormData 序列化，name 一个都不能改/丢。
-import { api, el, toast, fmtDaysLeft, todayStr } from './api.js';
-import { mountNav } from './nav.js';
+import { api, el, fmtDaysLeft, todayStr } from './api.js';
+import { mountNav, mayWriteCases } from './nav.js';
 import { miniStepper } from './charts.js';
 import { bindFold } from './fold.js';
 import { mountCriminalFields } from './criminal-fields.js';
 
 import {CASE_TYPES,caseType,typeClass,typeOrder,procedureLabel} from './case-types.js';
-await mountNav();
+const user = await mountNav();
+const canWrite = mayWriteCases(user);
+const options = await api('/case-options');
+let listRequest = 0;
+const create = document.getElementById('new-case');
 
-const selectedIds = new Set();
-
-const meta = await api('/meta');
-
-const folderSelect = document.getElementById('nc-folder-path');
-try {
-  const workspaces = await api('/case-folders');
-  if (!workspaces.configured) {
-    folderSelect.disabled = true;
-    folderSelect.options[0].textContent = '未配置案件文件根（仍按案件名保存指针）';
-  } else {
-    for (const folder of workspaces.folders.filter((item) => item.bound_case_id == null)) {
-      folderSelect.append(el('option', { value: folder.name }, `使用已有：${folder.name}`));
-    }
+if (canWrite) {
+  const procSel = document.getElementById('nc-procedure');
+  const stageSel = document.getElementById('nc-stage');
+  for (const p of Object.keys(options.procedures)) procSel.append(el('option', { value: p }, procedureLabel(p)));
+  function syncStages() {
+    stageSel.replaceChildren();
+    for (const s of options.procedures[procSel.value] || []) stageSel.append(el('option', { value: s }, s));
   }
-} catch {
-  folderSelect.disabled = true;
-  folderSelect.options[0].textContent = '案件文件根暂不可用';
+  procSel.addEventListener('change', syncStages);
+  syncStages();
+  mountCriminalFields(document.getElementById('nc-criminal-fields'), options, procSel, stageSel);
+  create.hidden = false;
+  document.getElementById('new-case-form').addEventListener('submit', async event => {
+    event.preventDefault();
+    const button = event.submitter;
+    const body = Object.fromEntries(new FormData(event.currentTarget));
+    button.disabled = true;
+    try {
+      const created = await api('/cases', { body });
+      location.href = '/case.html?id=' + created.id;
+    } catch {
+      // api() reports the failure; leave the user's draft in place.
+    } finally {
+      button.disabled = false;
+    }
+  });
 }
-
-// 新建案件表单：程序 → 阶段联动
-const procSel = document.getElementById('nc-procedure');
-const stageSel = document.getElementById('nc-stage');
-for (const p of meta.procedures) procSel.append(el('option', { value: p }, procedureLabel(p)));
-function syncStages() {
-  stageSel.replaceChildren();
-  for (const s of meta.stage_templates[procSel.value] || []) stageSel.append(el('option', { value: s }, s));
-}
-procSel.addEventListener('change', syncStages);
-syncStages();
-mountCriminalFields(document.getElementById('nc-criminal-fields'), meta, procSel, stageSel);
-
-document.getElementById('new-case-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const body = Object.fromEntries(new FormData(e.target).entries());
-  const created = await api('/cases', { body });
-  // 建案的下一步几乎一定是进详情录事件/期限——直接落过去，不让人回列表再找一遍
-  location.href = `/case.html?id=${created.id}`;
-});
 
 // 搁置/已结的案子不追期限，底行改用静态状态签
 const STATUS_PILL = { active: null, shelved: ['warn', '搁置'], closed: ['ok', '已结'] };
@@ -72,17 +64,6 @@ function deadlineEls(c) {
 function caseCard(c) {
   const sp = STATUS_PILL[c.status];
   const stale = c.status === 'active' && c.stage_days > 30;
-  const selectLabel = `选择 ${c.name}`;
-  const check = el('input', {
-    type: 'checkbox', class: 'case-select', 'data-id': String(c.id), 'aria-label': selectLabel,
-  });
-  check.checked = selectedIds.has(c.id);
-  check.addEventListener('change', (ev) => {
-    ev.stopPropagation();
-    if (check.checked) selectedIds.add(c.id);
-    else selectedIds.delete(c.id);
-    syncBatchBar();
-  });
   const typePill = el('span', { class: 'pill case-type ' + typeClass(c) + (caseType(c) === '未分类' ? ' case-type-untyped' : '') }, caseType(c));
   const card = el('a', { class: 'case-card', href: `/case.html?id=${c.id}` },
     el('span', { class: 'cname' }, c.name), typePill,
@@ -92,7 +73,7 @@ function caseCard(c) {
       c.cause ? el('span', {}, c.cause) : null
     ),
     el('span', { class: 'cfoot' },
-      miniStepper(meta.stage_templates[c.procedure] || [], c.stage),
+      miniStepper(options.procedures[c.procedure] || [], c.stage),
       el('span', { class: 'pill acc' }, `${procedureLabel(c.procedure)} · ${c.stage || '阶段待补'}`),
       c.stage_days == null
         ? el('span', { class: 'meta' }, '阶段起算日待补')
@@ -105,10 +86,7 @@ function caseCard(c) {
       el('span', { class: 'meta' }, `期限 ${c.pending_deadlines} · 待办 ${c.open_tasks}`)
     )
   );
-  return el('div', { class: 'case-card-wrap' },
-    el('label', { class: 'case-select-wrap', 'aria-label': selectLabel }, check),
-    card,
-  );
+  return el('div', { class: 'case-card-wrap' }, card);
 }
 
 async function load() {
@@ -120,7 +98,11 @@ async function load() {
   const params = new URLSearchParams();
   if (fetchStatus) params.set('status', fetchStatus);
   if (q) params.set('q', q);
-  const cases = (await api('/cases?' + params.toString())).filter(c=>!document.getElementById('f-type').value||caseType(c)===document.getElementById('f-type').value);
+  const sequence = ++listRequest;
+  const rows = await api('/cases?' + params.toString());
+  if (sequence !== listRequest) return;
+  const type = document.getElementById('f-type').value;
+  const cases = rows.filter(c => !type || caseType(c) === type);
   const grouping=document.getElementById('f-group').value;if(grouping==='type')cases.sort(typeOrder);
 
   // 副题 = 当前视图的期限体检；0 值一律不出现（CRITIQUE 修复项 4「0 值降权」）
@@ -156,7 +138,7 @@ async function load() {
   if (!cases.length) {
     box.append(el('div', { class: 'panel' },
       el('div', { class: 'section-empty' },
-        q ? `没有匹配「${q}」的案件` : '该状态下还没有案件——用上方「新建案件」建第一件')
+        q ? `没有匹配「${q}」的案件` : '该状态下还没有案件')
     ));
     return;
   }
@@ -205,32 +187,6 @@ async function load() {
     });
     box.append(archive);
   }
-  syncBatchBar();
-}
-
-
-function visibleCaseIds() {
-  return [...document.querySelectorAll('#case-list .case-select')].map((n) => Number(n.dataset.id));
-}
-function syncBatchBar() {
-  const bar = document.getElementById('batch-type-bar');
-  const count = document.getElementById('batch-type-count');
-  const all = document.getElementById('batch-select-all');
-  const ids = visibleCaseIds();
-  // drop selections that left the current view
-  for (const id of [...selectedIds]) {
-    if (!ids.includes(id) && !document.querySelector(`.case-select[data-id="${id}"]`)) {
-      /* keep selections across filter changes until explicitly cleared on apply */
-    }
-  }
-  const n = selectedIds.size;
-  if (bar) bar.hidden = n === 0;
-  if (count) count.textContent = n ? `已选 ${n} 件` : '';
-  if (all) {
-    const visSel = ids.filter((id) => selectedIds.has(id));
-    all.checked = ids.length > 0 && visSel.length === ids.length;
-    all.indeterminate = visSel.length > 0 && visSel.length < ids.length;
-  }
 }
 
 for(const id of ['f-type','f-group','f-status'])document.getElementById(id).addEventListener('change',load);
@@ -253,25 +209,4 @@ document.getElementById('chip-untyped')?.addEventListener('click', () => {
   document.getElementById('f-type').value = '未分类';
   load();
 });
-document.getElementById('batch-select-all')?.addEventListener('change', (e) => {
-  const on = e.target.checked;
-  for (const id of visibleCaseIds()) {
-    if (on) selectedIds.add(id);
-    else selectedIds.delete(id);
-  }
-  for (const node of document.querySelectorAll('#case-list .case-select')) node.checked = on;
-  syncBatchBar();
-});
-document.getElementById('batch-type-apply')?.addEventListener('click', async () => {
-  const ids = [...selectedIds];
-  if (!ids.length) return;
-  const case_type = document.getElementById('batch-type-select').value;
-  const result = await api('/cases/batch-type', { body: { ids, case_type } });
-  toast(`已更新 ${result.updated.length} 件` + (result.unchanged.length ? `，${result.unchanged.length} 件本已是「${case_type}」` : ''));
-  selectedIds.clear();
-  await load();
-  syncBatchBar();
-});
-
 await load();
-syncBatchBar();

@@ -41,17 +41,11 @@
         </label>
         <button type="button" class="btn small" id="chip-untyped" hidden>未分类 0 件</button>
       </div>
-      <div class="formrow batch-type-bar" id="batch-type-bar" hidden>
-        <label class="f check"><input type="checkbox" id="batch-select-all"> 全选本页</label>
-        <label class="f">批量设为<select id="batch-type-select"><option>未分类</option><option>民事</option><option>刑事</option><option>行政</option><option>非诉</option><option>其他</option></select></label>
-        <button type="button" class="btn small primary" id="batch-type-apply">应用到所选</button>
-        <span class="meta" id="batch-type-count"></span>
-      </div>
     </div>
   </section>
 
   <!-- #new-case 必须保持原生 <details>：cases.js 建案成功后靠 .open = false 收起 -->
-  <details class="adder" id="new-case">
+  <details class="adder" id="new-case" hidden>
     <summary>新建案件</summary>
     <form id="new-case-form">
       <div class="formgrid">
@@ -65,9 +59,6 @@
         <label class="f">我方地位<input name="client_role" placeholder="原告 / 被告 / 申请人……"></label>
         <label class="f">对方<input name="opponent" placeholder="李四"></label>
         <label class="f">收案日<input type="date" name="accepted_at"></label>
-        <label class="f">案件工作区<select name="folder_path" id="nc-folder-path">
-          <option value="">自动创建同名案件文件夹</option>
-        </select></label>
         <label class="f">备注<input name="note"></label>
       </div>
       <div id="nc-criminal-fields"></div>

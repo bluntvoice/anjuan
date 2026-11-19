@@ -43,11 +43,11 @@ async function loadUsers() {
 }
 $('logout').addEventListener('click', () => action($('logout'), async () => { await request('/logout', 'POST'); location.replace('/login.html'); }));
 $('change-password').addEventListener('submit', event => {
-  event.preventDefault(); const button = event.submitter;
+  event.preventDefault(); const button = event.submitter; const form = event.currentTarget;
   action(button, async () => {
-    const body = Object.fromEntries(new FormData(event.currentTarget)); checkPassword(body.password);
+    const body = Object.fromEntries(new FormData(form)); checkPassword(body.password);
     await request('/auth/change-password', 'POST', { ...body, version: current.version });
-    event.target.reset(); location.replace('/login.html');
+    form.reset(); location.replace('/login.html');
   });
 });
 $('create-user').addEventListener('submit', event => {

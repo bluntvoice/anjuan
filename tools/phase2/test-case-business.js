@@ -131,6 +131,18 @@ try {
     const html = await expect('workspace HTML', '/phase2.html', { cookie: viewer.cookie }, 200);
     assert.match(html.bytes.toString(), /<button id="new-case"[^>]* hidden/);
     assert.equal(html.headers['cache-control'], 'no-store');
+    for (const page of ['/cases.html', '/profile.html', '/users.html']) {
+      const anonymous = await expect('anonymous ' + page, page, {}, 302);
+      assert.equal(anonymous.headers.location, '/login.html');
+      for (const [role, account] of Object.entries({ admin, editor, viewer })) {
+        const response = await expect(role + ' opens ' + page, page, { cookie: account.cookie }, 200);
+        assert.equal(response.headers['cache-control'], 'no-store');
+        if (page === '/cases.html') assert.match(response.bytes.toString(), /<details[^>]+id="new-case" hidden>/);
+      }
+    }
+    for (const page of ['/fees.html', '/contacts.html', '/stats.html', '/share-repairs.html']) {
+      await expect('closed page ' + page, page, { cookie: admin.cookie }, 403);
+    }
     await expect('legacy finance page closed', '/finance.html', { cookie: admin.cookie }, 403);
     const options = (await expect('case procedure choices', '/api/case-options', { cookie: viewer.cookie }, 200)).json;
 

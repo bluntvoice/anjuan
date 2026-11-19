@@ -61,137 +61,6 @@
       </div>
     </div>
 
-    <!-- ═════ 个人设置 ═════ -->
-    <div class="panel" aria-label="个人设置">
-      <div class="p-head">
-        <h2 class="p-title">个人设置</h2>
-        <span class="p-meta">保存在本机</span>
-      </div>
-      <div class="panel-body">
-        <div class="formgrid">
-          <label class="f">姓名<input id="set-name" placeholder="张三"></label>
-          <label class="f">执业证号<input id="set-license_no" inputmode="numeric" placeholder="17 位执业证号"></label>
-          <label class="f">律所名称<input id="set-firm" placeholder="××律师事务所"></label>
-          <label class="f">联系电话<input id="set-phone" type="tel" placeholder="13800138000"></label>
-          <label class="f">邮箱<input id="set-email" type="email" placeholder="name@example.com"></label>
-          <label class="f">办公地址<input id="set-address" placeholder="深圳市××区示例路 1 号"></label>
-        </div>
-        <div class="formrow">
-          <button class="btn primary" type="button" id="set-save">保存设置</button>
-        </div>
-      </div>
-      <div class="p-foot">
-        <span class="fk">存在本机数据库的 <span class="chip mono">settings</span> 表，不联网、不进任何计算</span>
-      </div>
-    </div>
-
-    <!-- ═════ 提醒（确定性 worker + 应用内通知） ═════ -->
-    <div class="panel" aria-label="提醒">
-      <div class="p-head"><h2 class="p-title">提醒</h2><span class="p-meta">应用内通知</span></div>
-      <div class="panel-body">
-        <label class="settings-row"><div><div class="label">启用提醒</div><div class="desc">开庭、确认期限和带截止时刻的待办按档位自动生成；关闭后自动档位全部停止；手动添加的提醒仍会按时发</div></div><input type="checkbox" id="remind-enabled" aria-label="启用提醒"></label>
-        <div class="formgrid">
-          <label class="f">开庭前一天<input id="remind-hearing-eve-time" type="time"></label>
-          <label class="f">开庭当天<input id="remind-hearing-day-time" type="time"></label>
-          <label class="f">期限提前天数<input id="remind-deadline-days-before" type="number" min="0" max="30"></label>
-          <label class="f">期限提醒时刻<input id="remind-deadline-time" type="time"></label>
-          <label class="f">待办提前分钟<input id="remind-task-minutes-before" type="number" min="0" max="1440"></label>
-        </div>
-        <div class="formrow"><button class="btn" type="button" id="remind-browser-enable">开启浏览器通知</button><span id="remind-browser-permission" class="page-sub">权限：读取中</span></div>
-        <div class="page-sub" id="remind-worker-status">worker 状态：读取中</div>
-        <div class="formrow"><button class="btn primary" type="button" id="remind-save">保存提醒设置</button></div>
-      </div>
-    </div>
-
-    <div class="panel" aria-label="企业微信">
-      <div class="p-head"><h2 class="p-title">企业微信</h2><span class="p-meta" id="im-connection-state">未启用</span></div>
-      <div class="panel-body">
-        <label class="settings-row"><div><div class="label">启用企业微信智能机器人</div><div class="desc">连接由案卷主动建立，默认不外发提醒</div></div><input type="checkbox" id="im-wecom-enabled" aria-label="启用企业微信"></label>
-        <div class="formgrid">
-          <label class="f">BotID<input id="im-wecom-bot-id" autocomplete="off" placeholder="企业微信后台的 BotID"></label>
-          <label class="f">Secret<input id="im-wecom-secret" type="password" autocomplete="new-password" placeholder="按保存时填写"></label>
-          <label class="f">提醒推送<select id="im-wecom-remind-mode"><option value="off">不推送</option><option value="preview">模拟（只记录不发送）</option><option value="live">正式推送</option></select></label>
-        </div>
-        <div class="formrow"><button class="btn" id="im-wecom-save" type="button">保存企业微信设置</button><button class="btn" id="im-wecom-secret-clear" type="button" hidden>清除 Secret</button><button class="btn" id="im-wecom-reconnect" type="button" hidden>重新连接</button><span id="im-wecom-secret-note" class="page-sub"></span></div>
-        <div class="formrow" id="im-wecom-binding"><button class="btn primary" id="im-wecom-bind-start" type="button">开始绑定</button><span id="im-wecom-binding-text" class="page-sub">尚未绑定</span><button class="btn" id="im-wecom-unbind" type="button" hidden>解绑</button><button class="btn" id="im-wecom-test" type="button" hidden>发一条测试消息</button></div>
-        <p class="page-sub">开启后，提醒内容（案件名、事项、时间、开庭地点）和你在单聊里与 AI 的对话会经企业微信服务器传输。同一个机器人只能接在一处：桌面版和服务器版不要填同一个机器人。</p>
-      </div>
-    </div>
-
-    <!-- ═════ AI 助理（DSH sidecar：案件页对话式助理，默认关闭） ═════ -->
-    <div class="panel" aria-label="AI 助理">
-      <div class="p-head">
-        <h2 class="p-title">AI 助理</h2>
-        <span class="p-meta">案件页对话式 sidecar<span>·</span>默认关闭</span>
-      </div>
-      <div class="panel-body">
-        <label class="settings-row" id="agent-enabled-row" style="cursor:pointer">
-          <div>
-            <div class="label">启用 AI 助理</div>
-            <div class="desc">开启后案件页会出现助理入口；案件夹就是项目，正式表仍只走人工裁决，不由模型计算期限</div>
-          </div>
-          <input type="checkbox" id="agent-enabled" aria-label="启用 AI 助理">
-        </label>
-        <div id="agent-fields" hidden>
-          <div class="formgrid">
-            <label class="f">Provider<select id="agent-provider">
-              <option value="deepseek-official">deepseek-official（DeepSeek 官方）</option>
-              <option value="openai-completions">openai-completions（自定义 OpenAI 兼容端点）</option>
-            </select></label>
-            <label class="f">能力档位<select id="agent-capability-mode">
-              <option value="project">案件项目（文件限本案，不启用命令/联网）</option>
-              <option value="full">完整 DSH（命令、联网、子 Agent、工作流）</option>
-            </select></label>
-            <label class="f">默认审批档<select id="agent-approval-tier">
-              <option value="1">1 · 谨慎（每步询问）</option>
-              <option value="2">2 · 智能（风险动作询问）</option>
-              <option value="3">3 · 放开（沙箱仍生效）</option>
-            </select></label>
-          </div>
-          <p class="page-sub" id="agent-capability-note">案件项目档可读取本案文件，标准文件工具不能越出案件夹。</p>
-          <p class="page-sub">这里设置新会话的默认值；案件抽屉里可临时切换当前案件会话。二档分类器在判据确认前按谨慎档处理。</p>
-          <div class="formrow">
-            <label class="f grow">Base URL<input id="agent-base-url" placeholder="https://api.deepseek.com"></label>
-          </div>
-          <p class="page-sub" id="agent-base-url-note" hidden>deepseek-official 固定走官方地址，不可编辑。</p>
-
-          <div class="formrow">
-            <label class="f grow">API Key<input id="agent-api-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-…"></label>
-            <button class="btn small" type="button" id="agent-api-key-clear" hidden>清除已保存的 key</button>
-          </div>
-          <p class="page-sub" id="agent-api-key-note"></p>
-
-          <div class="formrow">
-            <label class="f grow" id="agent-model-label">Model<input id="agent-model" value="deepseek-v4-flash" placeholder="deepseek-v4-flash"></label>
-            <label class="f grow" id="agent-model-select-wrap" hidden>Model（从列表选择）<select id="agent-model-select"></select></label>
-            <button class="btn" type="button" id="agent-fetch-models">拉取可用模型</button>
-          </div>
-          <div class="formrow">
-            <button class="btn small" type="button" id="agent-model-toggle" hidden>改手动填写</button>
-          </div>
-          <p class="page-sub" id="agent-models-status" hidden></p>
-
-          <details class="adder" id="agent-advanced">
-            <summary>高级选项</summary>
-            <div class="formrow">
-              <label class="f grow">API Key 环境变量名<input id="agent-api-key-env" placeholder="DEEPSEEK_API_KEY" autocomplete="off" spellcheck="false"></label>
-            </div>
-            <p class="page-sub">这里填的只是<b>变量名</b>，不是 key 本身——若该环境变量在启动环境（systemd/launchd/.env 之类）里存在且非空，优先级高于上面在界面填的 key；留空则完全用界面保存的 key。</p>
-            <div class="formrow">
-              <label class="f grow">DSH 插件 patch 文件<input id="agent-plugin-patch" placeholder="/绝对路径/cordis.patch.yml" autocomplete="off" spellcheck="false"></label>
-            </div>
-            <p class="page-sub" id="agent-plugin-safety-note">仅完整档加载。支持上游 Cordis patch / 第三方 DSH 或 MCP 插件，并监听文件热更新；MCP 工具名形如 <code>mcp__&lt;server&gt;__&lt;tool&gt;</code>。插件与其启动的 server 等同在本机执行代码，只填写你已逐项审查且信任的普通 YAML 文件。案件项目档不加载第三方 patch，也不启用 bash/联网；新增或更新后必须通过 npm run check。</p>
-          </details>
-        </div>
-        <div class="formrow">
-          <button class="btn primary" type="button" id="agent-save">保存 AI 助理设置</button>
-        </div>
-      </div>
-      <div class="p-foot">
-        <span class="fk">关闭时不读取任何 key 值、不连接、不启动子进程；案件页助理入口同步隐藏</span>
-      </div>
-    </div>
-
     <!-- ═════ 账户与安全（事实条：一行摘要 + 展开看完整设置） ═════ -->
     <div class="panel" aria-label="账户与安全">
       <div class="factstrip" id="profile-security-strip">
@@ -204,24 +73,10 @@
           <div class="panel-body" style="padding:14px 16px">
             <div class="settings-row">
               <div>
-                <div class="label">登录方式</div>
-                <div class="desc">用户名 + 口令；口令哈希存环境变量，改密改 env 后重启，Web 端不开改密入口</div>
+                <div class="label" id="account-name"></div>
+                <div class="desc" id="account-role"></div>
               </div>
-              <span class="chip mono">ANJIAN_PASS_HASH</span>
-            </div>
-            <div class="settings-row">
-              <div>
-                <div class="label">会话 cookie</div>
-                <div class="desc">HttpOnly · SameSite=Lax · 30 天滚动续期</div>
-              </div>
-              <span class="chip mono">anjian_sess</span>
-            </div>
-            <div class="settings-row">
-              <div>
-                <div class="label">内部接口</div>
-                <div class="desc">/internal/* 走独立密钥，供外部自动化 / Agent 调用；建议在反向代理层对公网屏蔽</div>
-              </div>
-              <span class="chip mono">X-Anjian-Key</span>
+              <a href="/users.html" class="btn" id="accounts-link">账号设置</a>
             </div>
             <div class="settings-row">
               <div>
@@ -240,15 +95,11 @@
       <div class="factstrip" id="profile-about-strip">
         <div class="factstrip-row">
           <span class="factstrip-label">关于</span>
-          <span class="factstrip-fact"><span class="m" id="ver-badge">—</span> · 数据存在本机，未上传</span>
+          <span class="factstrip-fact">数据保存在本机</span>
           <button class="factstrip-edit" type="button" id="profile-about-toggle" aria-expanded="false">展开</button>
         </div>
         <div class="factstrip-more" id="profile-about-more" hidden>
           <div class="panel-body" style="padding:14px 16px">
-            <div class="settings-row">
-              <div class="label">系统版本</div>
-              <span class="num" id="ver-full">读取中……</span>
-            </div>
             <div class="settings-row">
               <div class="label">设计系统</div>
               <span class="meta">一个骨架 · 三种材质（专业 / 纸感 / 翡翠）</span>
@@ -257,23 +108,6 @@
               <div class="label">技术架构</div>
               <span class="meta">Node ESM + Express + better-sqlite3 · 无构建步骤</span>
             </div>
-            <div class="settings-row">
-              <div>
-                <div class="label">期限规则</div>
-                <div class="desc">规则是数据不是代码——rules/deadline_rules.json</div>
-              </div>
-              <span class="num" id="sys-rules">—</span>
-            </div>
-            <div class="settings-row">
-              <div>
-                <div class="label">事件类型词表</div>
-                <div class="desc">立案 / 送达 / 开庭 / 判决……由引擎驱动推算</div>
-              </div>
-              <span class="num" id="sys-events">—</span>
-            </div>
-          </div>
-          <div class="p-foot">
-            <span class="fk">期限只由确定性规则引擎推算——模型产物一律先进收件箱，人工确认才入正式表</span>
           </div>
         </div>
       </div>

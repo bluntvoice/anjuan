@@ -5,6 +5,7 @@ import { initSkinSwitcher } from './skin.js';
 
 const LINKS = [
   ['/cases.html', '案件', 'cases'],
+  ['/calendar.html', '日历', 'calendar'],
   ['/profile.html', '用户中心', 'user'],
 ];
 

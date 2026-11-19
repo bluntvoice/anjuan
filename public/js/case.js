@@ -604,12 +604,11 @@ function render() {
       ],
     ) })),
     ...bundle.deadlines.map((d) => {
-      const rule = ruleById.get(d.rule_id);
       const overdue = d.status === 'pending' && d.due_on < today;
       const nodeCls = d.advisory || d.status !== 'pending' ? 'tl-node-muted'
         : d.severity === 'critical' ? 'tl-node-crit' : d.severity === 'high' ? 'tl-node-warn' : 'tl-node-ok';
       const buildPill = () => d.advisory
-        ? el('span', { class: 'pill', title: rule?.advisory_note || '' }, '参考 · 非约束')
+        ? el('span', { class: 'pill', title: meta.advisory_notes[d.rule_id] || '' }, '参考 · 非约束')
         : d.status === 'pending'
         ? el('span', { class: `pill ${d.severity === 'critical' ? 'crit' : d.severity === 'high' ? 'warn' : 'ok'}` },
             `死线 · ${SEV_LABEL[d.severity]}${overdue ? ' · 已逾期' : ''}`)
@@ -621,7 +620,7 @@ function render() {
           d.calc_note ? el('div', { class: 'tl-note' }, `算法：${d.calc_note}`) : null,
           criminalRollBox(d),
           d.suppressed_reason ? el('div', { class: 'tl-note' }, `已抑制：${d.suppressed_reason}`) : null,
-          d.advisory ? el('span', { class: 'pill', title: rule?.advisory_note || '' }, '参考 · 非约束') : null,
+          d.advisory ? el('span', { class: 'pill', title: meta.advisory_notes[d.rule_id] || '' }, '参考 · 非约束') : null,
           d.is_manual_override ? el('span', { class: 'pill' }, '人工设定') : null,
           d.review_status === 'pending_review' ? el('span', { class: 'pill review' }, 'AI 填 · 待核') : null,
           d.calc_note?.includes('节假日数据缺') ? el('span', { class: 'pill warn', title: d.calc_note }, '⚠️') : null,

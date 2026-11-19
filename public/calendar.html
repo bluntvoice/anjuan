@@ -28,7 +28,7 @@
     <button class="btn" id="today-btn">今天</button>
     <button class="btn" id="next" aria-label="下一月">下月 ›</button>
   </div>
-  <p class="cal-hint" id="cal-hint">点开待办可改期或处理；桌面可拖动托盘任务与日历长条</p>
+  <p class="cal-hint" id="cal-hint">点击待办可查看详情</p>
 
   <div class="cal-sheet">
     <!-- 星期头：常驻空容器，calendar.js 只在加载时填一次，load() 不重建（DOM 契约） -->
@@ -45,7 +45,7 @@
         <div class="cal-tray-head-copy">
           <h2 class="cal-tray-title" id="unplanned-title">未排期</h2>
           <span class="cal-tray-count" id="unplanned-count" aria-live="polite"></span>
-          <p class="cal-tray-hint">开放待办拖到月格即可排到当天</p>
+          <p class="cal-tray-hint">未标记截止日的未结待办</p>
         </div>
       </summary>
       <div class="unplanned-list" id="unplanned-list" aria-live="polite"></div>

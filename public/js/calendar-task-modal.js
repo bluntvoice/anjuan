@@ -155,3 +155,23 @@ export function openTaskModal(task, { onChanged, showCaseLink = true } = {}) {
     dialog.querySelector('.task-modal-open-case')?.addEventListener('click', () => modal.close(null));
   });
 }
+
+export function viewTask(task, { showCaseLink = true } = {}) {
+  const row = (label, value) => el('p', { class: 'meta' }, label + ' · ' + (value || '未记录'));
+  const state = { open: '未完成', done: '已完成', dropped: '已放弃' };
+  const dialog = el('div', { class: 'dmodal task-modal' },
+    el('div', { class: 'dmodal-form' },
+      el('h3', { class: 'dmodal-title' }, task.title),
+      row('状态', state[task.status]),
+      row('计划开工日', task.plan_date), row('截止日', task.due_on), row('截止时刻', task.due_time),
+      task.note ? row('备注', task.note) : null,
+      el('div', { class: 'dmodal-actions task-modal-actions' },
+        task.case_id && showCaseLink
+          ? el('a', { class: 'btn task-modal-open-case', href: '/case.html?id=' + task.case_id }, '打开案件')
+          : null,
+        el('button', { class: 'btn', type: 'button', onclick: () => modal.close() }, '关闭')
+      )
+    )
+  );
+  const modal = openModal(dialog, { label: '查看待办' });
+}

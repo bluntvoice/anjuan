@@ -98,7 +98,7 @@ export function apiAuth(req,res,next) {
   trackAuthConnection(req,res,found,()=>Boolean(identity.session(token)));
   next();
 }
-const businessPages = new Set(['/phase2.html', '/users.html', '/cases.html', '/case.html', '/profile.html']);
+const businessPages = new Set(['/phase2.html', '/users.html', '/cases.html', '/case.html', '/profile.html', '/calendar.html']);
 
 export function pageAuth(req,res,next) {
   if(unsafeNoAuthAllowed()) return next();

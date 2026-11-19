@@ -10,14 +10,12 @@
 //   #h-fees #fees-meta #sec-fees
 //   #h-gap #sec-gap
 // 卡片标题不再 prepend 图标（CRITIQUE 修复项 3「禁每标题配 icon」）——旧 H 循环已删。
-import { api, el, toast, todayStr } from './api.js';
+import { api, el } from './api.js';
 import { mountNav } from './nav.js';
 import { strip14 } from './charts.js';
-import { datePrompt } from './dateedit.js';
 import { bindFold } from './fold.js';
 import { basisBtn } from './deadline-basis.js';
-import { openTaskModal } from './calendar-task-modal.js';
-import { settleDeadline, settleTask } from './record-actions.js';
+import { viewTask } from './calendar-task-modal.js';
 
 await mountNav();
 // 更远的待办 = 归档门（复用 fold.js 持久化 + caret 同步）
@@ -50,7 +48,6 @@ const wd = (iso) => WEEKDAYS[new Date(iso + 'T00:00:00Z').getUTCDay()];
 const shift = (iso, n) => new Date(Date.parse(iso + 'T00:00:00Z') + n * DAY).toISOString().slice(0, 10);
 const diffD = (from, to) => Math.round((Date.parse(to + 'T00:00:00Z') - Date.parse(from + 'T00:00:00Z')) / DAY);
 const md = (iso) => iso.slice(5);
-const yuan = (n) => '¥' + Number(n || 0).toLocaleString('zh-CN');
 const m = (v) => el('span', { class: 'm' }, String(v));
 const sep = () => el('span', {}, '·');   // .p-meta 里的间隔点（无 class，别和 .dot 色点混淆）
 
@@ -84,46 +81,6 @@ function trkBar(d, band) {
 }
 
 // ── 期限跑道 ────────────────────────────────────────────────────────
-function doneBtn(d) {
-  return el('button', {
-    class: 'btn small',
-    type: 'button',
-    'aria-label': `完成期限：${d.name}`,
-    title: '标记为已完成',
-    onclick: async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      await settleDeadline(d, 'done', load);
-    },
-  }, '完成');
-}
-
-async function editDeadlineDue(d) {
-  const v = await datePrompt({
-    title: `改「${d.name}」截止日`,
-    hint: '手动改期将标记为人工设定，级联重算默认不再覆盖它',
-    fields: [{ key: 'due_on', label: '截止日', value: d.due_on, required: true }],
-  });
-  if (!v || v.due_on === d.due_on) return;
-  await api(`/deadlines/${d.id}`, { method: 'PATCH', body: { due_on: v.due_on } });
-  toast('截止日已改 ✓');
-  load();
-}
-
-function deadlineActions(d, lead = false) {
-  return el('span', { class: lead ? 'rw-key' : 'rw-acts' },
-    el('button', {
-      class: 'btn small', type: 'button', 'aria-label': `改期：${d.name}`,
-      onclick: async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        await editDeadlineDue(d);
-      },
-    }, '改期'),
-    doneBtn(d)
-  );
-}
-
 const rowTitle = (d) => `${d.case_name}｜${d.name}｜${d.due_on}${d.basis ? '｜' + d.basis : ''}${d.rolled_from && d.rolled_from < d.due_on ? `\n原届满 ${d.rolled_from} 逢节假日，已顺延至 ${d.due_on} · 建议节前办` : ''}`;
 
 // 头条：最近的一条死线 = 全页最大的数字（SPEC 层级要求 ≥48px）
@@ -153,8 +110,7 @@ function leadRow(d) {
     trkBar(d, band),
     el('div', { class: 'rw-due' }, md(d.due_on)),
     el('div', { class: 'focus-actions' },
-      el('a', { class: 'btn primary', href: `/case.html?id=${d.case_id}` }, '打开案件处理'),
-      deadlineActions(d, true)
+      el('a', { class: 'btn primary', href: `/case.html?id=${d.case_id}` }, '打开案件处理')
     )
   );
 }
@@ -181,8 +137,7 @@ function compactRow(d, i) {
       )
     ),
     trkBar(d, band),
-    el('div', { class: 'rw-due' }, md(d.due_on)),
-    deadlineActions(d)
+    el('div', { class: 'rw-due' }, md(d.due_on))
   );
 }
 
@@ -205,25 +160,9 @@ function taskRow(t, today) {
   const overdue = !!t.due_on && t.due_on < today;
   const noDate = !t.due_on && !t.plan_date;
   const tail = t.due_on ? `截止 ${md(t.due_on)}` : (t.plan_date ? `计划 ${md(t.plan_date)}` : '');
-  const open = () => openTaskModal(t, { onChanged: load });
-  // 整行可点开编辑（行 hover 本来就高亮）；勾选框、案件链接各管各的
-  return el('div', {
-    class: `todo-row is-openable${overdue ? ' is-overdue' : ''}`,
-    onclick: (e) => { if (!e.target.closest('a, button, input, label')) open(); },
-  },
-    el('label', { class: 'ck' },
-      el('input', {
-        type: 'checkbox',
-        'aria-label': `完成：${t.title}`,
-        onchange: () => settleTask(t, 'done', load),
-      }),
-      el('span', { class: 'box' })
-    ),
-    el('button', { class: 't-text t-open', type: 'button', title: '点开编辑', onclick: open },
-      // U+26A0 + U+FE0E 强制文本变体：不是 emoji 图标
-      overdue ? el('span', { class: 'warn-glyph', 'aria-hidden': 'true' }, '⚠︎') : null,
-      t.title
-    ),
+  const open = () => viewTask(t);
+  return el('div', { class: 'todo-row' + (overdue ? ' is-overdue' : '') },
+    el('button', { class: 't-text t-open', type: 'button', onclick: open }, t.title),
     el('span', { class: 't-chips' },
       overdue ? el('span', { class: 'chip c-red' }, '已逾期') : null,
       t.priority === 'high' ? el('span', { class: 'chip c-amber' }, '优先') : null,
@@ -239,81 +178,6 @@ function taskRow(t, today) {
   );
 }
 
-// ── 收件箱 · 待裁决 ─────────────────────────────────────────────────
-const INB = {
-  event: ['疑似事件', 'chip c-blue'],
-  deadline: ['疑似期限', 'chip c-amber'],
-  task: ['疑似待办', 'chip'],
-  note: ['疑似记录', 'chip'],
-};
-
-function inboxRow(i) {
-  let p = {};
-  try { p = JSON.parse(i.payload); } catch { /* noop */ }
-  const desc = i.kind === 'task' ? p.title : i.kind === 'deadline' ? `${p.name} → ${p.due_on}` :
-    i.kind === 'event' ? `${p.type} ${p.occurred_on}` : (p.content || p.text || '');
-  const [label, cls] = INB[i.kind] || INB.note;
-  return el('div', { class: 'inb-row' },
-    el('span', { class: cls }, label),
-    el('div', { class: 'inb-body' },
-      el('div', { class: 'inb-q' }, desc ? `「${desc}」` : '（空）'),
-      p.basis ? el('div', { class: 'inb-src' }, `依据：${p.basis}`) : null,
-      i.change_summary ? el('div', { class: 'inb-src' }, `↻ ${i.change_summary}`) : null,
-      el('div', { class: 'inb-src' }, `来源：${i.source}`, i.case_name ? ` · ${i.case_name}` : '',
-        // seen_count 自增的含义按来源分叉：L2 的「周检」是真的周期性重复扫描命中；
-        // agent-propose 的 seen_count 自增来自模型在同一个 turn 内对同一 proposal_id
-        // 的重试（见 recommendations.js enqueueAgentProposal 的 coalesced 分支），
-        // 与「周检」毫无关系——两者共用同一句文案会让律师在裁决面上看到一句不成立
-        // 的说明（"周检重复命中"却其实是助理刚才在一个 turn 里自己重试了几次）。
-        Number(i.seen_count || 1) > 1
-          ? (i.source === 'agent-propose'
-              ? ` · 助理重复提交 ${i.seen_count} 次，已合并`
-              : ` · 周检重复命中 ${i.seen_count} 次，已合并`)
-          : '')
-    ),
-    el('div', { class: 'inb-acts' },
-      el('button', {
-        class: 'btn ok', type: 'button',
-        onclick: async () => { await api(`/inbox/${i.id}/accept`, { body: {} }); toast('已采纳'); load(); },
-      }, '采纳'),
-      el('button', {
-        class: 'btn', type: 'button',
-        onclick: async () => {
-          const v = await datePrompt({
-            title: '稍后再看这条建议',
-            hint: '到期后会唤回当前这张卡，不会另建一条重复建议。',
-            fields: [
-              { key: 'until', label: '重新提醒日期', value: shift(todayStr(), 7), type: 'date', required: true },
-              { key: 'reason', label: '暂缓原因（可选）', value: '', type: 'text', placeholder: '例如：等当事人补材料' },
-            ],
-          });
-          if (!v) return;
-          await api(`/inbox/${i.id}/snooze`, { body: v });
-          toast(`已延后至 ${v.until}`);
-          load();
-        },
-      }, '稍后'),
-      el('button', {
-        class: 'btn danger', type: 'button',
-        onclick: async () => {
-          const v = await datePrompt({
-            title: '不再建议',
-            hint: '相同案件状态下，这个意图以后不会再次出现；案件发生实质变化时才可能重提并说明原因。',
-            fields: [
-              { key: 'reason', label: '原因（可选）', value: '现在不需要', type: 'text' },
-            ],
-          });
-          if (!v) return;
-          await api(`/inbox/${i.id}/decline`, { body: v });
-          toast('已记住：不再建议');
-          load();
-        },
-      }, '不再建议')
-    )
-  );
-}
-
-// ── 七日内开庭 / 待收款 / 期限缺口 / KPI ────────────────────────────
 function hearRow(h, today) {
   const n = diffD(today, h.occurred_on);
   const rel = n <= 0 ? '今日' : n === 1 ? '明天' : `${n} 天后`;
@@ -338,42 +202,12 @@ function hearRow(h, today) {
   );
 }
 
-function payRow(f) {
-  const n = f.days_left;
-  const tone = n < 0 ? 'crit' : n <= 7 ? 'warn' : '';
-  const label = n < 0 ? `逾期 ${-n} 日` : n === 0 ? '今日到期' : `剩 ${n} 日`;
-  return el('div', { class: 'pay-row' },
-    el('div', { class: 'p1' },
-      el('div', { class: 't' }, caseLink(f.case_id, f.case_name), ' · ', f.label),
-      el('div', { class: 'd' },
-        m(md(f.due_on)), ' 到期 · ',
-        el('span', { class: `days-left ${tone}`.trim() }, label)
-      )
-    ),
-    el('span', { class: 'amt' }, f.amount != null ? yuan(f.amount) : '待定'),
-    el('button', {
-      class: 'btn small', type: 'button',
-      onclick: async () => {
-        const v = await datePrompt({
-          title: `「${f.label}」确认收款`,
-          hint: '后补时选实际到账日期',
-          fields: [{ key: 'paid_on', label: '收款日期', value: todayStr(), required: true }],
-        });
-        if (!v) return;
-        await api(`/fees/${f.id}`, { method: 'PATCH', body: { status: 'paid', paid_on: v.paid_on } });
-        toast('已确认收款 ✓');
-        load();
-      },
-    }, '确认收款')
-  );
-}
-
 function gapRow(c) {
   return el('div', { class: 'gap-row' },
     el('i', { class: 'dot amber' }),
     el('div', { class: 'gap-body' },
       el('div', { class: 'g1' },
-        caseLink(c.id, c.name), ' ',
+        caseLink(c.id, c.case_name), ' ',
         el('span', { class: 'case' }, `（${c.procedure}·${c.stage}）`)
       ),
       el('div', { class: 'g2' }, '在办，但无在追期限、七日内也无开庭')
@@ -404,7 +238,6 @@ function fill(id, rows, emptyText) {
 }
 
 // 顶栏收件箱锚点补滚只做一次（load 会被 anjian:changed 反复触发）
-let inboxScrolled = false;
 
 // ── 键盘（只提示真实实现了的键；见 index.html 的 .p-foot）─────────────
 let rwLinks = [];
@@ -412,11 +245,6 @@ document.addEventListener('keydown', (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const t = e.target;
   const typing = !!t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
-  if (e.key === '/' && !typing) {
-    const q = document.querySelector('.quickbar input[type=text]');
-    if (q) { e.preventDefault(); q.focus(); }
-    return;
-  }
   if (typing) return;
   if (/^[1-9]$/.test(e.key)) {
     const href = rwLinks[Number(e.key) - 1];
@@ -425,7 +253,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 async function load() {
-  const d = await api('/digest');
+  const d = await api('/case-dashboard/today');
   const today = d.date;
 
   document.getElementById('title').replaceChildren(
@@ -450,22 +278,8 @@ async function load() {
       note: hearTmr ? ['明日 ', m(hearTmr)] : null,
     }),
     kpiRow({ k: '在办案件', v: d.counts.active_cases, href: '/cases.html' }),
-    kpiRow({ k: '未结待办', v: d.counts.open_tasks }),
-    kpiRow({ k: '待收', v: yuan(d.counts.unpaid_fees), href: '/fees.html' })
+    kpiRow({ k: '未结待办', v: d.counts.open_tasks })
   );
-
-  // 收件箱：为空时整卡隐藏（原生 hidden 属性）
-  const inboxCard = document.getElementById('sec-inbox-card');
-  if (d.counts.inbox_pending > 0) {
-    inboxCard.hidden = false;
-    const items = await api('/inbox?status=pending');
-    document.getElementById('inbox-meta').replaceChildren(
-      'LLM 提取，确认后才入正式表', sep(), m(`${items.length} 条`)
-    );
-    fill('inbox-list', items.map(inboxRow), '');
-  } else {
-    inboxCard.hidden = true;
-  }
 
   // 期限跑道：逾期 + 30 日内全部 pending 死线，一图看尽
   const allDl = [...d.red, ...d.week, ...d.watch];
@@ -516,30 +330,18 @@ async function load() {
   document.getElementById('alltasks-meta').textContent = `全部 ${d.all_tasks.length} 条 · 逾期 ${allOverdue}`;
   fill('sec-alltasks', d.all_tasks.map((t) => taskRow(t, today)), '没有未结待办');
 
-  // 待收款
-  const feeSum = d.fees_due.reduce((s, f) => s + (f.amount || 0), 0);
-  document.getElementById('fees-meta').replaceChildren('合计 ', m(yuan(feeSum)));
-  fill('sec-fees', d.fees_due.map(payRow), '无临期待收款');
-
   // 期限缺口（事实条）：0 处时显示健康文案、隐藏「去补」；有缺口时给案名摘要
   const gapCount = d.no_deadline_cases.length;
   const gapFact = document.getElementById('gap-meta');
   const gapBtn = document.getElementById('today-gap-toggle');
   if (gapFact) {
     gapFact.textContent = gapCount
-      ? `缺口 ${gapCount} 处 · ${d.no_deadline_cases.slice(0, 2).map((c) => c.case_name || '未命名').join(' · ')}${gapCount > 2 ? ' 等' : ''}`
+      ? `缺口 ${gapCount} 处 · ${d.no_deadline_cases.slice(0, 2).map((c) => c.case_name || c.name || '未命名').join(' · ')}${gapCount > 2 ? ' 等' : ''}`
       : '每个在办案件都有在追期限 ✓';
   }
   if (gapBtn) gapBtn.hidden = !gapCount;
   fill('sec-gap', d.no_deadline_cases.map(gapRow), '每个在办案件都有在追期限 ✓');
 
-  // 顶栏「收件箱」徽标带锚点跳进来时，落地瞬间卡片还是 hidden，浏览器原生滚动找不到
-  // 目标——放在 load() 最后补滚一次（各区块都已填充、页面达到最终高度，落点才准；
-  // 只补首次，anjian:changed 重载不再动视口）
-  if (location.hash === '#sec-inbox-card' && !inboxScrolled && !inboxCard.hidden) {
-    inboxScrolled = true;
-    inboxCard.scrollIntoView();
-  }
 }
 
 document.addEventListener('anjian:changed', load);

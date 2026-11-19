@@ -32,6 +32,7 @@ if (canWrite) {
     event.preventDefault();
     const button = event.submitter;
     const body = Object.fromEntries(new FormData(event.currentTarget));
+    if (!body.folder_path?.trim()) delete body.folder_path;
     button.disabled = true;
     try {
       const created = await api('/cases', { body });

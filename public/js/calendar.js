@@ -4,11 +4,11 @@
 //   周行 .cal-week 是 7 列嵌套网格；日期格 / 日期数字 / 车道长条 / chip 堆都是它的同级网格项：
 //   .cal-cell 占 grid-row 1/-1 当背景与命中面，.cal-daynum 占第 1 行，长条占车道行，.cal-day-chips 占末行。
 //   —— 长条因此在整个周行里恒占同一水平车道，不再被格内 chip 数量顶得高低错落。
-import { api, el, toast, todayStr, SEV_LABEL, STATUS_LABEL } from './api.js';
+import { api, el, todayStr, SEV_LABEL, STATUS_LABEL } from './api.js';
 import { mountNav } from './nav.js';
-import { openTaskModal } from './calendar-task-modal.js';
+import { viewTask } from './calendar-task-modal.js';
 import { caseColorStyle } from './calendar-ui.js';
-import { bindFold, foldOpen, setFoldOpen } from './fold.js';
+import { bindFold, setFoldOpen } from './fold.js';
 
 // task 三态标签（api.js 的 STATUS_LABEL 是 deadline 专用四态，不混用）
 const TASK_STATUS_LABEL = { open: '', done: '已完成', dropped: '已放弃' };
@@ -20,45 +20,15 @@ const loadMeta = document.getElementById('cal-load');
 const grid = document.getElementById('grid');
 const trayList = document.getElementById('unplanned-list');
 const trayCount = document.getElementById('unplanned-count');
-const trayHint = document.querySelector('.cal-tray-hint');
-const calHint = document.getElementById('cal-hint');
 const tray = document.getElementById('cal-tray');
-const taskLegend = document.querySelector('.cal-legend .lg-task');
 
 // 星期头：加载时填一次，load() 不重建它
 const dow = document.getElementById('dow');
 for (const d of ['一', '二', '三', '四', '五', '六', '日']) dow.append(el('div', { class: 'cal-dow' }, d));
 
 let current = todayStr().slice(0, 7); // YYYY-MM
-let allTasks = [];
 let calendarData = null;
-let revealTaskId = null;
-let pickedTaskId = null;
-let flipT = null;
 const expanded = new Set(); // 周行序号；翻月时由导航动作清空，普通重绘保留
-let quickMenu = null;
-
-function closeQuickMenu() {
-  quickMenu?.remove();
-  quickMenu = null;
-}
-
-function showQuickMenu(anchor, date) {
-  closeQuickMenu();
-  quickMenu = el('div', { class: 'cal-quick-menu', role: 'menu' },
-    el('button', { type: 'button', role: 'menuitem', onclick: () => { closeQuickMenu(); document.dispatchEvent(new CustomEvent('anjian:quick-prefill', { detail: { kind: 'task', date } })); } }, '记待办'),
-    el('button', { type: 'button', role: 'menuitem', onclick: () => { closeQuickMenu(); document.dispatchEvent(new CustomEvent('anjian:quick-prefill', { detail: { kind: 'hearing', date } })); } }, '记开庭'),
-    el('button', { type: 'button', role: 'menuitem', onclick: () => { closeQuickMenu(); document.dispatchEvent(new CustomEvent('anjian:quick-prefill', { detail: { kind: 'log', date } })); } }, '记日志'),
-    el('span', { class: 'cal-quick-menu-date' }, `· ${date}`),
-  );
-  document.body.appendChild(quickMenu);
-  const box = anchor.getBoundingClientRect();
-  quickMenu.style.left = `${Math.min(window.innerWidth - quickMenu.offsetWidth - 8, Math.max(8, box.left))}px`;
-  quickMenu.style.top = `${Math.min(window.innerHeight - quickMenu.offsetHeight - 8, box.bottom + 4)}px`;
-  setTimeout(() => document.addEventListener('pointerdown', (event) => {
-    if (quickMenu && !quickMenu.contains(event.target)) closeQuickMenu();
-  }, { once: true }), 0);
-}
 
 const PRIORITY_LABEL = { high: '高优先', normal: '一般', low: '低优先' };
 
@@ -72,223 +42,16 @@ function isNarrow() {
   return window.matchMedia('(max-width: 767px)').matches;
 }
 
-bindFold(tray, 'calendar-tray', true);   // 托盘始终展开：桌面要拖、窄屏改事实条
-let lastNarrow = isNarrow();
-
+bindFold(tray, 'calendar-tray', true);
 function syncResponsiveCopy() {
-  const narrow = isNarrow();
-  if (trayHint) trayHint.textContent = narrow ? '点选待办，再点日期格排到当天' : '开放待办拖到月格即可排到当天';
-  if (calHint) calHint.textContent = narrow
-    ? '点选待办，再点日期格排期；点开任务改日期'
-    : '点开待办可改期或处理 · 托盘待办拖到日期格排期';
-  if (taskLegend) taskLegend.textContent = narrow
-    ? '待办（按案件配色，点开改期）'
-    : '待办（按案件配色，可拖可拉伸）';
-  // 窄屏：托盘改成事实条（始终展开，summary 不再是折叠触发器）
-  // 桌面：托盘要拖，保持常显（open）
   setFoldOpen(tray, true, { persist: false });
-  tray.classList.toggle('is-tray-strip', narrow);
-  lastNarrow = narrow;
-}
-
-function clearPickedTask() {
-  pickedTaskId = null;
-  trayList.querySelectorAll('.unplanned-item.is-picked').forEach((item) => {
-    item.classList.remove('is-picked');
-    item.setAttribute('aria-pressed', 'false');
-  });
-}
-
-function handleDateClick(date, anchor) {
-  if (pickedTaskId) {
-    const task = allTasks.find((item) => String(item.id) === pickedTaskId);
-    if (!task || task.status !== 'open') { clearPickedTask(); return; }
-    clearPickedTask();
-    void moveTaskWhole(task, '', date);
-    return;
-  }
-  showQuickMenu(anchor, date);
-}
-
-function pickTask(task) {
-  pickedTaskId = String(task.id);
-  trayList.querySelectorAll('.unplanned-item').forEach((item) => {
-    const picked = item.dataset.taskId === pickedTaskId;
-    item.classList.toggle('is-picked', picked);
-    item.setAttribute('aria-pressed', String(picked));
-  });
-}
-
-// 弹层模块保持独立；窄屏日期步进器在弹层同步挂载，避免为一个纯视图控件扩展数据/路由。
-function enhanceTaskModalDates() {
-  if (!isNarrow()) return;
-  const form = document.querySelector('.task-modal-form');
-  if (!form) return;
-  const plan = form.querySelector('input[aria-label="计划开工日"]');
-  const due = form.querySelector('input[aria-label="硬到期日"]');
-  for (const input of [plan, due]) {
-    if (!input || input.closest('.task-modal-date-control')) continue;
-    const label = input.closest('label.f');
-    if (!label) continue;
-    const control = el('span', { class: 'task-modal-date-control' });
-    input.replaceWith(control);
-    const step = (delta, symbol, action) => el('button', {
-      class: 'task-date-step', type: 'button',
-      'aria-label': `${action}${input.getAttribute('aria-label')}`,
-      title: `${action}${input.getAttribute('aria-label')}`,
-      onclick: (e) => {
-        e.preventDefault(); e.stopPropagation();
-        const seed = input.value || (input === plan ? due?.value : plan?.value) || todayStr();
-        input.value = shiftDate(seed, delta);
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.focus();
-      },
-    }, symbol);
-    control.append(input, step(-1, '−', '减少'), step(1, '+', '增加'));
-  }
-}
-
-function openTask(task) {
-  clearPickedTask();
-  const modal = openTaskModal(task, {
-    onChanged: async (updated) => {
-      // 完成动作的即时反馈保留在当前月历一次渲染中，即使“已处理”图例当前关闭。
-      if (updated.status === 'done') revealTaskId = updated.id;
-      await load();
-      revealTaskId = null;
-    },
-  });
-  enhanceTaskModalDates();
-  modal.catch((error) => {
-    toast('❌ ' + error.message);
-  });
-}
-
-// ── 拖拽：唯一实现是 Pointer Events ──
-// 🔴 不许再引入 HTML5 原生 DnD（draggable / dragstart / dragover / drop）。实测事件链（见 PROGRESS 任务 0）：
-//    两套系统共享拖拽状态时，原生 dragstart 会让浏览器补发 pointercancel，把 Pointer 那套的状态清空，
-//    随后 dragover 的 guard 静默 return、不 preventDefault → drop 根本不触发 → 真手势下拖拽完全无效。
-//    因此所有可拖元素显式 draggable="false"（<a> 默认能被浏览器原生拖走，不显式关掉就会复发）。
-const DRAG_THRESHOLD = 6; // px：小于它算点击，不算拖
-let drag = null;          // { task, mode:'move'|'edge', edge, el, pointerId, origin, grabDate, moved }
-let clickGuardUntil = 0;  // 拖完那一下的 click 要吞掉；用时间窗而非布尔量，落点不在源元素时能自愈
-
-function clickSuppressed() {
-  return performance.now() < clickGuardUntil;
-}
-
-// 桌面且精确指针才拖：手机沿用点选弹窗（领导已定，不做触屏拖拽）
-function canDrag() {
-  return window.matchMedia('(min-width: 768px)').matches
-    && !window.matchMedia('(pointer: coarse)').matches;
-}
-
-// 日期格现在是周行里的底层网格项，光标底下压着 daynum / 长条 / chip ——
-// elementFromPoint 只给最上面那个，必须用 elementsFromPoint 穿透取格子。
-function cellAt(x, y) {
-  for (const node of document.elementsFromPoint(x, y)) {
-    if (node instanceof HTMLElement && node.classList.contains('cal-cell') && node.dataset.date) return node;
-  }
-  return null;
-}
-
-function clearDropTargets() {
-  grid.querySelectorAll('.cal-cell.is-drop-target, .cal-cell.edge-drop-target')
-    .forEach((cell) => cell.classList.remove('is-drop-target', 'edge-drop-target'));
-}
-
-function clearFlipTimer() {
-  clearTimeout(flipT);
-  flipT = null;
-}
-
-function maybeFlipMonth(cell) {
-  const date = cell?.dataset.date || '';
-  if (!date) {
-    clearFlipTimer();
-    return;
-  }
-  const outside = date.slice(0, 7) !== current;
-  if (!outside) {
-    clearFlipTimer();
-    return;
-  }
-  if (flipT) return;
-  const dir = date > current ? 1 : -1;
-  flipT = setTimeout(async () => {
-    flipT = null;
-    current = shiftMonth(current, dir);
-    expanded.clear();
-    await load();
-  }, 650);
-}
-
-function beginDrag(spec, e) {
-  if (!canDrag() || e.pointerType === 'touch' || e.button !== 0) return;
-  if (!spec.task || spec.task.status !== 'open') return; // done / dropped 不可拖
-  drag = {
-    ...spec,
-    el: e.currentTarget,
-    pointerId: e.pointerId,
-    origin: { x: e.clientX, y: e.clientY },
-    grabDate: cellAt(e.clientX, e.clientY)?.dataset.date || '',
-    // 月份自动翻页会重建 grid 内的原始节点；把捕获交给常驻根节点，
-    // 让重绘后的 pointerup 仍能回到 finishDrag()。
-    captureEl: grid,
-    moved: false,
-  };
-  // 🔴 按下时不抓指针：抓到 grid 后 click 会被派给 grid，chip / 长条 / 托盘自己的 onclick
-  //    永远收不到——鼠标单击打不开弹层（键盘 Enter 不走指针所以正常）。越过阈值才抓，见 onPointerMove。
-}
-
-function onPointerMove(e) {
-  if (!drag || e.pointerId !== drag.pointerId) return;
-  if (!drag.moved) {
-    if (Math.hypot(e.clientX - drag.origin.x, e.clientY - drag.origin.y) < DRAG_THRESHOLD) return;
-    drag.moved = true;
-    // 同一指针只能有一个捕获目标，直接交给常驻 grid（源节点可能已被重绘摘掉）。
-    try { drag.captureEl?.setPointerCapture?.(drag.pointerId); } catch { /* pointer 已失效 */ }
-    drag.el?.classList.add('dragging');
-    document.body.classList.add('cal-dragging');
-  }
-  clearDropTargets();
-  const cell = cellAt(e.clientX, e.clientY);
-  if (cell) {
-    cell.classList.add(drag.mode === 'edge' ? 'edge-drop-target' : 'is-drop-target');
-    maybeFlipMonth(cell);
-  } else {
-    clearFlipTimer();
-  }
-}
-
-// commit=false 用于 pointercancel / Esc：清干净状态，一次 PATCH 都不发。
-function finishDrag(e, commit) {
-  clearFlipTimer();
-  const d = drag;
-  drag = null;
-  if (!d) return;
-  try { d.el?.releasePointerCapture?.(d.pointerId); } catch { /* pointer 已失效 */ }
-  try { d.captureEl?.releasePointerCapture?.(d.pointerId); } catch { /* pointer 已失效 */ }
-  d.el?.classList.remove('dragging');
-  document.body.classList.remove('cal-dragging');
-  clearDropTargets();
-  if (!d.moved) return;
-  clickGuardUntil = performance.now() + 300;
-  if (!commit) return;
-  const date = cellAt(e.clientX, e.clientY)?.dataset.date || '';
-  if (!date) return; // 拖出网格 / 落在行首空白格 → 0 次 PATCH
-  if (d.mode === 'edge') void moveTaskEdge(d.task, d.edge, date);
-  else void moveTaskWhole(d.task, d.grabDate, date);
+  tray.classList.toggle('is-tray-strip', isNarrow());
 }
 
 function shiftDate(date, n) {
   const d = new Date(date + 'T00:00:00Z');
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
-}
-
-function dayDiff(from, to) {
-  return Math.round((Date.parse(to + 'T00:00:00Z') - Date.parse(from + 'T00:00:00Z')) / 86400000);
 }
 
 function monthEnd(ym) {
@@ -302,63 +65,18 @@ function taskLabel(task) {
 
 // 条身 / 单日 chip / 托盘条目拖动 = 整体平移排期：跨度不变，两端同步移。
 // 只有「本来就没有区间」的（托盘未排期、或缺 plan_date）才把两端一起钉到落点。
-async function moveTaskWhole(task, grabDate, dropDate) {
-  const live = allTasks.find((item) => String(item.id) === String(task.id)) || task;
-  if (!live || live.status !== 'open' || !dropDate) return;
-  let body;
-  if (!live.plan_date || !live.due_on || !grabDate) {
-    body = { plan_date: dropDate, due_on: dropDate };
-  } else {
-    const delta = dayDiff(grabDate, dropDate);
-    if (!delta) return;
-    body = { plan_date: shiftDate(live.plan_date, delta), due_on: shiftDate(live.due_on, delta) };
-  }
-  if (body.plan_date === live.plan_date && body.due_on === live.due_on) return;
-  try {
-    const updated = await api(`/tasks/${live.id}`, { method: 'PATCH', body });
-    toast(updated.plan_date === updated.due_on
-      ? `已排到 ${updated.due_on} ✓`
-      : `排期已移到 ${updated.plan_date} 至 ${updated.due_on} ✓`);
-    await load();
-  } catch (error) {
-    // api() gives HTTP errors a toast; retain an explicit fallback for non-HTTP failures.
-    if (!error.status) toast('❌ 排期失败：' + error.message);
-  }
-}
-
-async function moveTaskEdge(task, edge, date) {
-  const live = allTasks.find((item) => String(item.id) === String(task.id)) || task;
-  if (!live || live.status !== 'open' || !date || !['plan_date', 'due_on'].includes(edge)) return;
-  if (live[edge] === date) return;
-  try {
-    const updated = await api(`/tasks/${live.id}`, { method: 'PATCH', body: { [edge]: date } });
-    toast(`${edge === 'plan_date' ? '开工日' : '截止日'}已改为 ${updated[edge]} ✓`);
-    await load();
-  } catch (error) {
-    // api() already gives HTTP failures a visible toast; retain a fallback for network/runtime failures.
-    if (!error.status) toast('❌ 端点拖拽失败：' + error.message);
-  }
-}
-
 function renderTray(tasks) {
-  const unplanned = tasks.filter((task) => task.status === 'open' && !task.due_on);
+  const unplanned = tasks;
   trayCount.textContent = unplanned.length ? `${unplanned.length} 条` : '';
   if (!unplanned.length) {
     trayList.replaceChildren(el('p', { class: 'cal-tray-empty' }, '所有开放待办都已排到日历上。'));
     return;
   }
   trayList.replaceChildren(...unplanned.map((task) => el('button', {
-    class: `unplanned-item${String(task.id) === pickedTaskId ? ' is-picked' : ''}`, type: 'button',
+    class: 'unplanned-item', type: 'button',
     draggable: 'false', style: caseColorStyle(task.case_id),
-    'data-task-id': String(task.id),
-    'aria-label': `打开待办：${task.title}`,
-    'aria-pressed': String(String(task.id) === pickedTaskId),
-    onclick: () => {
-      if (clickSuppressed()) return;
-      if (isNarrow()) pickTask(task);
-      else openTask(task);
-    },
-    onpointerdown: (e) => beginDrag({ task, mode: 'move' }, e),
+    'aria-label': '查看待办：' + task.title,
+    onclick: () => viewTask(task),
   },
     el('span', { class: 'unplanned-dot', 'aria-hidden': 'true' }),
     el('strong', { class: 'unplanned-title' }, taskLabel(task)),
@@ -401,39 +119,14 @@ function taskSpanNode(seg, monthStart, monthLast) {
   cls.push(endVisible ? 'end' : 'continued-end');
   if (task.status !== 'open') cls.push('done');
   const children = [el('span', { class: 'cal-span-label' }, taskLabel(task))];
-  const draggableEdges = task.status === 'open' && canDrag();
-  if (startVisible && draggableEdges) {
-    children.push(el('button', {
-      class: 'cal-span-handle start', type: 'button', draggable: 'false',
-      'aria-label': `拖动${task.title}的计划开工日`,
-      title: '拖动计划开工日',
-      onpointerdown: (e) => { e.stopPropagation(); beginDrag({ task, mode: 'edge', edge: 'plan_date' }, e); },
-      onclick: (e) => { e.preventDefault(); e.stopPropagation(); },
-    }));
-  }
-  if (endVisible && draggableEdges) {
-    children.push(el('button', {
-      class: 'cal-span-handle end', type: 'button', draggable: 'false',
-      'aria-label': `拖动${task.title}的截止日`,
-      title: '拖动截止日',
-      onpointerdown: (e) => { e.stopPropagation(); beginDrag({ task, mode: 'edge', edge: 'due_on' }, e); },
-      onclick: (e) => { e.preventDefault(); e.stopPropagation(); },
-    }));
-  }
   return el('div', {
     class: cls.join(' '), role: 'button', tabindex: '0', draggable: 'false',
     style: `${caseColorStyle(task.case_id)};grid-column:${seg.c0 + 1}/${seg.c1 + 2};grid-row:${seg.lane + 2}`,
     title: `跨天待办 · ${taskLabel(task)} · ${task.plan_date} 至 ${task.due_on}`,
     'aria-label': `跨天待办：${taskLabel(task)}，${task.plan_date}至${task.due_on}`,
-    onpointerdown: (e) => beginDrag({ task, mode: 'move' }, e),
-    onclick: (e) => {
-      if (clickSuppressed() || e.target.closest('.cal-span-handle')) return;
-      openTask(task);
-    },
-    onkeydown: (e) => {
-      if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('.cal-span-handle')) {
-        e.preventDefault(); openTask(task);
-      }
+    onclick: () => viewTask(task),
+    onkeydown: e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); viewTask(task); }
     },
   }, children);
 }
@@ -467,26 +160,34 @@ let filters = readFilters();
 // 「已处理」= deadline.status !== 'pending' 或 task.status !== 'open'；开庭无 status，永不被它挡。
 function visible(kind, item) {
   if (!filters[kind]) return false;
-  if (kind === 'task' && item.id === revealTaskId) return true;
   const processed =
     (kind === 'crit' || kind === 'warn') ? item.status !== 'pending' :
     (kind === 'task') ? item.status !== 'open' : false;
   return !processed || filters.done;
 }
 
+let loadSequence = 0;
 async function load({ refresh = true } = {}) {
   if (refresh) {
-    const [data, taskRows] = await Promise.all([
-      api('/calendar?month=' + current),
-      api('/tasks?status=all'),
-    ]);
-    calendarData = data;
-    allTasks = taskRows;
+    const sequence = ++loadSequence;
+    const month = current;
+    try {
+      const data = await api('/case-dashboard/calendar?' + new URLSearchParams({ month }));
+      if (sequence !== loadSequence) return;
+      calendarData = data;
+    } catch {
+      if (sequence === loadSequence) {
+        title.textContent = month;
+        loadMeta.textContent = '月份读取失败';
+        grid.replaceChildren();
+        renderTray([]);
+      }
+      return;
+    }
   }
-  if (!calendarData) return;
   const data = calendarData;
-  const taskDetails = new Map(allTasks.map((task) => [task.id, task]));
-  const monthTasks = data.tasks.map((task) => ({ ...task, ...(taskDetails.get(task.id) || {}) }));
+  if (!data || data.month !== current) return;
+  const monthTasks = data.tasks;
   const today = todayStr();
   const [y, m] = current.split('-').map(Number);
 
@@ -557,8 +258,7 @@ async function load({ refresh = true } = {}) {
       draggable: 'false',
       style: caseColorStyle(t.case_id),
       title: `待办 · ${taskLabel(t)}${t.case_name ? ' · ' + t.case_name : ''}${st}`,
-      onclick: (e) => { e.preventDefault(); if (!clickSuppressed()) openTask(t); },
-      onpointerdown: (e) => beginDrag({ task: t, mode: 'move' }, e),
+      onclick: e => { e.preventDefault(); viewTask(t); },
     }, el('span', { class: 'cal-chip-label' }, taskLabel(t))), taskOrder, t.due_time || '');
   }
   for (const entries of byDay.values()) {
@@ -651,10 +351,6 @@ async function load({ refresh = true } = {}) {
       else if (wd === 0 || wd === 6) cls.push('weekend');
       row.append(el('div', {
         class: cls.join(' '), 'data-date': date, style: `grid-column:${i + 1}`,
-        onclick: (e) => {
-          if (e.target.closest('.cal-span, .cal-chip, .cal-more')) return;
-          handleDateClick(date, e.currentTarget);
-        },
       }));
     });
 
@@ -665,7 +361,6 @@ async function load({ refresh = true } = {}) {
       row.append(el('div', {
         class: `cal-daynum${date.slice(0, 7) !== current ? ' other' : ''}${date === today ? ' is-today' : ''}`,
         style: `grid-column:${i + 1};grid-row:1`,
-        onclick: (e) => { e.stopPropagation(); handleDateClick(date, e.currentTarget); },
       },
         el('span', {}, String(Number(date.slice(8)))),
         hk ? el('span', { class: 'hmark' }, hk === 'holiday' ? '休' : '班') : null
@@ -709,16 +404,12 @@ async function load({ refresh = true } = {}) {
 
     grid.append(row);
   }
-  renderTray(allTasks);
+  renderTray(data.unplanned_tasks);
 }
 
 document.getElementById('prev').addEventListener('click', () => { expanded.clear(); current = shiftMonth(current, -1); load(); });
 document.getElementById('next').addEventListener('click', () => { expanded.clear(); current = shiftMonth(current, 1); load(); });
 document.getElementById('today-btn').addEventListener('click', () => { expanded.clear(); current = todayStr().slice(0, 7); load(); });
-document.addEventListener('pointermove', onPointerMove);
-document.addEventListener('pointerup', (e) => finishDrag(e, true));
-document.addEventListener('pointercancel', (e) => finishDrag(e, false));
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeQuickMenu(); if (drag) finishDrag(e, false); } });
 window.addEventListener('resize', syncResponsiveCopy, { passive: true });
 
 // 图例即筛选开关：点击切 .off → 写 localStorage → 重渲染。
@@ -733,7 +424,7 @@ for (const btn of document.querySelectorAll('.cal-legend .lg[data-key]')) {
     btn.classList.toggle('off', !filters[key]);
     btn.setAttribute('aria-checked', String(filters[key]));
     writeFilters(filters);
-    load();
+    load({ refresh: false });
   });
 }
 

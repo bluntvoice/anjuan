@@ -122,7 +122,9 @@ if (phase2) {
   r.get('/case-options', ...read, (_req, res) => {
     res.json({ case_types: CASE_TYPES, procedures: Object.fromEntries(procedures.map(proc => [proc, stagesOf(proc)])),
       criminal_fields: criminalFields, stage_labels: stageLabels, contact_roles: CONTACT_ROLES,
-      event_types: eventTypes.map(({ id, label }) => ({ id, label })), law_texts: lawTexts });
+      event_types: eventTypes.map(({ id, label }) => ({ id, label })), law_texts: lawTexts,
+      advisory_notes: Object.fromEntries(RULES.filter(rule => rule.advisory_note)
+        .map(rule => [rule.id, rule.advisory_note])) });
   });
 }
 

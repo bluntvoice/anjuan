@@ -131,7 +131,7 @@ try {
     const html = await expect('workspace HTML', '/phase2.html', { cookie: viewer.cookie }, 200);
     assert.match(html.bytes.toString(), /<button id="new-case"[^>]* hidden/);
     assert.equal(html.headers['cache-control'], 'no-store');
-    for (const page of ['/cases.html', '/case.html?id=1', '/profile.html', '/users.html']) {
+    for (const page of ['/cases.html', '/case.html?id=1', '/profile.html', '/users.html', '/calendar.html']) {
       const anonymous = await expect('anonymous ' + page, page, {}, 302);
       assert.equal(anonymous.headers.location, '/login.html');
       for (const [role, account] of Object.entries({ admin, editor, viewer })) {
@@ -442,6 +442,46 @@ try {
     } finally { db.exec('DROP TRIGGER synthetic_abort_case'); }
 
     db.prepare("INSERT OR REPLACE INTO settings(key,value) VALUES('agent_enabled','true')").run();
+    const { todayCN, addDays } = await import('../../src/lib/dates.js');
+    const today = todayCN();
+    const addDisplayTask = db.prepare('INSERT INTO tasks(case_id,title,plan_date,due_on,priority) VALUES(?,?,?,?,?)');
+    const soonTask = addDisplayTask.run(b.id, '合成今日任务', today, addDays(today, 5), 'high').lastInsertRowid;
+    const weekTask = addDisplayTask.run(b.id, '合成本周任务', addDays(today, 4), addDays(today, 6), 'normal').lastInsertRowid;
+    const unplanned = addDisplayTask.run(a.id, '合成未排期', '', '', 'normal').lastInsertRowid;
+    const spanTask = addDisplayTask.run(b.id, '合成跨月待办', '2040-01-31', '2040-03-02', 'normal').lastInsertRowid;
+    const noCase = addDisplayTask.run(null, '不属于已授权案件', '', '', 'normal').lastInsertRowid;
+    const readOnlyState = () => {
+      const tables = ['cases', 'events', 'deadlines', 'tasks', 'fee_items', 'fee_shares', 'inbox',
+        'reminder_deliveries', 'audit_log', 'change_log'];
+      return Object.fromEntries(tables.map(table => [table, db.prepare('SELECT * FROM ' + table + ' ORDER BY rowid').all()]));
+    };
+    const beforeRead = readOnlyState();
+    await expect('anonymous dashboard refused', '/api/case-dashboard/today', {}, 401);
+    await expect('anonymous calendar refused', '/api/case-dashboard/calendar', {}, 401);
+    for (const user of [admin, editor, viewer]) {
+      const name = user.json.user.role_key;
+      const daily = (await read(name + ' safe today', '/api/case-dashboard/today', user)).json;
+      assert.equal(daily.date, today);
+      assert(daily.today_tasks.some(task => task.id === soonTask));
+      assert(!daily.week_tasks.some(task => task.id === soonTask));
+      assert(daily.week_tasks.some(task => task.id === weekTask));
+      assert(!daily.all_tasks.some(task => task.id === noCase));
+      assert(daily.all_tasks.some(task => task.id === unplanned));
+      assert.deepEqual(Object.keys(daily.counts).sort(), ['active_cases', 'open_tasks']);
+      assert(!('fees_due' in daily) && !('shares_pending' in daily));
+      const calendar = (await read(name + ' safe leap month', '/api/case-dashboard/calendar?month=2040-02', user)).json;
+      assert.equal(calendar.month, '2040-02');
+      assert.deepEqual(calendar.tasks.map(task => task.id), [spanTask]);
+      assert(calendar.unplanned_tasks.some(task => task.id === unplanned));
+      assert(!calendar.unplanned_tasks.some(task => task.id === noCase));
+      assert.equal((await read(name + ' empty month', '/api/case-dashboard/calendar?month=2099-12', user)).json.tasks.length, 0);
+      await read(name + ' invalid month', '/api/case-dashboard/calendar?month=2040-13', user, 400, 'month_invalid');
+      await read(name + ' duplicate month', '/api/case-dashboard/calendar?month=2040-02&month=2040-03', user, 400, 'month_invalid');
+      await write(name + ' dashboard write stays closed', '/api/case-dashboard/today', user, 'POST', {}, 403, 'phase1_business_closed');
+      await write(name + ' original task edits stay closed', '/api/tasks/' + spanTask, user, 'PATCH', { due_on: today }, 403, 'phase1_business_closed');
+    }
+    assert.deepEqual(readOnlyState(), beforeRead, 'dashboard must not change business, inbox or delivery state');
+
     const beforeClosed = snapshot();
     for (const [method, route, body] of [
       ['GET', '/api/digest'], ['GET', '/api/agent/config'], ['POST', pa + '/agent/start', {}], ['POST', '/api/agent/global/start', {}],

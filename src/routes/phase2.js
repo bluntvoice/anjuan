@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db.js';
+import { todayCN } from '../lib/dates.js';
+import { readCaseCalendar, readCaseToday } from '../lib/case-dashboard.js';
 import { identityError } from '../lib/identity-service.js';
 import { listCaseFees, saveCaseFee } from '../lib/phase2-fees.js';
 import { caseFields, caseId, caseRead, writeCaseRoute, caseWritePermission } from '../middleware/phase2-http.js';
@@ -91,6 +93,15 @@ r.get('/cases/:id/audit', caseRead, handled((req, res) => {
       OR @caseId IN (e.case_id,d.case_id,t.case_id,c.case_id,f.case_id,fee.case_id,att.case_id,w.case_id)
     ) ORDER BY a.id DESC LIMIT @limit`).all({ before, caseId: id, limit: limit + 1 });
   res.json({ items: rows.slice(0, limit), next_before: rows.length > limit ? rows[limit - 1].id : null });
+}));
+
+r.get('/case-dashboard/today', caseRead, handled((_req, res) => res.json(readCaseToday())));
+r.get('/case-dashboard/calendar', caseRead, handled((req, res) => {
+  const month = req.query.month ?? todayCN().slice(0, 7);
+  if (typeof month !== 'string' || !/^[1-9][0-9]{3}-(0[1-9]|1[0-2])$/u.test(month)) {
+    throw identityError(400, 'month_invalid', '月份须为 YYYY-MM');
+  }
+  res.json(readCaseCalendar(month));
 }));
 
 export default r;

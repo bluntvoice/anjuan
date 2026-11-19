@@ -15,6 +15,30 @@ const canWrite = mayWriteCases(user);
 const options = await api('/case-options');
 let listRequest = 0;
 const create = document.getElementById('new-case');
+const filters = {
+  q: document.getElementById('f-q'),
+  status: document.getElementById('f-status'),
+  type: document.getElementById('f-type'),
+  group: document.getElementById('f-group'),
+};
+const defaults = Object.fromEntries(Object.entries(filters).map(([name, field]) => [name, field.value]));
+const sharedFilters = new URLSearchParams(location.search);
+for (const [name, field] of Object.entries(filters)) {
+  const value = sharedFilters.get(name);
+  if (value !== null && (name === 'q' || [...field.options].some(option => option.value === value))) {
+    field.value = value;
+  }
+}
+
+function rememberFilters() {
+  const params = new URLSearchParams();
+  for (const [name, field] of Object.entries(filters)) {
+    const value = name === 'q' ? field.value.trim() : field.value;
+    if (value !== defaults[name]) params.set(name, value);
+  }
+  const query = params.toString();
+  history.replaceState(null, '', '/cases.html' + (query ? '?' + query : ''));
+}
 
 if (canWrite) {
   const procSel = document.getElementById('nc-procedure');
@@ -91,8 +115,9 @@ function caseCard(c) {
 }
 
 async function load() {
-  const status = document.getElementById('f-status').value;
-  const q = document.getElementById('f-q').value.trim();
+  rememberFilters();
+  const status = filters.status.value;
+  const q = filters.q.value.trim();
   // 默认视图（在办）拉全部：active 渲染为主体、shelved/closed 进归档门（规格 §03.D）。
   // 用户主动选特定状态时，只看那个状态，不叠归档门。
   const fetchStatus = status === 'active' ? '' : status;
@@ -102,9 +127,10 @@ async function load() {
   const sequence = ++listRequest;
   const rows = await api('/cases?' + params.toString());
   if (sequence !== listRequest) return;
-  const type = document.getElementById('f-type').value;
+  const type = filters.type.value;
   const cases = rows.filter(c => !type || caseType(c) === type);
-  const grouping=document.getElementById('f-group').value;if(grouping==='type')cases.sort(typeOrder);
+  const grouping = filters.group.value;
+  if (grouping === 'type') cases.sort(typeOrder);
 
   // 副题 = 当前视图的期限体检；0 值一律不出现（CRITIQUE 修复项 4「0 值降权」）
   let over = 0, soon = 0, gap = 0;

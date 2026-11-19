@@ -4,6 +4,7 @@ import { iconEl } from './icons.js';
 import { initSkinSwitcher } from './skin.js';
 
 const LINKS = [
+  ['/', '今日', 'today'],
   ['/cases.html', '案件', 'cases'],
   ['/calendar.html', '日历', 'calendar'],
   ['/profile.html', '用户中心', 'user'],

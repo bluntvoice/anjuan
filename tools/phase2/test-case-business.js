@@ -126,12 +126,15 @@ try {
     await addUser('SyntheticP2Viewer', 'viewer', viewerPassword);
     const editor = await login('SyntheticP2Editor', editorPassword);
     const viewer = await login('SyntheticP2Viewer', viewerPassword);
-    const landing = await expect('authenticated workspace', '/', { cookie: viewer.cookie }, 302);
-    assert.equal(landing.headers.location, '/phase2.html');
-    const html = await expect('workspace HTML', '/phase2.html', { cookie: viewer.cookie }, 200);
-    assert.match(html.bytes.toString(), /<button id="new-case"[^>]* hidden/);
-    assert.equal(html.headers['cache-control'], 'no-store');
-    for (const page of ['/cases.html', '/case.html?id=1', '/profile.html', '/users.html', '/calendar.html']) {
+    const unauthenticated = await expect('anonymous landing', '/', {}, 302);
+    assert.equal(unauthenticated.headers.location, '/login.html');
+    for (const [role, account] of Object.entries({ admin, editor, viewer })) {
+      const home = await expect(role + ' lands on original today', '/', { cookie: account.cookie }, 200);
+      assert.match(home.bytes.toString(), /id="sec-runway"/);
+      assert.equal(home.headers['cache-control'], 'no-store');
+    }
+    await expect('transition workspace kept offline', '/phase2.html', { cookie: admin.cookie }, 403);
+    for (const page of ['/index.html', '/cases.html', '/case.html?id=1', '/profile.html', '/users.html', '/calendar.html']) {
       const anonymous = await expect('anonymous ' + page, page, {}, 302);
       assert.equal(anonymous.headers.location, '/login.html');
       for (const [role, account] of Object.entries({ admin, editor, viewer })) {

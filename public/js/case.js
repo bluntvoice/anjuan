@@ -79,7 +79,8 @@ function initSectionNav() {
     if (scroll) requestAnimationFrame(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   };
   const applyHash = (scroll = false) => {
-    const targetId = decodeURIComponent(location.hash.slice(1)) || 'case-overview';
+    let targetId = 'case-overview';
+    try { targetId = decodeURIComponent(location.hash.slice(1)) || targetId; } catch { /* Invalid link fragment. */ }
     setActive(byId.has(targetId) ? targetId : (targetId.startsWith('case-') ? targetId : 'case-overview'));
     openTarget(targetId, scroll);
   };
@@ -679,14 +680,14 @@ async function loadFiles() {
   } catch {
     if (sequence !== fileRequest) return;
     renderWorkspaceNotice(null);
-    box.replaceChildren(el('div', { class: 'section-empty' }, '文件根未配置或不可达'));
+    box.replaceChildren(el('div', { class: 'section-empty' }, '无法读取案件文件'));
     setFileStatus('未连通', false);
     return;
   }
   if (sequence !== fileRequest) return;
   if (!d.exists) {
     renderWorkspaceNotice(null);
-    box.replaceChildren(el('div', { class: 'section-empty' }, '案件夹不存在——核对 §9.3 文件夹名与 cases.name 是否一致'));
+    box.replaceChildren(el('div', { class: 'section-empty' }, '案件夹不存在'));
     crumbs.textContent = '';
     setFileStatus('无案件夹', false);
     return;
@@ -719,10 +720,9 @@ async function loadFiles() {
     const isNew = known && !known.has(f.name);
     rows.push(el('div', { class: 'row file-row' + (isNew ? ' row-new' : '') },
       fileIconEl(f.name),
-      el('span', { class: 'grow file-name' }, f.name),
+      caseRecords.fileLinks(rel, { label: f.name, previewClass: 'grow file-name' }),
       ...(isNew ? [el('span', { class: 'chip chip-new' }, '新')] : []),
       el('span', { class: 'meta nowrap file-meta' }, fmtSize(f.size) + ' · ' + f.mtime),
-      caseRecords.fileLinks(rel),
       canWrite ? el('button', { class: 'btn small', type: 'button', onclick: () => caseRecords.attach(rel) }, '登记附件') : null
     ));
   }
@@ -736,7 +736,7 @@ async function loadFiles() {
 
 let uploading = false;
 async function uploadInto(files, dir) {
-  if (!canWrite || uploading || !dir) return;
+  if (!canWrite || uploading || !dir) return false;
   uploading = true;
   let complete = 0;
   try {
@@ -746,7 +746,7 @@ async function uploadInto(files, dir) {
         const res = await fetch('/api/cases/' + id + '/files?' + query, {
           method: 'PUT', body: file, headers: { 'Content-Type': 'application/octet-stream' },
         });
-        if (res.status === 401) { location.replace('/login.html'); return; }
+        if (res.status === 401) { location.replace('/login.html'); return false; }
         const result = await res.json();
         if (!res.ok) throw new Error(result.error || '上传失败');
         complete++;
@@ -757,6 +757,7 @@ async function uploadInto(files, dir) {
       curDir = dir;
       await loadFiles();
     }
+    return complete === files.length;
   } finally { uploading = false; }
 }
 
@@ -764,8 +765,7 @@ if (canWrite) document.getElementById('up-btn').addEventListener('click', async 
   const input = document.getElementById('up-files');
   const files = [...(input.files || [])];
   if (!files.length) { toast('先选择文件'); return; }
-  await uploadInto(files, document.getElementById('up-dir').value);
-  input.value = '';
+  if (await uploadInto(files, document.getElementById('up-dir').value)) input.value = '';
 });
 
 document.getElementById('file-refresh')?.addEventListener('click', () => loadFiles());

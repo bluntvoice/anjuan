@@ -58,6 +58,7 @@ export class Element {
       remove: (...tokens) => tokens.forEach(token => this.classList.toggle(token, false)),
     };
   }
+  set innerHTML(markup) { this.replaceChildren(); appendMarkup(this, markup); }
   get className() { return this.getAttribute('class') || ''; }
   set className(value) { this.setAttribute('class', value); }
   get textContent() { return this.data + this.children.map(child => child.textContent).join(''); }
@@ -141,11 +142,8 @@ export class Element {
 
 const unpaired = new Set('meta link input br hr img area base col embed param source track wbr'.split(' '));
 
-export function loadDocument(file) {
-  // Only standard HTML elements and attributes used by the page fixtures are modeled here.
-  const source = readFileSync(file, 'utf8').replace(/<!--[\s\S]*?-->|<script\b[\s\S]*?<\/script>/gi, '');
-  const doc = new Element('#document');
-  const stack = [doc];
+function appendMarkup(root, source) {
+  const stack = [root];
   const tokens = /<\/?([a-z][\w-]*)(?:"[^"]*"|'[^']*'|[^"'<>])*?>|[^<]+/gi;
   for (const token of source.matchAll(tokens)) {
     const [markup, tag] = token;
@@ -165,6 +163,13 @@ export function loadDocument(file) {
     stack.at(-1).append(item);
     if (!unpaired.has(tag) && !markup.endsWith('/>')) stack.push(item);
   }
+}
+
+export function loadDocument(file) {
+  // Only standard HTML elements and attributes used by the page fixtures are modeled here.
+  const source = readFileSync(file, 'utf8').replace(/<!--[\s\S]*?-->|<script\b[\s\S]*?<\/script>/gi, '');
+  const doc = new Element('#document');
+  appendMarkup(doc, source);
   doc.documentElement = doc.querySelector('html');
   doc.body = doc.querySelector('body');
   doc.getElementById = id => doc.querySelector('#' + id);

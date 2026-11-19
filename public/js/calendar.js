@@ -63,7 +63,6 @@ function taskLabel(task) {
   return task.due_time ? `${task.due_time} ${task.title}` : task.title;
 }
 
-// 条身 / 单日 chip / 托盘条目拖动 = 整体平移排期：跨度不变，两端同步移。
 // 只有「本来就没有区间」的（托盘未排期、或缺 plan_date）才把两端一起钉到落点。
 function renderTray(tasks) {
   const unplanned = tasks;
@@ -335,7 +334,7 @@ async function load({ refresh = true } = {}) {
       style: `grid-template-rows:auto ${laneRows.join(' ')} 1fr;min-height:${laneCount || chipRows ? 68 : 74}px`.replace(/\s+/g, ' '),
     });
 
-    // ① 日期格：占满整行高度，是背景、边框与拖拽命中面
+    // ① 日期格：占满整行高度，作为背景和边框
     week.forEach((date, i) => {
       const cls = ['cal-cell'];
       if (!date) {

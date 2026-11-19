@@ -98,7 +98,7 @@ export function apiAuth(req,res,next) {
   trackAuthConnection(req,res,found,()=>Boolean(identity.session(token)));
   next();
 }
-const businessPages = new Set(['/phase2.html', '/users.html', '/cases.html', '/case.html', '/profile.html', '/calendar.html']);
+const businessPages = new Set(['/', '/index.html', '/cases.html', '/case.html', '/calendar.html', '/profile.html', '/users.html']);
 
 export function pageAuth(req,res,next) {
   if(unsafeNoAuthAllowed()) return next();
@@ -107,7 +107,6 @@ export function pageAuth(req,res,next) {
   if(open) return next();
   const session=identity.session(parseCookies(req).anjian_sess);
   if(!session) return res.redirect('/login.html');
-  if(req.path==='/' || req.path==='/index.html') return res.redirect('/phase2.html');
   if(businessPages.has(req.path)) {
     res.set('Cache-Control', 'no-store');
     return next();

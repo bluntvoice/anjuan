@@ -51,6 +51,7 @@ async function page(html, module, role, search = '', override) {
     entries() { return this.fields.map(([name, node]) => [name, node.value])[Symbol.iterator](); }
     [Symbol.iterator]() { return this.entries(); }
   };
+  globalThis.history = { replaceState(_state, _title, url) { this.url = url; } };
   globalThis.location = { pathname: '/' + html, search, hash: '', replace(value) { this.href = value; } };
   globalThis.fetch = async (destination, request = {}) => {
     const url = new URL(destination, 'http://127.0.0.1:18000');
@@ -71,7 +72,8 @@ async function page(html, module, role, search = '', override) {
     };
     else if (route === '/case-dashboard/calendar') {
       const month = url.searchParams.get('month');
-      body = { month, tasks: month === now.slice(0, 7) ? [task] : [], holidays: {}, hearings: [],
+      const span = { ...task, id: 31, title: '合成跨日待办', plan_date: month + '-02', due_on: month + '-04' };
+      body = { month, tasks: month === now.slice(0, 7) ? [task, span] : [], holidays: {}, hearings: [],
         deadlines: month === now.slice(0, 7) ? [deadline] : [],
         unplanned_tasks: [{ ...task, id: 30, title: '合成未排期', due_on: '', plan_date: '' }] };
     } else body = reads[route];
@@ -94,14 +96,16 @@ assert(['all', 'w1', 'w2', 'w3'].includes(scope));
 
 if (scope === 'all' || scope === 'w1') {
   for (const role of ['admin', 'editor', 'viewer']) {
-    const requests = await page('cases.html', 'cases', role, '', entry => entry.method === 'POST' && entry.route === '/cases'
+    const requests = await page('cases.html', 'cases', role, '?q=%E5%90%88%E6%88%90', entry => entry.method === 'POST' && entry.route === '/cases'
       ? { status: 201, body: { id: 10 } } : null);
     assert.deepEqual(paths(requests), ['/auth/me', '/case-options', '/cases']);
+    assert.equal(new URLSearchParams(requests.at(-1).query).get('q'), '合成');
+    assert.equal(history.url, '/cases.html?q=%E5%90%88%E6%88%90');
     assert.equal(id('new-case').hidden, role === 'viewer');
     assert.deepEqual(document.querySelectorAll('.case-card').map(card => card.getAttribute('href')),
       ['/case.html?id=8', '/case.html?id=9']);
     const links = document.querySelectorAll('.topnav .links a').map(node => node.getAttribute('href'));
-    assert(links.includes('/cases.html') && links.includes('/profile.html'));
+    assert.deepEqual(links, ['/', '/cases.html', '/calendar.html', '/profile.html']);
     for (const closed of ['/fees.html', '/contacts.html', '/stats.html', '/share-repairs.html']) assert(!links.includes(closed));
     const hamburger = document.querySelector('.hamburger');
     await hamburger.emit('click');
@@ -135,7 +139,11 @@ if (scope === 'all' || scope === 'w2') {
   for (const role of ['admin', 'editor', 'viewer']) {
     const requests = await page('case.html', 'case', role, '?id=8', entry =>
       entry.method === 'PATCH' && entry.route === '/cases/8'
-        ? { status: 409, body: { error: '记录已更新', code: 'version_conflict' } } : null);
+        ? { status: 409, body: { error: '记录已更新', code: 'version_conflict' } }
+        : entry.method === 'POST' && ['/cases/8/contacts', '/cases/8/facts', '/cases/8/fees', '/cases/8/attachments'].includes(entry.route)
+          ? { status: 201, body: { id: 21 } }
+          : entry.method === 'PUT' && entry.route === '/cases/8/files'
+            ? { status: 200, body: { ok: true } } : null);
     assert.deepEqual(new Set(paths(requests)), new Set(['/auth/me', '/case-options', '/cases/8',
       '/cases/8/facts', '/cases/8/fees', '/cases/8/files']));
     for (const element of document.querySelectorAll('[data-case-write]')) assert.equal(element.hidden, role === 'viewer');
@@ -155,8 +163,45 @@ if (scope === 'all' || scope === 'w2') {
       await edit.emit('submit', { submitter: edit.querySelector('button[type="submit"]') });
       assert.deepEqual(JSON.parse(requests.at(-1).body), { name: '合成冲突草稿', version: 7 });
       assert.equal(edit.elements.name.value, '合成冲突草稿');
-      assert(id('fact-add').listeners.has('click'));
-      assert(id('up-btn').listeners.has('click'));
+      const contact = id('contact-form');
+      contact.elements.name.value = '新增合成联系人';
+      await contact.emit('submit', { submitter: contact.querySelector('button[type="submit"]') });
+      const createdContact = requests.find(request => request.method === 'POST' && request.route === '/cases/8/contacts');
+      assert.equal(JSON.parse(createdContact.body).name, '新增合成联系人');
+
+      const addFact = id('fact-add').emit('click');
+      const factForm = document.querySelector('[role="dialog"] form');
+      factForm.querySelector('textarea').value = '新增合成事实';
+      await factForm.emit('submit');
+      await addFact;
+      await flush();
+      const createdFact = requests.find(request => request.method === 'POST' && request.route === '/cases/8/facts');
+      assert.equal(JSON.parse(createdFact.body).content, '新增合成事实');
+
+      const addFee = id('fee-add').emit('click');
+      const feeForm = document.querySelector('[role="dialog"] form');
+      const [amount, percent] = feeForm.querySelectorAll('input');
+      amount.value = '10.05';
+      percent.value = '50';
+      await feeForm.emit('submit');
+      await addFee;
+      await flush();
+      const createdFee = requests.find(request => request.method === 'POST' && request.route === '/cases/8/fees');
+      assert.deepEqual(JSON.parse(createdFee.body), { agreed_amount: '10.05', payable_percent: '50', status: 'unpaid', note: '' });
+
+      id('up-files').files = [new File(['仅合成'], '材料测试.txt')];
+      await id('up-btn').emit('click');
+      const uploaded = requests.find(request => request.method === 'PUT' && request.route === '/cases/8/files');
+      assert.equal(new URLSearchParams(uploaded.query).get('dir'), '证据整理');
+      assert.equal(uploaded.body.name, '材料测试.txt');
+
+      const attachmentButton = id('file-list').querySelector('button');
+      const registration = attachmentButton.emit('click');
+      const confirm = [...document.querySelectorAll('[role="dialog"] button')].find(button => text(button) === '登记');
+      await confirm.emit('click');
+      await registration;
+      const attached = requests.find(request => request.method === 'POST' && request.route === '/cases/8/attachments');
+      assert.deepEqual(JSON.parse(attached.body), { rel_path: '证据整理/材料.txt' });
     } else {
       assert(!edit.listeners.has('submit') && !id('fact-add').listeners.has('click') && !id('up-btn').listeners.has('click'));
       assert(!document.querySelector('.stepper button'));
@@ -193,8 +238,17 @@ if (scope === 'all' || scope === 'w3') {
     assert.match(text(id('grid')), /合成期限/);
     assert.match(text(id('unplanned-list')), /合成未排期/);
     assert(![...document.querySelectorAll('#grid [draggable]')].some(node => node.getAttribute('draggable') === 'true'));
-    await id('unplanned-list').querySelector('button').emit('click');
-    assert(document.querySelector('[role="dialog"]'));
+    for (const [node, event, label] of [
+      [id('unplanned-list').querySelector('button'), 'click', '合成未排期'],
+      [id('grid').querySelector('.cal-chip.task'), 'click', '合成待办'],
+      [id('grid').querySelector('.task-span'), 'keydown', '合成跨日待办'],
+    ]) {
+      await node.emit(event, { key: 'Enter' });
+      const dialog = document.querySelector('[role="dialog"]');
+      assert(text(dialog).includes(label));
+      assert(!dialog.querySelector('input, textarea, select'));
+      await dialog.querySelector('button').emit('click');
+    }
     await id('next').emit('click');
     await flush();
     assert.match(text(id('cal-load')), /本月无排期/);

@@ -2,12 +2,11 @@
 // 双栏工作台 + 期限跑道（头条巨字 → 紧凑行 → 今日/死线时间轴条）+ 右栏仪表窄栏。
 //
 // DOM 契约（index.html 里的容器 id，改任一侧都要同步另一侧）：
-//   #title #subtitle #tiles #sec-inbox-card(原生 hidden) #inbox-meta #inbox-list
+//   #title #subtitle #tiles
 //   #h-runway>#runway-count #runway-meta #sec-runway
 //   #h-tasks #tasks-meta #sec-tasks
 //   #h-strip #strip-range #sec-strip
 //   #h-hearings #hearings-meta #sec-hearings
-//   #h-fees #fees-meta #sec-fees
 //   #h-gap #sec-gap
 // 卡片标题不再 prepend 图标（CRITIQUE 修复项 3「禁每标题配 icon」）——旧 H 循环已删。
 import { api, el } from './api.js';
@@ -147,8 +146,7 @@ function runwayPanel(items) {
       el('div', { class: 'h-days' }, '剩余'),
       el('div', { class: 'h-item' }, '事项 · 案件'),
       el('div', { class: 'h-trk' }, '跑道（今日 → 死线）'),
-      el('div', { class: 'h-due' }, '到期'),
-      el('div', { class: 'h-key' }, '操作')
+      el('div', { class: 'h-due' }, '到期')
     )
   );
   items.forEach((d, i) => wrap.append(compactRow(d, i + 1)));

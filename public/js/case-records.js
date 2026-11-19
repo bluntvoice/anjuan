@@ -20,12 +20,12 @@ export function mountCaseRecords({ id, canWrite, canAudit, options, reloadCase }
   const empty = text => el('div', { class: 'section-empty' }, text);
   const edit = (label, onclick) => el('button', { class: 'btn small', type: 'button', onclick }, label);
 
-  function fileLinks(relative) {
+  function fileLinks(relative, { label = relative, previewClass = '' } = {}) {
     const href = '/api' + path + '/file?' + new URLSearchParams({ path: relative });
-    return el('span', { class: 'file-actions' },
-      el('a', { class: 'btn small', href, target: '_blank', rel: 'noopener' }, '预览 ' + relative.split('/').at(-1)),
-      el('a', { class: 'btn small', href, download: '' }, '下载')
-    );
+    return [
+      el('a', { class: previewClass, href, target: '_blank', rel: 'noopener' }, label),
+      el('a', { class: 'btn small', href, download: '', 'aria-label': '下载 ' + label }, '下载'),
+    ];
   }
 
   async function editContact(row) {
